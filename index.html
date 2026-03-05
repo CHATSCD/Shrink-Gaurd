@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shrink Shield — Keith's Superstores</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root { --keith-blue: #003087; --keith-red: #C8102E; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; }
+  .tab-btn { transition: all 0.2s; }
+  .tab-btn.active { background: #003087; color: white; border-bottom: 3px solid #C8102E; }
+  .tab-btn:not(.active):hover { background: #e2e8f0; }
+  .badge-green { background:#dcfce7;color:#166534; }
+  .badge-yellow { background:#fef9c3;color:#854d0e; }
+  .badge-red { background:#fee2e2;color:#991b1b; }
+  input[type=number] { -moz-appearance: textfield; }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .flag-row { background: #fff1f2 !important; }
+  .chart-container { position: relative; height: 260px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header style="background:#003087;" class="text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="bg-white rounded px-2 py-1 flex flex-col items-center leading-tight">
+        <span style="color:#003087;font-weight:900;font-size:11px;letter-spacing:1px;">KEITH'S</span>
+        <span style="color:#C8102E;font-weight:900;font-size:9px;letter-spacing:.5px;">SUPERSTORES</span>
+      </div>
+      <div>
+        <div class="text-xl font-black tracking-widest">SHRINK SHIELD</div>
+        <div class="text-xs text-blue-200 tracking-wide">Inventory Loss Prevention System</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <select id="storeSelect" class="text-sm bg-blue-900 text-white border border-blue-700 rounded px-2 py-1">
+        <option value="main">Main St</option>
+        <option value="west">Westside</option>
+        <option value="east">Eastside</option>
+        <option value="downtown">Downtown</option>
+        <option value="north">Northgate</option>
+      </select>
+      <div class="text-right hidden sm:block">
+        <div class="text-xs text-blue-200" id="currentDateTime"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="max-w-7xl mx-auto px-4 pt-4">
+  <div class="flex gap-1 bg-white rounded-t-xl shadow p-1">
+    <button class="tab-btn active flex-1 py-2 px-3 rounded-lg text-sm font-semibold" onclick="showTab('count')">COUNT</button>
+    <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-semibold" onclick="showTab('review')">REVIEW</button>
+    <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-semibold" onclick="showTab('log')">LOG</button>
+    <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-semibold" onclick="showTab('analytics')">ANALYTICS</button>
+    <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-semibold" onclick="showTab('stores')">STORES</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="max-w-7xl mx-auto px-4 pb-8">
+  <div class="bg-white rounded-b-xl shadow-lg p-5">
+
+    <!-- ===================== COUNT TAB ===================== -->
+    <div id="tab-count">
+      <div class="flex flex-wrap gap-3 mb-5 items-end">
+        <div>
+          <label class="text-xs text-gray-500 font-semibold">SHIFT</label>
+          <select id="shiftSelect" class="block border rounded px-2 py-1.5 text-sm mt-1">
+            <option>Morning</option><option>Afternoon</option><option>Evening</option><option>Night</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-gray-500 font-semibold">OUTGOING CLERK</label>
+          <input id="outClerk" type="text" placeholder="Name" class="block border rounded px-2 py-1.5 text-sm mt-1 w-36">
+        </div>
+        <div>
+          <label class="text-xs text-gray-500 font-semibold">INCOMING CLERK</label>
+          <input id="inClerk" type="text" placeholder="Name" class="block border rounded px-2 py-1.5 text-sm mt-1 w-36">
+        </div>
+        <div class="ml-auto flex gap-2">
+          <button onclick="clearCount()" class="px-3 py-1.5 border rounded text-sm text-gray-600 hover:bg-gray-100">Clear</button>
+          <button onclick="submitCount()" style="background:#003087;" class="px-4 py-1.5 rounded text-sm font-semibold text-white hover:opacity-90">Submit Count</button>
+        </div>
+      </div>
+
+      <div class="text-xs text-gray-500 mb-3 bg-blue-50 border border-blue-200 rounded p-3">
+        <strong>How it works:</strong> (1) Outgoing clerk counts items on shelf → enters <em>Begin Count</em>.
+        (2) Enter <em>Receipts Sold</em> from POS receipts. (3) Incoming clerk independently counts → enters <em>End Count</em>.
+        The system verifies: <strong>Begin Count = Receipts Sold + End Count</strong>. Any gap = unaccounted shrinkage.
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-xs text-gray-500 border-b-2" style="border-color:#003087;">
+              <th class="pb-2 pr-3 w-48">PRODUCT</th>
+              <th class="pb-2 px-2 text-center">PRICE</th>
+              <th class="pb-2 px-2 text-center">BEGIN COUNT<br><span class="font-normal text-gray-400">(Outgoing)</span></th>
+              <th class="pb-2 px-2 text-center">RECEIPTS SOLD<br><span class="font-normal text-gray-400">(POS)</span></th>
+              <th class="pb-2 px-2 text-center">END COUNT<br><span class="font-normal text-gray-400">(Incoming)</span></th>
+              <th class="pb-2 px-2 text-center">EXPECTED<br><span class="font-normal text-gray-400">Begin</span></th>
+              <th class="pb-2 px-2 text-center">VARIANCE</th>
+              <th class="pb-2 text-center">STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="countTableBody">
+          </tbody>
+        </table>
+      </div>
+
+      <div id="countSummary" class="mt-4 hidden">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-gray-50 rounded p-3 text-center">
+            <div class="text-xs text-gray-500">Total Variance Units</div>
+            <div id="sumVariance" class="text-2xl font-bold text-red-600 mt-1">0</div>
+          </div>
+          <div class="bg-gray-50 rounded p-3 text-center">
+            <div class="text-xs text-gray-500">Estimated $ Loss</div>
+            <div id="sumDollar" class="text-2xl font-bold text-red-600 mt-1">$0.00</div>
+          </div>
+          <div class="bg-gray-50 rounded p-3 text-center">
+            <div class="text-xs text-gray-500">Flagged Items</div>
+            <div id="sumFlags" class="text-2xl font-bold text-orange-500 mt-1">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== REVIEW TAB ===================== -->
+    <div id="tab-review" class="hidden">
+      <h2 class="font-bold text-gray-700 mb-4">Current Count Review</h2>
+      <div id="reviewContent">
+        <p class="text-gray-400 italic text-sm">No count submitted yet. Go to the COUNT tab to enter a count.</p>
+      </div>
+    </div>
+
+    <!-- ===================== LOG TAB ===================== -->
+    <div id="tab-log" class="hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-bold text-gray-700">Shift Count History</h2>
+        <div class="flex gap-2">
+          <select id="logStoreFilter" class="border rounded px-2 py-1 text-sm" onchange="renderLog()">
+            <option value="">All Stores</option>
+            <option value="main">Main St</option>
+            <option value="west">Westside</option>
+            <option value="east">Eastside</option>
+            <option value="downtown">Downtown</option>
+            <option value="north">Northgate</option>
+          </select>
+        </div>
+      </div>
+      <div id="logContent"></div>
+    </div>
+
+    <!-- ===================== ANALYTICS TAB ===================== -->
+    <div id="tab-analytics" class="hidden">
+      <h2 class="font-bold text-gray-700 mb-4">Shrinkage Analytics</h2>
+
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="analyticsCards"></div>
+
+      <!-- Charts -->
+      <div class="grid md:grid-cols-2 gap-5 mb-6">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="text-sm font-semibold text-gray-600 mb-3">Variance by Product (All Shifts)</div>
+          <div class="chart-container"><canvas id="chartVarianceByProduct"></canvas></div>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="text-sm font-semibold text-gray-600 mb-3">Shrinkage Trend Over Time</div>
+          <div class="chart-container"><canvas id="chartTrend"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Product breakdown -->
+      <div>
+        <div class="text-sm font-semibold text-gray-600 mb-2">Product Shrinkage Breakdown</div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-xs text-gray-500 text-left border-b">
+                <th class="pb-2 pr-4">Product</th>
+                <th class="pb-2 px-3 text-center">Total Variance</th>
+                <th class="pb-2 px-3 text-center">Est. $ Loss</th>
+                <th class="pb-2 px-3 text-center">Flagged Shifts</th>
+                <th class="pb-2 text-center">Alert Level</th>
+              </tr>
+            </thead>
+            <tbody id="analyticsProductTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== STORES TAB ===================== -->
+    <div id="tab-stores" class="hidden">
+      <h2 class="font-bold text-gray-700 mb-4">Multi-Store Dashboard</h2>
+      <div id="storeGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer style="background:#003087;" class="text-center text-white text-xs py-3 mt-4">
+  <span class="opacity-70">Keith's Superstores — </span>
+  <em>"The Fastest And Friendliest"</em>
+  <span class="opacity-70"> — Shrink Shield v2.0</span>
+</footer>
+
+<script>
+// ============================================================
+// DATA & CONFIG
+// ============================================================
+const PRODUCTS = [
+  { id: 'viva',    name: 'Viva Zen Ultimate',        price: 14.99 },
+  { id: 'redtop',  name: 'Red Top',                  price: 12.99 },
+  { id: 'whtop',   name: 'White Top',                price: 12.99 },
+  { id: 'krelax',  name: 'Kryptic Kratom Relaxation',price: 11.99 },
+  { id: 'kthin',   name: 'Kryptic Kratom Thin',      price: 11.99 },
+  { id: 'extract', name: 'Kratom Extract',            price: 13.99 },
+  { id: 'kshot',   name: 'K Shot',                   price: 10.99 },
+  { id: 'hurry',   name: 'Hurry Relax Yellow Cap',   price: 9.99  },
+  { id: 'ff',      name: 'Feel Free',                price: 15.99 },
+];
+
+const STORES = [
+  { id: 'main',     name: 'Main St'   },
+  { id: 'west',     name: 'Westside'  },
+  { id: 'east',     name: 'Eastside'  },
+  { id: 'downtown', name: 'Downtown'  },
+  { id: 'north',    name: 'Northgate' },
+];
+
+// ============================================================
+// STATE (localStorage persistence)
+// ============================================================
+let currentCount = {}; // live count being entered
+let shiftLog = [];     // all submitted counts
+
+function saveState() {
+  localStorage.setItem('shrinkShield_log', JSON.stringify(shiftLog));
+}
+function loadState() {
+  const stored = localStorage.getItem('shrinkShield_log');
+  if (stored) shiftLog = JSON.parse(stored);
+}
+
+// ============================================================
+// DEMO DATA
+// ============================================================
+function seedDemoData() {
+  const shifts = ['Morning','Afternoon','Evening','Night'];
+  const clerks = ['Maria G','Tom B','Sarah K','James L','Nina R','Carlos M'];
+  const dates = ['2026-02-20','2026-02-21','2026-02-22','2026-02-23','2026-02-24','2026-02-25','2026-03-01','2026-03-02','2026-03-03','2026-03-04'];
+
+  // Deliberate shrinkage patterns for demo
+  const shrinkageMap = {
+    main:     { ff: 2, kshot: 1, viva: 0 },
+    west:     { ff: 3, redtop: 2, hurry: 1 },
+    east:     { ff: 0, kshot: 0 },
+    downtown: { viva: 2, ff: 1, extract: 1 },
+    north:    { redtop: 1 },
+  };
+
+  STORES.forEach(store => {
+    dates.forEach((date, di) => {
+      const shift = shifts[di % shifts.length];
+      const items = {};
+      PRODUCTS.forEach(p => {
+        const begin = Math.floor(Math.random() * 15) + 5;
+        const sold = Math.floor(Math.random() * 4);
+        const shrink = (shrinkageMap[store.id]?.[p.id] || 0) * (di % 3 === 0 ? 1 : 0);
+        const endCount = Math.max(0, begin - sold - shrink);
+        items[p.id] = { begin, sold, end: endCount };
+      });
+      shiftLog.push({
+        id: `${store.id}_${date}_${shift}`.replace(/\s/g,''),
+        store: store.id,
+        storeName: store.name,
+        date,
+        shift,
+        outClerk: clerks[Math.floor(Math.random()*clerks.length)],
+        inClerk:  clerks[Math.floor(Math.random()*clerks.length)],
+        items,
+        ts: new Date(`${date}T08:00:00`).getTime() + di * 3600000,
+      });
+    });
+  });
+  saveState();
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(name) {
+  ['count','review','log','analytics','stores'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.add('hidden');
+    document.querySelectorAll('.tab-btn')[['count','review','log','analytics','stores'].indexOf(t)].classList.remove('active');
+  });
+  document.getElementById(`tab-${name}`).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn')[['count','review','log','analytics','stores'].indexOf(name)].classList.add('active');
+
+  if (name === 'analytics') renderAnalytics();
+  if (name === 'log') renderLog();
+  if (name === 'stores') renderStores();
+  if (name === 'review') renderReview();
+}
+
+// ============================================================
+// COUNT TAB
+// ============================================================
+function renderCountTable() {
+  const tbody = document.getElementById('countTableBody');
+  tbody.innerHTML = '';
+  PRODUCTS.forEach(p => {
+    const row = document.createElement('tr');
+    row.id = `row-${p.id}`;
+    row.className = 'border-b hover:bg-gray-50';
+    row.innerHTML = `
+      <td class="py-2 pr-3 font-medium text-gray-800">${p.name}</td>
+      <td class="py-2 px-2 text-center text-gray-500">$${p.price.toFixed(2)}</td>
+      <td class="py-2 px-2">
+        <input type="number" min="0" id="begin-${p.id}" placeholder="0"
+          class="w-16 border rounded px-2 py-1 text-center text-sm focus:outline-none focus:border-blue-500"
+          oninput="calcRow('${p.id}')">
+      </td>
+      <td class="py-2 px-2">
+        <input type="number" min="0" id="sold-${p.id}" placeholder="0"
+          class="w-16 border rounded px-2 py-1 text-center text-sm focus:outline-none focus:border-blue-500"
+          oninput="calcRow('${p.id}')">
+      </td>
+      <td class="py-2 px-2">
+        <input type="number" min="0" id="end-${p.id}" placeholder="0"
+          class="w-16 border rounded px-2 py-1 text-center text-sm focus:outline-none focus:border-blue-500"
+          oninput="calcRow('${p.id}')">
+      </td>
+      <td class="py-2 px-2 text-center font-mono text-sm" id="expected-${p.id}">—</td>
+      <td class="py-2 px-2 text-center font-bold text-sm" id="variance-${p.id}">—</td>
+      <td class="py-2 text-center" id="status-${p.id}">—</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function calcRow(pid) {
+  const begin = parseInt(document.getElementById(`begin-${pid}`)?.value) || 0;
+  const sold  = parseInt(document.getElementById(`sold-${pid}`)?.value)  || 0;
+  const end   = parseInt(document.getElementById(`end-${pid}`)?.value)   || 0;
+
+  const expected = sold + end;
+  const variance = begin - expected; // positive = shrinkage
+
+  const expEl = document.getElementById(`expected-${pid}`);
+  const varEl = document.getElementById(`variance-${pid}`);
+  const stEl  = document.getElementById(`status-${pid}`);
+  const row   = document.getElementById(`row-${pid}`);
+
+  const hasData = document.getElementById(`begin-${pid}`).value !== '';
+
+  if (!hasData) {
+    expEl.textContent = '—'; varEl.textContent = '—'; stEl.textContent = '—';
+    row.classList.remove('flag-row');
+    return;
+  }
+
+  expEl.textContent = expected;
+
+  if (variance > 0) {
+    varEl.textContent = `-${variance}`;
+    varEl.className = 'py-2 px-2 text-center font-bold text-sm text-red-600';
+    stEl.innerHTML = `<span class="badge-red text-xs px-2 py-0.5 rounded-full font-semibold">FLAGGED</span>`;
+    row.classList.add('flag-row');
+  } else if (variance < 0) {
+    varEl.textContent = `+${Math.abs(variance)}`;
+    varEl.className = 'py-2 px-2 text-center font-bold text-sm text-yellow-600';
+    stEl.innerHTML = `<span class="badge-yellow text-xs px-2 py-0.5 rounded-full font-semibold">OVER</span>`;
+    row.classList.remove('flag-row');
+  } else {
+    varEl.textContent = '0';
+    varEl.className = 'py-2 px-2 text-center font-bold text-sm text-green-600';
+    stEl.innerHTML = `<span class="badge-green text-xs px-2 py-0.5 rounded-full font-semibold">OK</span>`;
+    row.classList.remove('flag-row');
+  }
+
+  updateCountSummary();
+}
+
+function updateCountSummary() {
+  let totalVariance = 0, totalDollar = 0, flags = 0;
+  PRODUCTS.forEach(p => {
+    const begin = parseInt(document.getElementById(`begin-${p.id}`)?.value) || 0;
+    const sold  = parseInt(document.getElementById(`sold-${p.id}`)?.value)  || 0;
+    const end   = parseInt(document.getElementById(`end-${p.id}`)?.value)   || 0;
+    const hasData = document.getElementById(`begin-${p.id}`).value !== '';
+    if (!hasData) return;
+    const variance = begin - (sold + end);
+    if (variance > 0) { totalVariance += variance; totalDollar += variance * p.price; flags++; }
+  });
+  document.getElementById('countSummary').classList.remove('hidden');
+  document.getElementById('sumVariance').textContent = totalVariance;
+  document.getElementById('sumDollar').textContent = `$${totalDollar.toFixed(2)}`;
+  document.getElementById('sumFlags').textContent = flags;
+}
+
+function clearCount() {
+  PRODUCTS.forEach(p => {
+    ['begin','sold','end'].forEach(f => { document.getElementById(`${f}-${p.id}`).value = ''; });
+    calcRow(p.id);
+  });
+  document.getElementById('countSummary').classList.add('hidden');
+}
+
+function submitCount() {
+  const outClerk = document.getElementById('outClerk').value.trim();
+  const inClerk  = document.getElementById('inClerk').value.trim();
+  const shift    = document.getElementById('shiftSelect').value;
+  const storeId  = document.getElementById('storeSelect').value;
+  const store    = STORES.find(s => s.id === storeId);
+
+  let hasAny = false;
+  const items = {};
+  PRODUCTS.forEach(p => {
+    const bv = document.getElementById(`begin-${p.id}`).value;
+    if (bv === '') return;
+    hasAny = true;
+    items[p.id] = {
+      begin: parseInt(bv) || 0,
+      sold:  parseInt(document.getElementById(`sold-${p.id}`).value)  || 0,
+      end:   parseInt(document.getElementById(`end-${p.id}`).value)   || 0,
+    };
+  });
+
+  if (!hasAny) { alert('Please enter at least one product count.'); return; }
+  if (!outClerk || !inClerk) { alert('Please enter both clerk names.'); return; }
+
+  const now = new Date();
+  const entry = {
+    id: `${storeId}_${Date.now()}`,
+    store: storeId,
+    storeName: store.name,
+    date: now.toISOString().split('T')[0],
+    shift,
+    outClerk,
+    inClerk,
+    items,
+    ts: now.getTime(),
+  };
+
+  shiftLog.unshift(entry);
+  saveState();
+  clearCount();
+  alert(`Count submitted for ${store.name} — ${shift} shift!\nCheck the REVIEW tab for results.`);
+  showTab('review');
+}
+
+// ============================================================
+// REVIEW TAB
+// ============================================================
+function renderReview() {
+  const el = document.getElementById('reviewContent');
+  const storeId = document.getElementById('storeSelect').value;
+  const recent = shiftLog.filter(e => e.store === storeId)[0];
+
+  if (!recent) {
+    el.innerHTML = `<p class="text-gray-400 italic text-sm">No count submitted yet for this store.</p>`;
+    return;
+  }
+
+  let totalVar = 0, totalDollar = 0, flags = 0;
+  let rows = '';
+  PRODUCTS.forEach(p => {
+    const d = recent.items[p.id];
+    if (!d) return;
+    const expected = d.sold + d.end;
+    const variance = d.begin - expected;
+    if (variance > 0) { totalVar += variance; totalDollar += variance * p.price; flags++; }
+    const varClass = variance > 0 ? 'text-red-600' : variance < 0 ? 'text-yellow-600' : 'text-green-600';
+    const badge = variance > 0
+      ? `<span class="badge-red text-xs px-2 py-0.5 rounded-full font-semibold">FLAGGED</span>`
+      : variance < 0
+        ? `<span class="badge-yellow text-xs px-2 py-0.5 rounded-full font-semibold">OVER</span>`
+        : `<span class="badge-green text-xs px-2 py-0.5 rounded-full font-semibold">OK</span>`;
+    const rowClass = variance > 0 ? 'flag-row' : '';
+    rows += `<tr class="border-b ${rowClass}">
+      <td class="py-2 pr-3 font-medium">${p.name}</td>
+      <td class="py-2 px-3 text-center">${d.begin}</td>
+      <td class="py-2 px-3 text-center">${d.sold}</td>
+      <td class="py-2 px-3 text-center">${d.end}</td>
+      <td class="py-2 px-3 text-center">${expected}</td>
+      <td class="py-2 px-3 text-center font-bold ${varClass}">${variance > 0 ? '-'+variance : variance < 0 ? '+'+Math.abs(variance) : '0'}</td>
+      <td class="py-2 text-center">${badge}</td>
+    </tr>`;
+  });
+
+  el.innerHTML = `
+    <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4 bg-gray-50 rounded p-3">
+      <span><strong>Store:</strong> ${recent.storeName}</span>
+      <span><strong>Date:</strong> ${recent.date}</span>
+      <span><strong>Shift:</strong> ${recent.shift}</span>
+      <span><strong>Out:</strong> ${recent.outClerk}</span>
+      <span><strong>In:</strong> ${recent.inClerk}</span>
+    </div>
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="bg-gray-50 rounded p-3 text-center">
+        <div class="text-xs text-gray-500">Total Variance</div>
+        <div class="text-xl font-bold ${totalVar > 0 ? 'text-red-600' : 'text-green-600'}">${totalVar}</div>
+      </div>
+      <div class="bg-gray-50 rounded p-3 text-center">
+        <div class="text-xs text-gray-500">Est. $ Loss</div>
+        <div class="text-xl font-bold ${totalDollar > 0 ? 'text-red-600' : 'text-green-600'}">$${totalDollar.toFixed(2)}</div>
+      </div>
+      <div class="bg-gray-50 rounded p-3 text-center">
+        <div class="text-xs text-gray-500">Flagged Items</div>
+        <div class="text-xl font-bold ${flags > 0 ? 'text-orange-500' : 'text-green-600'}">${flags}</div>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-xs text-gray-500 text-left border-b-2" style="border-color:#003087;">
+          <th class="pb-2 pr-3">Product</th>
+          <th class="pb-2 px-3 text-center">Begin</th>
+          <th class="pb-2 px-3 text-center">Sold</th>
+          <th class="pb-2 px-3 text-center">End</th>
+          <th class="pb-2 px-3 text-center">Expected Begin</th>
+          <th class="pb-2 px-3 text-center">Variance</th>
+          <th class="pb-2 text-center">Status</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ============================================================
+// LOG TAB
+// ============================================================
+function renderLog() {
+  const filter = document.getElementById('logStoreFilter').value;
+  const entries = filter ? shiftLog.filter(e => e.store === filter) : shiftLog;
+  const el = document.getElementById('logContent');
+
+  if (!entries.length) {
+    el.innerHTML = `<p class="text-gray-400 italic text-sm">No shift logs found.</p>`;
+    return;
+  }
+
+  const sorted = [...entries].sort((a,b) => b.ts - a.ts);
+  el.innerHTML = sorted.slice(0, 40).map(entry => {
+    let flags = 0, totalDollar = 0;
+    const flaggedProducts = [];
+    PRODUCTS.forEach(p => {
+      const d = entry.items[p.id];
+      if (!d) return;
+      const v = d.begin - (d.sold + d.end);
+      if (v > 0) { flags++; totalDollar += v * p.price; flaggedProducts.push(`${p.name} (−${v})`); }
+    });
+    const statusBadge = flags > 0
+      ? `<span class="badge-red text-xs px-2 py-0.5 rounded-full">${flags} FLAG${flags>1?'S':''}</span>`
+      : `<span class="badge-green text-xs px-2 py-0.5 rounded-full">CLEAN</span>`;
+
+    return `<div class="border rounded-lg p-4 mb-3 ${flags > 0 ? 'border-red-200 bg-red-50' : 'border-gray-200'}">
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <div class="font-semibold text-gray-800">${entry.storeName} — ${entry.shift} Shift</div>
+          <div class="text-xs text-gray-500 mt-0.5">${entry.date} &nbsp;|&nbsp; Out: ${entry.outClerk} &nbsp;|&nbsp; In: ${entry.inClerk}</div>
+        </div>
+        <div class="flex items-center gap-2">
+          ${statusBadge}
+          ${flags > 0 ? `<span class="text-xs text-red-600 font-bold">$${totalDollar.toFixed(2)} loss</span>` : ''}
+        </div>
+      </div>
+      ${flaggedProducts.length ? `<div class="text-xs text-red-700 mt-2 bg-red-100 rounded p-2">Flagged: ${flaggedProducts.join(' · ')}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// ANALYTICS TAB
+// ============================================================
+let chartVarProduct = null, chartTrend = null;
+
+function renderAnalytics() {
+  // Summary cards
+  let totalVar = 0, totalDollar = 0, flaggedShifts = 0, totalShifts = shiftLog.length;
+  shiftLog.forEach(entry => {
+    let shiftFlagged = false;
+    PRODUCTS.forEach(p => {
+      const d = entry.items[p.id]; if (!d) return;
+      const v = d.begin - (d.sold + d.end);
+      if (v > 0) { totalVar += v; totalDollar += v * p.price; shiftFlagged = true; }
+    });
+    if (shiftFlagged) flaggedShifts++;
+  });
+
+  document.getElementById('analyticsCards').innerHTML = `
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div class="text-xs text-red-500 font-semibold">TOTAL VARIANCE UNITS</div>
+      <div class="text-3xl font-black text-red-600 mt-1">${totalVar}</div>
+    </div>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div class="text-xs text-red-500 font-semibold">EST. TOTAL $ LOSS</div>
+      <div class="text-3xl font-black text-red-600 mt-1">$${totalDollar.toFixed(0)}</div>
+    </div>
+    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+      <div class="text-xs text-orange-500 font-semibold">FLAGGED SHIFTS</div>
+      <div class="text-3xl font-black text-orange-500 mt-1">${flaggedShifts}</div>
+    </div>
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div class="text-xs text-blue-500 font-semibold">TOTAL SHIFTS LOGGED</div>
+      <div class="text-3xl font-black text-blue-700 mt-1">${totalShifts}</div>
+    </div>`;
+
+  // Chart 1: Variance by Product
+  const varByProduct = {};
+  PRODUCTS.forEach(p => { varByProduct[p.id] = 0; });
+  shiftLog.forEach(entry => {
+    PRODUCTS.forEach(p => {
+      const d = entry.items[p.id]; if (!d) return;
+      const v = d.begin - (d.sold + d.end);
+      if (v > 0) varByProduct[p.id] += v;
+    });
+  });
+
+  const prodLabels = PRODUCTS.map(p => p.name.length > 16 ? p.name.substring(0,16)+'…' : p.name);
+  const prodData   = PRODUCTS.map(p => varByProduct[p.id]);
+
+  if (chartVarProduct) chartVarProduct.destroy();
+  chartVarProduct = new Chart(document.getElementById('chartVarianceByProduct'), {
+    type: 'bar',
+    data: {
+      labels: prodLabels,
+      datasets: [{ label: 'Variance Units', data: prodData,
+        backgroundColor: prodData.map(v => v > 3 ? '#dc2626' : v > 1 ? '#f97316' : '#16a34a'),
+        borderRadius: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { ticks: { font: { size: 10 } } }, y: { beginAtZero: true } } }
+  });
+
+  // Chart 2: Trend over time (by date)
+  const dateMap = {};
+  const sorted = [...shiftLog].sort((a,b) => a.ts - b.ts);
+  sorted.forEach(entry => {
+    if (!dateMap[entry.date]) dateMap[entry.date] = 0;
+    PRODUCTS.forEach(p => {
+      const d = entry.items[p.id]; if (!d) return;
+      const v = d.begin - (d.sold + d.end);
+      if (v > 0) dateMap[entry.date] += v;
+    });
+  });
+  const trendDates = Object.keys(dateMap).slice(-14);
+  const trendData  = trendDates.map(d => dateMap[d]);
+
+  if (chartTrend) chartTrend.destroy();
+  chartTrend = new Chart(document.getElementById('chartTrend'), {
+    type: 'line',
+    data: {
+      labels: trendDates,
+      datasets: [{ label: 'Daily Variance', data: trendData,
+        borderColor: '#003087', backgroundColor: 'rgba(0,48,135,0.1)',
+        fill: true, tension: 0.3, pointRadius: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      scales: { x: { ticks: { font: { size: 10 } } }, y: { beginAtZero: true } } }
+  });
+
+  // Product breakdown table
+  const tbody = document.getElementById('analyticsProductTable');
+  tbody.innerHTML = PRODUCTS.map(p => {
+    const tv = varByProduct[p.id];
+    const dl = (tv * p.price).toFixed(2);
+    let fs = 0;
+    shiftLog.forEach(e => {
+      const d = e.items[p.id]; if (!d) return;
+      if (d.begin - (d.sold + d.end) > 0) fs++;
+    });
+    const level = tv >= 6 ? 'HIGH' : tv >= 2 ? 'MEDIUM' : 'LOW';
+    const badge = level === 'HIGH'
+      ? `<span class="badge-red text-xs px-2 py-0.5 rounded-full">${level}</span>`
+      : level === 'MEDIUM'
+        ? `<span class="badge-yellow text-xs px-2 py-0.5 rounded-full">${level}</span>`
+        : `<span class="badge-green text-xs px-2 py-0.5 rounded-full">${level}</span>`;
+    return `<tr class="border-b hover:bg-gray-50">
+      <td class="py-2 pr-4 font-medium">${p.name}</td>
+      <td class="py-2 px-3 text-center font-bold ${tv > 0 ? 'text-red-600' : 'text-green-600'}">${tv}</td>
+      <td class="py-2 px-3 text-center text-red-600">$${dl}</td>
+      <td class="py-2 px-3 text-center">${fs}</td>
+      <td class="py-2 text-center">${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// STORES TAB
+// ============================================================
+function renderStores() {
+  const grid = document.getElementById('storeGrid');
+  grid.innerHTML = STORES.map(store => {
+    const entries = shiftLog.filter(e => e.store === store.id);
+    let totalVar = 0, totalDollar = 0, flaggedShifts = 0;
+    entries.forEach(entry => {
+      let f = false;
+      PRODUCTS.forEach(p => {
+        const d = entry.items[p.id]; if (!d) return;
+        const v = d.begin - (d.sold + d.end);
+        if (v > 0) { totalVar += v; totalDollar += v * p.price; f = true; }
+      });
+      if (f) flaggedShifts++;
+    });
+    const lastEntry = [...entries].sort((a,b) => b.ts - a.ts)[0];
+    const lastDate  = lastEntry ? lastEntry.date : 'No data';
+
+    const alertLevel = totalVar >= 10 ? 'red' : totalVar >= 4 ? 'yellow' : 'green';
+    const borderClass = alertLevel === 'red' ? 'border-red-400' : alertLevel === 'yellow' ? 'border-yellow-400' : 'border-green-400';
+    const badgeClass  = alertLevel === 'red' ? 'badge-red' : alertLevel === 'yellow' ? 'badge-yellow' : 'badge-green';
+    const badgeText   = alertLevel === 'red' ? 'ALERT' : alertLevel === 'yellow' ? 'WATCH' : 'CLEAN';
+
+    return `<div class="border-2 ${borderClass} rounded-xl p-5 bg-white hover:shadow-md transition-shadow">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <div class="font-bold text-gray-800 text-lg">${store.name}</div>
+          <div class="text-xs text-gray-400">Last count: ${lastDate}</div>
+        </div>
+        <span class="${badgeClass} text-xs px-2 py-1 rounded-full font-bold">${badgeText}</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="bg-gray-50 rounded p-2">
+          <div class="text-xs text-gray-400">Shifts</div>
+          <div class="font-bold text-gray-700">${entries.length}</div>
+        </div>
+        <div class="bg-gray-50 rounded p-2">
+          <div class="text-xs text-gray-400">Flags</div>
+          <div class="font-bold ${flaggedShifts > 0 ? 'text-orange-500' : 'text-green-600'}">${flaggedShifts}</div>
+        </div>
+        <div class="bg-gray-50 rounded p-2">
+          <div class="text-xs text-gray-400">$ Loss</div>
+          <div class="font-bold ${totalDollar > 0 ? 'text-red-600' : 'text-green-600'}">$${totalDollar.toFixed(0)}</div>
+        </div>
+      </div>
+      ${totalVar > 0 ? `<div class="mt-3 text-xs text-center text-red-600 font-semibold">${totalVar} units unaccounted across all shifts</div>` : `<div class="mt-3 text-xs text-center text-green-600 font-semibold">No shrinkage detected</div>`}
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function updateClock() {
+  const now = new Date();
+  document.getElementById('currentDateTime').textContent =
+    now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }) +
+    ' · ' + now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadState();
+if (shiftLog.length === 0) seedDemoData();
+renderCountTable();
+updateClock();
+setInterval(updateClock, 30000);
+</script>
+</body>
+</html>
