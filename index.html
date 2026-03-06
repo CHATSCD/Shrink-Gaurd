@@ -196,8 +196,8 @@
 
     <!-- Sub-tabs -->
     <div class="flex gap-4 border-b mb-4">
-      <button class="sub-btn active pb-2 text-sm" onclick="showCountSub('kratom')">KRATOM (9 items)</button>
-      <button class="sub-btn pb-2 text-sm text-gray-500" onclick="showCountSub('lottery')">SCRATCH-OFFS (37 games)</button>
+      <button class="sub-btn active pb-2 text-sm" id="countTabKratom" onclick="showCountSub('kratom')">KRATOM</button>
+      <button class="sub-btn pb-2 text-sm text-gray-500" id="countTabLottery" onclick="showCountSub('lottery')">SCRATCH-OFFS</button>
     </div>
 
     <!-- KRATOM sub-table -->
@@ -345,6 +345,7 @@
     <div class="flex gap-4 border-b mb-5">
       <button class="sub-btn active pb-2 text-sm" id="adTabU" onclick="showAdSub('users')">USERS</button>
       <button class="sub-btn pb-2 text-sm text-gray-500" id="adTabD" onclick="showAdSub('districts')">DISTRICTS</button>
+      <button class="sub-btn pb-2 text-sm text-gray-500" id="adTabI" onclick="showAdSub('items')">ITEMS</button>
     </div>
 
     <!-- USERS sub -->
@@ -426,6 +427,67 @@
       </div>
       <div id="districtsGrid" class="grid md:grid-cols-2 gap-3"></div>
     </div>
+
+    <!-- ITEMS sub -->
+    <div id="ad-items" class="hidden">
+      <!-- Add/Edit form -->
+      <div id="itemForm" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+        <div class="font-bold text-sm text-gray-700 mb-3" id="itemFormTitle">Add Item</div>
+        <input type="hidden" id="ifCategory">
+        <input type="hidden" id="ifId">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+          <div class="md:col-span-2"><label class="lbl">ITEM NAME</label><input id="ifName" class="inp w-full" placeholder="e.g. Viva Zen Ultimate"></div>
+          <div><label class="lbl">PRICE ($)</label><input id="ifPrice" type="number" step="0.01" min="0" class="inp w-full" placeholder="0.00"></div>
+        </div>
+        <div id="ifError" class="hidden text-red-600 text-xs mb-2"></div>
+        <div class="flex gap-2">
+          <button onclick="saveItem()" style="background:#003087;" class="px-4 py-1.5 rounded text-xs text-white font-bold">Save</button>
+          <button onclick="hideItemForm()" class="px-4 py-1.5 border rounded text-xs text-gray-600">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Kratom section -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold text-gray-700">Kratom Items</h3>
+          <button onclick="showItemForm('kratom')" style="background:#003087;" class="px-3 py-1.5 rounded text-xs text-white font-bold">+ Add Item</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead><tr class="text-xs text-gray-500 text-left">
+              <th class="pb-2 pr-4">Name</th>
+              <th class="pb-2 pr-4">Price</th>
+              <th class="pb-2">Actions</th>
+            </tr></thead>
+            <tbody id="itemsKratomBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Scratch-offs section -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold text-gray-700">Scratch-Off Games</h3>
+          <button onclick="showItemForm('scratchers')" style="background:#003087;" class="px-3 py-1.5 rounded text-xs text-white font-bold">+ Add Game</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead><tr class="text-xs text-gray-500 text-left">
+              <th class="pb-2 pr-4">Name</th>
+              <th class="pb-2 pr-4">Price</th>
+              <th class="pb-2">Actions</th>
+            </tr></thead>
+            <tbody id="itemsScratchersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Reset to defaults -->
+      <div class="mt-6 pt-4 border-t">
+        <button onclick="resetItemsToDefaults()" class="px-4 py-1.5 border border-red-300 text-red-600 rounded text-xs hover:bg-red-50">Reset All Items to Defaults</button>
+      </div>
+    </div>
+
   </div>
 
   </div><!-- /card -->
@@ -453,7 +515,7 @@
 // DATA DEFINITIONS
 // ═══════════════════════════════════════════════════
 
-const KRATOM = [
+const KRATOM_DEFAULTS = [
   {id:'k1', name:'Viva Zen Ultimate',          price:14.99},
   {id:'k2', name:'Viva Zen Red Top',           price:12.99},
   {id:'k3', name:'Viva Zen White Top',         price:12.99},
@@ -464,8 +526,9 @@ const KRATOM = [
   {id:'k8', name:'Kratom Yellow Cap',          price: 9.99},
   {id:'k9', name:'Feel Free',                  price:15.99},
 ];
+let KRATOM = JSON.parse(localStorage.getItem('ss_kratom_v1') || 'null') || KRATOM_DEFAULTS.map(x=>({...x}));
 
-const SCRATCHERS = [
+const SCRATCHERS_DEFAULTS = [
   {id:'s01', name:'Cash on the Spot',     price:1 },
   {id:'s02', name:'$1 Lottery Ticket',    price:1 },
   {id:'s03', name:'Piggy Bank Buck',      price:1 },
@@ -504,6 +567,7 @@ const SCRATCHERS = [
   {id:'s36', name:'200X Cash Blitz',     price:20},
   {id:'s37', name:'500,000 Extreme',     price:20},
 ];
+let SCRATCHERS = JSON.parse(localStorage.getItem('ss_scratchers_v1') || 'null') || SCRATCHERS_DEFAULTS.map(x=>({...x}));
 
 const STORES = [
   // ── Hattiesburg Area ──
@@ -642,6 +706,11 @@ function showCountSub(type){
 // BUILD COUNT TABLES
 // ═══════════════════════════════════════════════════
 function buildCountTables(){
+  // Update sub-tab labels with live counts
+  const ktBtn = document.getElementById('countTabKratom');
+  const ltBtn = document.getElementById('countTabLottery');
+  if(ktBtn) ktBtn.textContent = `KRATOM (${KRATOM.length} items)`;
+  if(ltBtn) ltBtn.textContent = `SCRATCH-OFFS (${SCRATCHERS.length} games)`;
   // Kratom
   const kb=document.getElementById('kratomBody');
   kb.innerHTML='';
@@ -1364,14 +1433,118 @@ const _origShowTab=showTab;
 // ADMIN PANEL
 // ═══════════════════════════════════════════════════
 function showAdSub(type){
-  document.getElementById('ad-users').classList.toggle('hidden',type!=='users');
-  document.getElementById('ad-districts').classList.toggle('hidden',type!=='districts');
+  ['users','districts','items'].forEach(t=>{
+    document.getElementById('ad-'+t).classList.toggle('hidden',type!==t);
+  });
   document.getElementById('adTabU').classList.toggle('active',type==='users');
   document.getElementById('adTabD').classList.toggle('active',type==='districts');
+  document.getElementById('adTabI').classList.toggle('active',type==='items');
   document.getElementById('adTabU').classList.toggle('text-gray-500',type!=='users');
   document.getElementById('adTabD').classList.toggle('text-gray-500',type!=='districts');
+  document.getElementById('adTabI').classList.toggle('text-gray-500',type!=='items');
   if(type==='users') renderUsersTable();
   if(type==='districts') renderDistrictsGrid();
+  if(type==='items') renderItemsTables();
+}
+
+// ═══════════════════════════════════════════════════
+// ITEMS MANAGEMENT
+// ═══════════════════════════════════════════════════
+function saveItems(){
+  localStorage.setItem('ss_kratom_v1', JSON.stringify(KRATOM));
+  localStorage.setItem('ss_scratchers_v1', JSON.stringify(SCRATCHERS));
+}
+
+function renderItemsTables(){
+  renderItemsSection('kratom', KRATOM, 'itemsKratomBody');
+  renderItemsSection('scratchers', SCRATCHERS, 'itemsScratchersBody');
+}
+
+function renderItemsSection(cat, list, bodyId){
+  const tb = document.getElementById(bodyId);
+  tb.innerHTML = '';
+  list.forEach(item=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="py-2 pr-4 text-gray-800">${item.name}</td>
+      <td class="py-2 pr-4 text-gray-600">$${item.price.toFixed(2)}</td>
+      <td class="py-2 flex gap-2">
+        <button onclick="showItemForm('${cat}','${item.id}')"
+          class="text-xs px-2 py-1 border rounded text-blue-700 hover:bg-blue-50">Edit</button>
+        <button onclick="deleteItem('${cat}','${item.id}')"
+          class="text-xs px-2 py-1 border rounded text-red-600 hover:bg-red-50">Delete</button>
+      </td>`;
+    tb.appendChild(tr);
+  });
+}
+
+let _editItemCat = null, _editItemId = null;
+function showItemForm(cat, id=null){
+  _editItemCat = cat;
+  _editItemId = id;
+  document.getElementById('ifCategory').value = cat;
+  document.getElementById('ifId').value = id || '';
+  document.getElementById('ifError').classList.add('hidden');
+  const list = cat === 'kratom' ? KRATOM : SCRATCHERS;
+  if(id){
+    const item = list.find(x=>x.id===id);
+    document.getElementById('itemFormTitle').textContent = 'Edit Item';
+    document.getElementById('ifName').value = item.name;
+    document.getElementById('ifPrice').value = item.price;
+  } else {
+    document.getElementById('itemFormTitle').textContent = cat==='kratom' ? 'Add Kratom Item' : 'Add Scratch-Off Game';
+    document.getElementById('ifName').value = '';
+    document.getElementById('ifPrice').value = '';
+  }
+  document.getElementById('itemForm').classList.remove('hidden');
+  document.getElementById('ifName').focus();
+}
+
+function hideItemForm(){
+  document.getElementById('itemForm').classList.add('hidden');
+  _editItemCat = null; _editItemId = null;
+}
+
+function saveItem(){
+  const cat = document.getElementById('ifCategory').value;
+  const id  = document.getElementById('ifId').value;
+  const name  = document.getElementById('ifName').value.trim();
+  const price = parseFloat(document.getElementById('ifPrice').value);
+  const errEl = document.getElementById('ifError');
+  if(!name){ errEl.textContent='Name is required.'; errEl.classList.remove('hidden'); return; }
+  if(isNaN(price)||price<0){ errEl.textContent='Enter a valid price.'; errEl.classList.remove('hidden'); return; }
+
+  const list = cat === 'kratom' ? KRATOM : SCRATCHERS;
+  if(id){
+    const item = list.find(x=>x.id===id);
+    item.name = name; item.price = price;
+  } else {
+    const prefix = cat === 'kratom' ? 'k' : 's';
+    const newId = prefix + Date.now();
+    list.push({id:newId, name, price});
+  }
+  saveItems();
+  buildCountTables();
+  renderItemsTables();
+  hideItemForm();
+}
+
+function deleteItem(cat, id){
+  if(!confirm('Delete this item? It will no longer appear on count sheets.')) return;
+  if(cat==='kratom') KRATOM.splice(KRATOM.findIndex(x=>x.id===id),1);
+  else SCRATCHERS.splice(SCRATCHERS.findIndex(x=>x.id===id),1);
+  saveItems();
+  buildCountTables();
+  renderItemsTables();
+}
+
+function resetItemsToDefaults(){
+  if(!confirm('Reset all items to factory defaults? Any additions or edits will be lost.')) return;
+  KRATOM.length = 0; KRATOM_DEFAULTS.forEach(x=>KRATOM.push({...x}));
+  SCRATCHERS.length = 0; SCRATCHERS_DEFAULTS.forEach(x=>SCRATCHERS.push({...x}));
+  saveItems();
+  buildCountTables();
+  renderItemsTables();
 }
 
 // ── User form ──
