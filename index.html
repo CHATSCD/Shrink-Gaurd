@@ -1852,9 +1852,13 @@ function showTab(name){
   });
   document.getElementById('adminTabBtn').classList.toggle('active',name==='admin');
   if(name==='review')    renderReview(revSub);
-  if(name==='log')       renderLog();
-  if(name==='analytics') renderAnalytics('kratom');
-  if(name==='stores')    renderStores();
+  if(name==='log'||name==='analytics'||name==='stores'){
+    loadState().then(()=>{
+      if(name==='log')       renderLog();
+      if(name==='analytics') renderAnalytics('kratom');
+      if(name==='stores')    renderStores();
+    });
+  }
   if(name==='admin')     { showAdSub('users'); }
 }
 
