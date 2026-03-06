@@ -567,7 +567,46 @@ const SCRATCHERS_DEFAULTS = [
   {id:'s36', name:'200X Cash Blitz',     price:20},
   {id:'s37', name:'500,000 Extreme',     price:20},
 ];
-let SCRATCHERS = JSON.parse(localStorage.getItem('ss_scratchers_v1') || 'null') || SCRATCHERS_DEFAULTS.map(x=>({...x}));
+let SCRATCHERS = SCRATCHERS_DEFAULTS.map(x=>({...x}));
+
+// ═══════════════════════════════════════════════════
+// SUPABASE CLIENT
+// Required tables (run once in Supabase SQL editor):
+//   shift_logs(id text pk, store, store_name, store_city, date, shift,
+//              out_clerk, in_clerk, kratom jsonb, lottery jsonb, ts bigint)
+//   app_users(id text pk, name, username unique, password, role, district_id, store_id)
+//   districts(id text pk, name, dm_id, store_ids jsonb)
+//   items(id text pk, category, name, price numeric, sort_order int)
+// ═══════════════════════════════════════════════════
+const SUPABASE_URL = 'https://ylfsqjbqhewpfiooytlg.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZnNxamJxaGV3cGZpb295dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzQwODQsImV4cCI6MjA4ODM1MDA4NH0.Ssl5J6ktZIVtLd2cq8vH7PWdR4-yZwI5tt4PtXkVqWk';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Row mappers ──
+function toShiftRow(e){
+  return {id:e.id, store:e.store, store_name:e.storeName, store_city:e.storeCity,
+    date:e.date, shift:e.shift, out_clerk:e.outClerk, in_clerk:e.inClerk,
+    kratom:e.kratom, lottery:e.lottery, ts:e.ts};
+}
+function fromShiftRow(r){
+  return {id:r.id, store:r.store, storeName:r.store_name, storeCity:r.store_city,
+    date:r.date, shift:r.shift, outClerk:r.out_clerk, inClerk:r.in_clerk,
+    kratom:r.kratom||{}, lottery:r.lottery||{}, ts:r.ts};
+}
+function toUserRow(u){
+  return {id:u.id, name:u.name, username:u.username, password:u.password,
+    role:u.role, district_id:u.districtId||null, store_id:u.storeId||null};
+}
+function fromUserRow(r){
+  return {id:r.id, name:r.name, username:r.username, password:r.password,
+    role:r.role, districtId:r.district_id||null, storeId:r.store_id||null};
+}
+function toDistrictRow(d){
+  return {id:d.id, name:d.name, dm_id:d.dmId||null, store_ids:d.storeIds};
+}
+function fromDistrictRow(r){
+  return {id:r.id, name:r.name, dmId:r.dm_id||null, storeIds:r.store_ids||[]};
+}
 
 const STORES = [
   // ── Hattiesburg Area ──
@@ -626,10 +665,19 @@ const STORES = [
 // ═══════════════════════════════════════════════════
 let shiftLog = [];
 
-function saveState(){ localStorage.setItem('ss_log_v3', JSON.stringify(shiftLog)); }
-function loadState(){
-  const d = localStorage.getItem('ss_log_v3');
-  if(d) shiftLog = JSON.parse(d);
+async function saveState(){
+  if(!shiftLog.length) return;
+  const {error} = await sb.from('shift_logs').upsert(shiftLog.map(toShiftRow), {onConflict:'id'});
+  if(error) console.error('saveState', error);
+}
+async function loadState(){
+  const {data, error} = await sb.from('shift_logs').select('*').order('ts', {ascending:false});
+  if(error){ console.error('loadState', error); return; }
+  shiftLog = (data||[]).map(fromShiftRow);
+}
+async function db_insertShift(entry){
+  const {error} = await sb.from('shift_logs').insert([toShiftRow(entry)]);
+  if(error) throw error;
 }
 
 // ═══════════════════════════════════════════════════
@@ -685,7 +733,7 @@ function seedDemo(){
       });
     });
   });
-  saveState();
+  // saveState() called by caller after seedDemo()
 }
 
 // showTab is defined in the AUTH section below (needs canAccess)
@@ -881,7 +929,7 @@ function clearCount(){
   document.getElementById('lotterySummary').classList.add('hidden');
 }
 
-function submitCount(){
+async function submitCount(){
   const sid   = document.getElementById('storeSelect').value;
   const store = STORES.find(s=>s.id===sid)||{name:sid,city:''};
   const shift = document.getElementById('shiftSel').value;
@@ -918,14 +966,21 @@ function submitCount(){
 
   if(!kAny&&!lAny){ alert('Please enter at least one count.'); return; }
 
-  shiftLog.unshift({
+  const entry = {
     id:`${sid}_${Date.now()}`,
     store:sid, storeName:store.name, storeCity:store.city,
     date, shift, outClerk:outC, inClerk:inC,
     kratom, lottery,
     ts:Date.now(),
-  });
-  saveState();
+  };
+  try {
+    await db_insertShift(entry);
+  } catch(e) {
+    console.error(e);
+    alert('Error saving count to database. Check your connection and try again.');
+    return;
+  }
+  shiftLog.unshift(entry);
   clearCount();
   alert(`✓ Count submitted for ${store.name} — ${shift} shift!`);
   showTab('review');
@@ -1306,10 +1361,23 @@ function tick(){
 const ADMIN_CRED={id:'__admin__',username:'admin',password:'Keith2024!',name:'Administrator',role:'admin'};
 let users=[], districts=[], session=null;
 
-function saveAuth(){ localStorage.setItem('ss_auth_v1',JSON.stringify({users,districts})); }
-function loadAuth(){
-  const d=localStorage.getItem('ss_auth_v1');
-  if(d){const p=JSON.parse(d);users=p.users||[];districts=p.districts||[];}
+async function saveAuth(){
+  const [ue,de] = await Promise.all([
+    sb.from('app_users').upsert(users.map(toUserRow), {onConflict:'id'}),
+    sb.from('districts').upsert(districts.map(toDistrictRow), {onConflict:'id'})
+  ]);
+  if(ue.error) console.error('saveAuth users', ue.error);
+  if(de.error) console.error('saveAuth districts', de.error);
+}
+async function loadAuth(){
+  const [{data:ud,error:ue},{data:dd,error:de}] = await Promise.all([
+    sb.from('app_users').select('*'),
+    sb.from('districts').select('*')
+  ]);
+  if(ue) console.error('loadAuth users', ue);
+  if(de) console.error('loadAuth districts', de);
+  users     = (ud||[]).map(fromUserRow);
+  districts = (dd||[]).map(fromDistrictRow);
 }
 function saveSession(){ if(session)sessionStorage.setItem('ss_sess',JSON.stringify(session));else sessionStorage.removeItem('ss_sess'); }
 function loadSession(){ const d=sessionStorage.getItem('ss_sess');if(d)session=JSON.parse(d); }
@@ -1450,9 +1518,24 @@ function showAdSub(type){
 // ═══════════════════════════════════════════════════
 // ITEMS MANAGEMENT
 // ═══════════════════════════════════════════════════
-function saveItems(){
-  localStorage.setItem('ss_kratom_v1', JSON.stringify(KRATOM));
-  localStorage.setItem('ss_scratchers_v1', JSON.stringify(SCRATCHERS));
+async function loadItems(){
+  const {data, error} = await sb.from('items').select('*').order('sort_order');
+  if(error){ console.error('loadItems', error); return; }
+  if(!data||!data.length) return; // keep hardcoded defaults if table empty
+  KRATOM.length = 0; SCRATCHERS.length = 0;
+  data.forEach(r=>{
+    const item = {id:r.id, name:r.name, price:parseFloat(r.price)};
+    if(r.category==='kratom') KRATOM.push(item); else SCRATCHERS.push(item);
+  });
+}
+async function saveItems(){
+  // Bulk replace — delete all then insert (used for reset to defaults)
+  await sb.from('items').delete().neq('id','');
+  const rows = [
+    ...KRATOM.map((it,i)=>({id:it.id, category:'kratom', name:it.name, price:it.price, sort_order:i})),
+    ...SCRATCHERS.map((it,i)=>({id:it.id, category:'scratchers', name:it.name, price:it.price, sort_order:i}))
+  ];
+  if(rows.length){ const {error}=await sb.from('items').insert(rows); if(error) console.error('saveItems', error); }
 }
 
 function renderItemsTables(){
@@ -1505,7 +1588,7 @@ function hideItemForm(){
   _editItemCat = null; _editItemId = null;
 }
 
-function saveItem(){
+async function saveItem(){
   const cat = document.getElementById('ifCategory').value;
   const id  = document.getElementById('ifId').value;
   const name  = document.getElementById('ifName').value.trim();
@@ -1518,31 +1601,36 @@ function saveItem(){
   if(id){
     const item = list.find(x=>x.id===id);
     item.name = name; item.price = price;
+    const {error}=await sb.from('items').update({name, price, sort_order:list.indexOf(item)}).eq('id',id);
+    if(error){errEl.textContent='Error saving item.';errEl.classList.remove('hidden');console.error(error);return;}
   } else {
     const prefix = cat === 'kratom' ? 'k' : 's';
     const newId = prefix + Date.now();
+    const sortOrder = list.length;
+    const {error}=await sb.from('items').insert([{id:newId, category:cat, name, price, sort_order:sortOrder}]);
+    if(error){errEl.textContent='Error saving item.';errEl.classList.remove('hidden');console.error(error);return;}
     list.push({id:newId, name, price});
   }
-  saveItems();
   buildCountTables();
   renderItemsTables();
   hideItemForm();
 }
 
-function deleteItem(cat, id){
+async function deleteItem(cat, id){
   if(!confirm('Delete this item? It will no longer appear on count sheets.')) return;
+  const {error}=await sb.from('items').delete().eq('id',id);
+  if(error){alert('Error deleting item.');console.error(error);return;}
   if(cat==='kratom') KRATOM.splice(KRATOM.findIndex(x=>x.id===id),1);
   else SCRATCHERS.splice(SCRATCHERS.findIndex(x=>x.id===id),1);
-  saveItems();
   buildCountTables();
   renderItemsTables();
 }
 
-function resetItemsToDefaults(){
+async function resetItemsToDefaults(){
   if(!confirm('Reset all items to factory defaults? Any additions or edits will be lost.')) return;
   KRATOM.length = 0; KRATOM_DEFAULTS.forEach(x=>KRATOM.push({...x}));
   SCRATCHERS.length = 0; SCRATCHERS_DEFAULTS.forEach(x=>SCRATCHERS.push({...x}));
-  saveItems();
+  await saveItems();
   buildCountTables();
   renderItemsTables();
 }
@@ -1590,7 +1678,7 @@ function ufRoleChange(){
   document.getElementById('ufStoreWrap').classList.toggle('hidden',role==='dm');
 }
 
-function saveUser(){
+async function saveUser(){
   const name=document.getElementById('ufName').value.trim();
   const uname=document.getElementById('ufUser').value.trim();
   const pass=document.getElementById('ufPass').value;
@@ -1604,17 +1692,24 @@ function saveUser(){
     const u=users.find(x=>x.id===editUserId);
     u.name=name; u.username=uname; if(pass)u.password=pass;
     u.role=role; u.districtId=role==='dm'?districtId:null; u.storeId=role!=='dm'?storeId:null;
+    const {error}=await sb.from('app_users').update(toUserRow(u)).eq('id',editUserId);
+    if(error){errEl.textContent='Error saving user.';errEl.classList.remove('hidden');console.error(error);return;}
   } else {
-    users.push({id:'u'+Date.now(),name,username:uname,password:pass,role,
-      districtId:role==='dm'?districtId:null, storeId:role!=='dm'?storeId:null});
+    const newUser={id:'u'+Date.now(),name,username:uname,password:pass,role,
+      districtId:role==='dm'?districtId:null, storeId:role!=='dm'?storeId:null};
+    const {error}=await sb.from('app_users').insert([toUserRow(newUser)]);
+    if(error){errEl.textContent='Error saving user.';errEl.classList.remove('hidden');console.error(error);return;}
+    users.push(newUser);
   }
-  saveAuth(); hideUserForm(); renderUsersTable();
+  hideUserForm(); renderUsersTable();
 }
 
-function deleteUser(id){
+async function deleteUser(id){
   if(!confirm('Delete this user?'))return;
+  const {error}=await sb.from('app_users').delete().eq('id',id);
+  if(error){alert('Error deleting user.');console.error(error);return;}
   users=users.filter(x=>x.id!==id);
-  saveAuth(); renderUsersTable();
+  renderUsersTable();
 }
 
 function renderUsersTable(){
@@ -1672,7 +1767,7 @@ function showDistrictForm(id=null){
 }
 function hideDistrictForm(){ document.getElementById('districtForm').classList.add('hidden'); }
 
-function saveDistrict(){
+async function saveDistrict(){
   const name=document.getElementById('dfName').value.trim();
   const dmId=document.getElementById('dfDm').value||null;
   const storeIds=[...document.querySelectorAll('.dfStoreChk:checked')].map(x=>x.value);
@@ -1681,21 +1776,29 @@ function saveDistrict(){
   if(editDistrictId){
     const d=districts.find(x=>x.id===editDistrictId);
     d.name=name; d.dmId=dmId; d.storeIds=storeIds;
-    // Update DM user's districtId
-    if(dmId){const u=users.find(x=>x.id===dmId);if(u)u.districtId=editDistrictId;}
+    if(dmId){const u=users.find(x=>x.id===dmId);if(u){u.districtId=editDistrictId;await sb.from('app_users').update({district_id:editDistrictId}).eq('id',dmId);}}
+    const {error}=await sb.from('districts').update(toDistrictRow(d)).eq('id',editDistrictId);
+    if(error){errEl.textContent='Error saving district.';errEl.classList.remove('hidden');console.error(error);return;}
   } else {
     const did='d'+Date.now();
-    districts.push({id:did,name,dmId,storeIds});
-    if(dmId){const u=users.find(x=>x.id===dmId);if(u)u.districtId=did;}
+    const newDist={id:did,name,dmId,storeIds};
+    districts.push(newDist);
+    if(dmId){const u=users.find(x=>x.id===dmId);if(u){u.districtId=did;await sb.from('app_users').update({district_id:did}).eq('id',dmId);}}
+    const {error}=await sb.from('districts').insert([toDistrictRow(newDist)]);
+    if(error){errEl.textContent='Error saving district.';errEl.classList.remove('hidden');console.error(error);return;}
   }
-  saveAuth(); hideDistrictForm(); renderDistrictsGrid();
+  hideDistrictForm(); renderDistrictsGrid();
 }
 
-function deleteDistrict(id){
+async function deleteDistrict(id){
   if(!confirm('Delete this district?'))return;
+  const {error}=await sb.from('districts').delete().eq('id',id);
+  if(error){alert('Error deleting district.');console.error(error);return;}
   districts=districts.filter(x=>x.id!==id);
-  users.forEach(u=>{ if(u.districtId===id)u.districtId=null; });
-  saveAuth(); renderDistrictsGrid();
+  const affected=users.filter(u=>u.districtId===id);
+  affected.forEach(u=>u.districtId=null);
+  if(affected.length) await sb.from('app_users').update({district_id:null}).in('id',affected.map(u=>u.id));
+  renderDistrictsGrid();
 }
 
 function renderDistrictsGrid(){
@@ -1747,260 +1850,42 @@ function showTab(name){
 // ═══════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════
-loadAuth();
-loadState();
-loadSession();
-if(!shiftLog.length) seedDemo();
+async function init(){
+  loadSession();
 
-if(session){
-  onLoginSuccess();
-} else {
-  document.getElementById('loginScreen').classList.remove('hidden');
+  const loginBtn = document.querySelector('#loginScreen button[type=submit]');
+  const loginErr = document.getElementById('loginError');
+  if(loginBtn){ loginBtn.disabled=true; loginBtn.textContent='Connecting…'; }
+
+  try {
+    await Promise.all([loadAuth(), loadState(), loadItems()]);
+  } catch(e){
+    console.error('Init failed:', e);
+    if(loginErr){ loginErr.textContent='Could not connect to database. Check your connection.'; loginErr.classList.remove('hidden'); }
+    if(loginBtn){ loginBtn.disabled=false; loginBtn.textContent='Sign In'; }
+    document.getElementById('loginScreen').classList.remove('hidden');
+    return;
+  }
+
+  if(loginBtn){ loginBtn.disabled=false; loginBtn.textContent='Sign In'; }
+
+  if(!shiftLog.length){ seedDemo(); await saveState(); }
+
+  if(session){
+    onLoginSuccess();
+  } else {
+    document.getElementById('loginScreen').classList.remove('hidden');
+  }
 }
 
 tick();
 setInterval(tick,30000);
+init();
 </script>
 
 <script>
+// Old script block removed — Supabase now fully integrated into main script above.
 
-/* ---------------------------
-SUPABASE CONNECTION
---------------------------- */
-
-const SUPABASE_URL =
-"https://ylfsqjbqhewpfiooytlg.supabase.co"
-
-const SUPABASE_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZnNxamJxaGV3cGZpb295dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzQwODQsImV4cCI6MjA4ODM1MDA4NH0.Ssl5J6ktZIVtLd2cq8vH7PWdR4-yZwI5tt4PtXkVqWk"
-
-const supabase =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-)
-
-/* ---------------------------
-EDITABLE PRICES
---------------------------- */
-
-function makePricesEditable(){
-
-document.querySelectorAll(".price")
-.forEach(p=>{
-
-let val = p.innerText.replace("$","")
-
-p.innerHTML =
-`<input class="priceEdit"
-type="number"
-step="0.01"
-value="${val}"
-style="width:70px">`
-
-})
-
-}
-
-/* ---------------------------
-GET PRICE VALUE
---------------------------- */
-
-function getRowPrice(row){
-
-let input =
-row.querySelector(".priceEdit")
-
-if(!input) return 0
-
-return parseFloat(input.value) || 0
-
-}
-
-/* ---------------------------
-VARIANCE ALERT
---------------------------- */
-
-function checkVariance(v){
-
-if(Math.abs(v) >= 10){
-
-return "ALERT"
-
-}else{
-
-return "OK"
-
-}
-
-}
-
-/* ---------------------------
-SAVE COUNT TO SUPABASE
---------------------------- */
-
-async function saveCount(record){
-
-const { error } =
-await supabase
-.from("counts")
-.insert([record])
-
-if(error){
-
-console.log("DB ERROR",error)
-
-}
-
-}
-
-/* ---------------------------
-SUBMIT COUNT WRAPPER
---------------------------- */
-
-async function submitCount(data){
-
-let variance =
-data.end - data.begin
-
-let status =
-checkVariance(variance)
-
-await saveCount({
-
-store:data.store,
-location:data.location,
-product:data.product,
-shift:data.shift,
-begin_count:data.begin,
-end_count:data.end,
-variance:variance,
-price:data.price,
-status:status,
-user_name:data.user
-
-})
-
-}
-
-/* ---------------------------
-LOAD MANAGER DATA
---------------------------- */
-
-async function loadManagerCounts(){
-
-let {data,error} =
-await supabase
-.from("counts")
-.select("*")
-.order("created_at",{ascending:false})
-
-if(error){
-
-console.log(error)
-return
-
-}
-
-buildLeaderboard(data)
-
-}
-
-/* ---------------------------
-STORE LEADERBOARD
---------------------------- */
-
-function buildLeaderboard(rows){
-
-let totals={}
-
-rows.forEach(r=>{
-
-if(!totals[r.store]){
-
-totals[r.store]=0
-
-}
-
-totals[r.store]+=Math.abs(r.variance)
-
-})
-
-let list =
-Object.entries(totals)
-.sort((a,b)=>a[1]-b[1])
-
-renderLeaderboard(list)
-
-}
-
-/* ---------------------------
-RENDER LEADERBOARD
---------------------------- */
-
-function renderLeaderboard(list){
-
-let board =
-document.getElementById("leaderboard")
-
-if(!board) return
-
-board.innerHTML=""
-
-list.forEach(r=>{
-
-let row =
-document.createElement("div")
-
-row.innerHTML =
-r[0] + " : " + r[1]
-
-board.appendChild(row)
-
-})
-
-}
-
-/* ---------------------------
-BLIND SHIFT FILTER
---------------------------- */
-
-function filterByShift(rows,user){
-
-if(user.role === "employee"){
-
-return rows.filter(
-r => r.shift === user.shift
-)
-
-}
-
-return rows
-
-}
-
-/* ---------------------------
-AUTO REFRESH
---------------------------- */
-
-setInterval(()=>{
-
-loadManagerCounts()
-
-},10000)
-
-/* ---------------------------
-INIT
---------------------------- */
-
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-makePricesEditable()
-
-}
-)
 
 </script>
 </body>
