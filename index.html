@@ -1602,13 +1602,13 @@ async function saveItem(){
     const item = list.find(x=>x.id===id);
     item.name = name; item.price = price;
     const {error}=await sb.from('items').update({name, price, sort_order:list.indexOf(item)}).eq('id',id);
-    if(error){errEl.textContent='Error saving item.';errEl.classList.remove('hidden');console.error(error);return;}
+    if(error){errEl.textContent='Error saving item: '+error.message;errEl.classList.remove('hidden');console.error(error);return;}
   } else {
     const prefix = cat === 'kratom' ? 'k' : 's';
     const newId = prefix + Date.now();
     const sortOrder = list.length;
     const {error}=await sb.from('items').insert([{id:newId, category:cat, name, price, sort_order:sortOrder}]);
-    if(error){errEl.textContent='Error saving item.';errEl.classList.remove('hidden');console.error(error);return;}
+    if(error){errEl.textContent='Error saving item: '+error.message;errEl.classList.remove('hidden');console.error(error);return;}
     list.push({id:newId, name, price});
   }
   buildCountTables();
@@ -1693,12 +1693,12 @@ async function saveUser(){
     u.name=name; u.username=uname; if(pass)u.password=pass;
     u.role=role; u.districtId=role==='dm'?districtId:null; u.storeId=role!=='dm'?storeId:null;
     const {error}=await sb.from('app_users').update(toUserRow(u)).eq('id',editUserId);
-    if(error){errEl.textContent='Error saving user.';errEl.classList.remove('hidden');console.error(error);return;}
+    if(error){errEl.textContent='Error saving user: '+error.message;errEl.classList.remove('hidden');console.error(error);return;}
   } else {
     const newUser={id:'u'+Date.now(),name,username:uname,password:pass,role,
       districtId:role==='dm'?districtId:null, storeId:role!=='dm'?storeId:null};
     const {error}=await sb.from('app_users').insert([toUserRow(newUser)]);
-    if(error){errEl.textContent='Error saving user.';errEl.classList.remove('hidden');console.error(error);return;}
+    if(error){errEl.textContent='Error saving user: '+error.message;errEl.classList.remove('hidden');console.error(error);return;}
     users.push(newUser);
   }
   hideUserForm(); renderUsersTable();
@@ -1707,7 +1707,7 @@ async function saveUser(){
 async function deleteUser(id){
   if(!confirm('Delete this user?'))return;
   const {error}=await sb.from('app_users').delete().eq('id',id);
-  if(error){alert('Error deleting user.');console.error(error);return;}
+  if(error){alert('Error deleting user: '+error.message);console.error(error);return;}
   users=users.filter(x=>x.id!==id);
   renderUsersTable();
 }
@@ -1778,14 +1778,14 @@ async function saveDistrict(){
     d.name=name; d.dmId=dmId; d.storeIds=storeIds;
     if(dmId){const u=users.find(x=>x.id===dmId);if(u){u.districtId=editDistrictId;await sb.from('app_users').update({district_id:editDistrictId}).eq('id',dmId);}}
     const {error}=await sb.from('districts').update(toDistrictRow(d)).eq('id',editDistrictId);
-    if(error){errEl.textContent='Error saving district.';errEl.classList.remove('hidden');console.error(error);return;}
+    if(error){errEl.textContent='Error saving district: '+error.message;errEl.classList.remove('hidden');console.error(error);return;}
   } else {
     const did='d'+Date.now();
     const newDist={id:did,name,dmId,storeIds};
     districts.push(newDist);
     if(dmId){const u=users.find(x=>x.id===dmId);if(u){u.districtId=did;await sb.from('app_users').update({district_id:did}).eq('id',dmId);}}
     const {error}=await sb.from('districts').insert([toDistrictRow(newDist)]);
-    if(error){errEl.textContent='Error saving district.';errEl.classList.remove('hidden');console.error(error);return;}
+    if(error){errEl.textContent='Error saving district: '+error.message;errEl.classList.remove('hidden');console.error(error);return;}
   }
   hideDistrictForm(); renderDistrictsGrid();
 }
