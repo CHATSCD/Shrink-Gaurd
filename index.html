@@ -7,765 +7,1107 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  :root { --keith-blue: #003087; --keith-red: #C8102E; }
-  body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; }
-  .tab-btn { transition: all 0.2s; }
-  .tab-btn.active { background: #003087; color: white; border-bottom: 3px solid #C8102E; }
-  .tab-btn:not(.active):hover { background: #e2e8f0; }
-  .badge-green { background:#dcfce7;color:#166534; }
-  .badge-yellow { background:#fef9c3;color:#854d0e; }
-  .badge-red { background:#fee2e2;color:#991b1b; }
-  input[type=number] { -moz-appearance: textfield; }
+  :root{--kb:#003087;--kr:#C8102E;}
+  body{font-family:'Segoe UI',sans-serif;background:#f1f5f9;}
+  .tab-btn{transition:all .2s;}
+  .tab-btn.active{background:#003087;color:#fff;border-bottom:3px solid #C8102E;}
+  .tab-btn:not(.active):hover{background:#e2e8f0;}
+  .sub-btn{transition:all .15s;border-bottom:2px solid transparent;}
+  .sub-btn.active{color:#003087;border-bottom:2px solid #003087;font-weight:700;}
+  .badge-g{background:#dcfce7;color:#166534;}
+  .badge-y{background:#fef9c3;color:#854d0e;}
+  .badge-r{background:#fee2e2;color:#991b1b;}
+  .badge-b{background:#dbeafe;color:#1e40af;}
+  .flag-row{background:#fff1f2!important;}
+  input[type=number]{-moz-appearance:textfield;}
   input[type=number]::-webkit-outer-spin-button,
-  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .flag-row { background: #fff1f2 !important; }
-  .chart-container { position: relative; height: 260px; }
+  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .chart-wrap{position:relative;height:250px;}
+  table{border-collapse:collapse;}
+  thead tr{border-bottom:2px solid #003087;}
+  tbody tr{border-bottom:1px solid #e5e7eb;}
+  tbody tr:hover{background:#f8fafc;}
+  select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right .5rem center;background-size:12px;padding-right:2rem!important;appearance:none;}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header style="background:#003087;" class="text-white shadow-lg">
-  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="bg-white rounded px-2 py-1 flex flex-col items-center leading-tight">
-        <span style="color:#003087;font-weight:900;font-size:11px;letter-spacing:1px;">KEITH'S</span>
-        <span style="color:#C8102E;font-weight:900;font-size:9px;letter-spacing:.5px;">SUPERSTORES</span>
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header style="background:#003087;" class="shadow-lg sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-3 py-2 flex flex-wrap items-center gap-2">
+
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <div class="bg-white rounded px-1.5 py-0.5 text-center leading-tight">
+        <div style="color:#003087;font-weight:900;font-size:10px;letter-spacing:.5px;">KEITH'S</div>
+        <div style="color:#C8102E;font-weight:900;font-size:8px;letter-spacing:.3px;">SUPERSTORES</div>
       </div>
       <div>
-        <div class="text-xl font-black tracking-widest">SHRINK SHIELD</div>
-        <div class="text-xs text-blue-200 tracking-wide">Inventory Loss Prevention System</div>
+        <div class="text-lg font-black tracking-widest text-white">SHRINK SHIELD</div>
+        <div class="text-xs text-blue-200 leading-tight">Loss Prevention System</div>
       </div>
     </div>
-    <div class="flex items-center gap-3">
-      <select id="storeSelect" class="text-sm bg-blue-900 text-white border border-blue-700 rounded px-2 py-1">
-        <option value="main">Main St</option>
-        <option value="west">Westside</option>
-        <option value="east">Eastside</option>
-        <option value="downtown">Downtown</option>
-        <option value="north">Northgate</option>
+
+    <div class="flex items-center gap-2 ml-auto flex-wrap">
+      <select id="storeSelect" onchange="onStoreChange()"
+        class="text-xs bg-blue-900 text-white border border-blue-700 rounded px-2 py-1.5 w-52">
+        <optgroup label="── Hattiesburg Area ──">
+          <option value="h01">HQ — 7048 US Hwy 49 N, Hattiesburg</option>
+          <option value="h02">Hattiesburg #2 — 7276 US 49</option>
+          <option value="h03">Hattiesburg #3 — 6750 US Hwy 49</option>
+          <option value="h04">Hattiesburg #4 — 5331 Old Hwy 11</option>
+          <option value="h05">Hattiesburg #5 — 5170 W 4th St</option>
+          <option value="h06">Hattiesburg #6 — 5815 Hwy 11</option>
+          <option value="pet">Petal</option>
+        </optgroup>
+        <optgroup label="── Pine Belt ──">
+          <option value="pur1">Purvis #1 — 361 Hwy 589</option>
+          <option value="pur2">Purvis #2 — 5791 US Hwy 11</option>
+          <option value="sum">Sumrall</option>
+          <option value="lum">Lumberton</option>
+          <option value="ell">Ellisville — 5213 Hwy 11 N</option>
+          <option value="mos">Moselle — 59 Moselle Seminary Rd</option>
+          <option value="sem">Seminary — 2078 US Hwy 49</option>
+          <option value="col">Collins — 3030 US 49</option>
+        </optgroup>
+        <optgroup label="── Coastal ──">
+          <option value="gul">Gulfport — 9151 Hwy 49</option>
+          <option value="bsl1">Bay St. Louis #1 — 4955 Hwy 90</option>
+          <option value="bsl2">Bay St. Louis #2 — 10513 Hwy 603</option>
+          <option value="pas">Pass Christian — 109 E Beach Blvd</option>
+          <option value="gau">Gautier — 819 Hwy 90</option>
+          <option value="dib">D'Iberville — 10175 Central Ave</option>
+          <option value="sau">Saucier — 26181 US 49</option>
+          <option value="osp">Ocean Springs</option>
+          <option value="van">Vancleave</option>
+          <option value="bil">Biloxi</option>
+        </optgroup>
+        <optgroup label="── South MS ──">
+          <option value="pic1">Picayune #1 — 1405 Hwy 43 N</option>
+          <option value="pic2">Picayune #2 — 2001 Hwy 11 S</option>
+          <option value="pic3">Picayune #3 — 1101 Memorial Blvd</option>
+          <option value="car">Carriere — 498 W Union Rd</option>
+          <option value="luc">Lucedale — 6239 US-98</option>
+        </optgroup>
+        <optgroup label="── Alabama ──">
+          <option value="wil">Wilmer, AL — 13443 Moffett Rd</option>
+        </optgroup>
       </select>
-      <div class="text-right hidden sm:block">
-        <div class="text-xs text-blue-200" id="currentDateTime"></div>
-      </div>
+      <div id="hdrClock" class="text-xs text-blue-200 hidden sm:block text-right"></div>
     </div>
   </div>
 </header>
 
-<!-- TABS -->
-<div class="max-w-7xl mx-auto px-4 pt-4">
-  <div class="flex gap-1 bg-white rounded-t-xl shadow p-1">
-    <button class="tab-btn active flex-1 py-2 px-3 rounded-lg text-sm font-semibold" onclick="showTab('count')">COUNT</button>
-    <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-semibold" onclick="showTab('review')">REVIEW</button>
-    <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-semibold" onclick="showTab('log')">LOG</button>
-    <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-semibold" onclick="showTab('analytics')">ANALYTICS</button>
-    <button class="tab-btn flex-1 py-2 px-3 rounded-lg text-sm font-semibold" onclick="showTab('stores')">STORES</button>
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<div class="max-w-7xl mx-auto px-3 pt-3 pb-10">
+
+  <!-- Tab Bar -->
+  <div class="flex gap-1 bg-white rounded-t-xl shadow px-1 pt-1">
+    <button class="tab-btn active flex-1 py-2 px-1 rounded-t-lg text-xs font-bold" onclick="showTab('count')">COUNT</button>
+    <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold" onclick="showTab('review')">REVIEW</button>
+    <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold" onclick="showTab('log')">LOG</button>
+    <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold" onclick="showTab('analytics')">ANALYTICS</button>
+    <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold" onclick="showTab('stores')">STORES</button>
   </div>
-</div>
 
-<!-- MAIN CONTENT -->
-<div class="max-w-7xl mx-auto px-4 pb-8">
-  <div class="bg-white rounded-b-xl shadow-lg p-5">
+  <div class="bg-white rounded-b-xl shadow-lg p-4">
 
-    <!-- ===================== COUNT TAB ===================== -->
-    <div id="tab-count">
-      <div class="flex flex-wrap gap-3 mb-5 items-end">
-        <div>
-          <label class="text-xs text-gray-500 font-semibold">SHIFT</label>
-          <select id="shiftSelect" class="block border rounded px-2 py-1.5 text-sm mt-1">
-            <option>Morning</option><option>Afternoon</option><option>Evening</option><option>Night</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-xs text-gray-500 font-semibold">OUTGOING CLERK</label>
-          <input id="outClerk" type="text" placeholder="Name" class="block border rounded px-2 py-1.5 text-sm mt-1 w-36">
-        </div>
-        <div>
-          <label class="text-xs text-gray-500 font-semibold">INCOMING CLERK</label>
-          <input id="inClerk" type="text" placeholder="Name" class="block border rounded px-2 py-1.5 text-sm mt-1 w-36">
-        </div>
-        <div class="ml-auto flex gap-2">
-          <button onclick="clearCount()" class="px-3 py-1.5 border rounded text-sm text-gray-600 hover:bg-gray-100">Clear</button>
-          <button onclick="submitCount()" style="background:#003087;" class="px-4 py-1.5 rounded text-sm font-semibold text-white hover:opacity-90">Submit Count</button>
-        </div>
+  <!-- ╔══════════════ COUNT TAB ══════════════╗ -->
+  <div id="tab-count">
+
+    <!-- Shift header -->
+    <div class="flex flex-wrap gap-2 mb-4 items-end">
+      <div><label class="lbl">SHIFT</label>
+        <select id="shiftSel" class="inp w-32">
+          <option>Morning</option><option>Afternoon</option><option>Evening</option><option>Night</option>
+        </select>
       </div>
-
-      <div class="text-xs text-gray-500 mb-3 bg-blue-50 border border-blue-200 rounded p-3">
-        <strong>How it works:</strong> (1) Outgoing clerk counts items on shelf → enters <em>Begin Count</em>.
-        (2) Enter <em>Receipts Sold</em> from POS receipts. (3) Incoming clerk independently counts → enters <em>End Count</em>.
-        The system verifies: <strong>Begin Count = Receipts Sold + End Count</strong>. Any gap = unaccounted shrinkage.
+      <div><label class="lbl">DATE</label>
+        <input id="shiftDate" type="date" class="inp w-36">
       </div>
+      <div><label class="lbl">OUTGOING CLERK</label>
+        <input id="outClerk" type="text" placeholder="Name" class="inp w-36">
+      </div>
+      <div><label class="lbl">INCOMING CLERK</label>
+        <input id="inClerk" type="text" placeholder="Name" class="inp w-36">
+      </div>
+      <div class="ml-auto flex gap-2 items-end">
+        <button onclick="clearCount()" class="px-3 py-1.5 border rounded text-sm text-gray-600 hover:bg-gray-100">Clear</button>
+        <button onclick="submitCount()" style="background:#003087;"
+          class="px-4 py-1.5 rounded text-sm font-bold text-white hover:opacity-90">Submit Shift Count</button>
+      </div>
+    </div>
 
+    <!-- Info bar -->
+    <div class="text-xs bg-blue-50 border border-blue-200 rounded p-2.5 mb-3 text-gray-600">
+      <strong>Verification formula:</strong> Begin Count &minus; Total Sales for Shift &minus; End Count = Variance.
+      Any positive variance = unaccounted shrinkage. Negative = overage.
+    </div>
+
+    <!-- Sub-tabs -->
+    <div class="flex gap-4 border-b mb-4">
+      <button class="sub-btn active pb-2 text-sm" onclick="showCountSub('kratom')">KRATOM (9 items)</button>
+      <button class="sub-btn pb-2 text-sm text-gray-500" onclick="showCountSub('lottery')">SCRATCH-OFFS (37 games)</button>
+    </div>
+
+    <!-- KRATOM sub-table -->
+    <div id="sub-kratom">
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
-          <thead>
-            <tr class="text-left text-xs text-gray-500 border-b-2" style="border-color:#003087;">
-              <th class="pb-2 pr-3 w-48">PRODUCT</th>
-              <th class="pb-2 px-2 text-center">PRICE</th>
-              <th class="pb-2 px-2 text-center">BEGIN COUNT<br><span class="font-normal text-gray-400">(Outgoing)</span></th>
-              <th class="pb-2 px-2 text-center">RECEIPTS SOLD<br><span class="font-normal text-gray-400">(POS)</span></th>
-              <th class="pb-2 px-2 text-center">END COUNT<br><span class="font-normal text-gray-400">(Incoming)</span></th>
-              <th class="pb-2 px-2 text-center">EXPECTED<br><span class="font-normal text-gray-400">Begin</span></th>
-              <th class="pb-2 px-2 text-center">VARIANCE</th>
-              <th class="pb-2 text-center">STATUS</th>
-            </tr>
-          </thead>
-          <tbody id="countTableBody">
-          </tbody>
+          <thead><tr class="text-xs text-gray-500 text-left">
+            <th class="pb-2 pr-3 w-52">PRODUCT</th>
+            <th class="pb-2 px-2 text-center">PRICE</th>
+            <th class="pb-2 px-2 text-center">BEGIN<br><span class="font-normal">Count</span></th>
+            <th class="pb-2 px-2 text-center">SALES<br><span class="font-normal">For Shift</span></th>
+            <th class="pb-2 px-2 text-center">END<br><span class="font-normal">Count</span></th>
+            <th class="pb-2 px-2 text-center">EXPECTED<br><span class="font-normal">End</span></th>
+            <th class="pb-2 px-2 text-center">VARIANCE</th>
+            <th class="pb-2 text-center">STATUS</th>
+          </tr></thead>
+          <tbody id="kratomBody"></tbody>
         </table>
       </div>
-
-      <div id="countSummary" class="mt-4 hidden">
-        <div class="grid grid-cols-3 gap-3">
-          <div class="bg-gray-50 rounded p-3 text-center">
-            <div class="text-xs text-gray-500">Total Variance Units</div>
-            <div id="sumVariance" class="text-2xl font-bold text-red-600 mt-1">0</div>
-          </div>
-          <div class="bg-gray-50 rounded p-3 text-center">
-            <div class="text-xs text-gray-500">Estimated $ Loss</div>
-            <div id="sumDollar" class="text-2xl font-bold text-red-600 mt-1">$0.00</div>
-          </div>
-          <div class="bg-gray-50 rounded p-3 text-center">
-            <div class="text-xs text-gray-500">Flagged Items</div>
-            <div id="sumFlags" class="text-2xl font-bold text-orange-500 mt-1">0</div>
-          </div>
-        </div>
-      </div>
+      <div id="kratomSummary" class="hidden mt-3"></div>
     </div>
 
-    <!-- ===================== REVIEW TAB ===================== -->
-    <div id="tab-review" class="hidden">
-      <h2 class="font-bold text-gray-700 mb-4">Current Count Review</h2>
-      <div id="reviewContent">
-        <p class="text-gray-400 italic text-sm">No count submitted yet. Go to the COUNT tab to enter a count.</p>
+    <!-- SCRATCH-OFFS sub-table -->
+    <div id="sub-lottery" class="hidden">
+      <div class="text-xs bg-yellow-50 border border-yellow-200 rounded p-2.5 mb-3 text-gray-600">
+        <strong>How to count:</strong> Enter the ticket number (or tickets remaining in roll) at <em>Open</em> and <em>Close</em>.
+        The system calculates tickets sold = Open &minus; Close, then compares to register <em>Sales for Shift</em>.
       </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="text-xs text-gray-500 text-left">
+            <th class="pb-2 pr-3 w-52">GAME</th>
+            <th class="pb-2 px-2 text-center">TICKET<br><span class="font-normal">Price</span></th>
+            <th class="pb-2 px-2 text-center">OPEN<br><span class="font-normal">Count</span></th>
+            <th class="pb-2 px-2 text-center">SALES<br><span class="font-normal">For Shift</span></th>
+            <th class="pb-2 px-2 text-center">CLOSE<br><span class="font-normal">Count</span></th>
+            <th class="pb-2 px-2 text-center">COUNTED<br><span class="font-normal">Sold</span></th>
+            <th class="pb-2 px-2 text-center">VARIANCE</th>
+            <th class="pb-2 text-center">STATUS</th>
+          </tr></thead>
+          <tbody id="lotteryBody"></tbody>
+        </table>
+      </div>
+      <div id="lotterySummary" class="hidden mt-3"></div>
     </div>
 
-    <!-- ===================== LOG TAB ===================== -->
-    <div id="tab-log" class="hidden">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="font-bold text-gray-700">Shift Count History</h2>
-        <div class="flex gap-2">
-          <select id="logStoreFilter" class="border rounded px-2 py-1 text-sm" onchange="renderLog()">
-            <option value="">All Stores</option>
-            <option value="main">Main St</option>
-            <option value="west">Westside</option>
-            <option value="east">Eastside</option>
-            <option value="downtown">Downtown</option>
-            <option value="north">Northgate</option>
-          </select>
-        </div>
-      </div>
-      <div id="logContent"></div>
-    </div>
+  </div><!-- /tab-count -->
 
-    <!-- ===================== ANALYTICS TAB ===================== -->
-    <div id="tab-analytics" class="hidden">
-      <h2 class="font-bold text-gray-700 mb-4">Shrinkage Analytics</h2>
-
-      <!-- Summary Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="analyticsCards"></div>
-
-      <!-- Charts -->
-      <div class="grid md:grid-cols-2 gap-5 mb-6">
-        <div class="bg-gray-50 rounded-lg p-4">
-          <div class="text-sm font-semibold text-gray-600 mb-3">Variance by Product (All Shifts)</div>
-          <div class="chart-container"><canvas id="chartVarianceByProduct"></canvas></div>
-        </div>
-        <div class="bg-gray-50 rounded-lg p-4">
-          <div class="text-sm font-semibold text-gray-600 mb-3">Shrinkage Trend Over Time</div>
-          <div class="chart-container"><canvas id="chartTrend"></canvas></div>
-        </div>
-      </div>
-
-      <!-- Product breakdown -->
-      <div>
-        <div class="text-sm font-semibold text-gray-600 mb-2">Product Shrinkage Breakdown</div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="text-xs text-gray-500 text-left border-b">
-                <th class="pb-2 pr-4">Product</th>
-                <th class="pb-2 px-3 text-center">Total Variance</th>
-                <th class="pb-2 px-3 text-center">Est. $ Loss</th>
-                <th class="pb-2 px-3 text-center">Flagged Shifts</th>
-                <th class="pb-2 text-center">Alert Level</th>
-              </tr>
-            </thead>
-            <tbody id="analyticsProductTable"></tbody>
-          </table>
-        </div>
+  <!-- ╔══════════════ REVIEW TAB ══════════════╗ -->
+  <div id="tab-review" class="hidden">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-bold text-gray-700">Last Shift Review</h2>
+      <div class="flex gap-2">
+        <button class="sub-btn active text-sm pb-1" id="revTabK" onclick="showRevSub('kratom')">Kratom</button>
+        <button class="sub-btn text-sm pb-1 text-gray-500" id="revTabL" onclick="showRevSub('lottery')">Scratch-Offs</button>
       </div>
     </div>
-
-    <!-- ===================== STORES TAB ===================== -->
-    <div id="tab-stores" class="hidden">
-      <h2 class="font-bold text-gray-700 mb-4">Multi-Store Dashboard</h2>
-      <div id="storeGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    </div>
-
+    <div id="reviewContent"></div>
   </div>
-</div>
+
+  <!-- ╔══════════════ LOG TAB ══════════════╗ -->
+  <div id="tab-log" class="hidden">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <h2 class="font-bold text-gray-700">Shift History</h2>
+      <div class="flex gap-2">
+        <select id="logStore" class="border rounded px-2 py-1 text-xs" onchange="renderLog()">
+          <option value="">All Stores</option>
+        </select>
+        <select id="logType" class="border rounded px-2 py-1 text-xs" onchange="renderLog()">
+          <option value="">All Types</option>
+          <option value="kratom">Kratom Only</option>
+          <option value="lottery">Scratch-Off Only</option>
+        </select>
+      </div>
+    </div>
+    <div id="logContent"></div>
+  </div>
+
+  <!-- ╔══════════════ ANALYTICS TAB ══════════════╗ -->
+  <div id="tab-analytics" class="hidden">
+    <div class="flex gap-4 border-b mb-5">
+      <button class="sub-btn active pb-2 text-sm" id="anTabK" onclick="showAnSub('kratom')">KRATOM ANALYTICS</button>
+      <button class="sub-btn pb-2 text-sm text-gray-500" id="anTabL" onclick="showAnSub('lottery')">SCRATCH-OFF ANALYTICS</button>
+    </div>
+
+    <!-- Kratom analytics -->
+    <div id="an-kratom">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5" id="kCards"></div>
+      <div class="grid md:grid-cols-2 gap-4 mb-5">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="text-xs font-semibold text-gray-500 mb-2">Variance by Product</div>
+          <div class="chart-wrap"><canvas id="kChartBar"></canvas></div>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="text-xs font-semibold text-gray-500 mb-2">Shrinkage Trend (by date)</div>
+          <div class="chart-wrap"><canvas id="kChartLine"></canvas></div>
+        </div>
+      </div>
+      <div class="overflow-x-auto" id="kProdTable"></div>
+    </div>
+
+    <!-- Lottery analytics -->
+    <div id="an-lottery" class="hidden">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5" id="lCards"></div>
+      <div class="grid md:grid-cols-2 gap-4 mb-5">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="text-xs font-semibold text-gray-500 mb-2">Variance by Scratch-Off Game</div>
+          <div class="chart-wrap"><canvas id="lChartBar"></canvas></div>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="text-xs font-semibold text-gray-500 mb-2">Lottery Shrinkage Trend</div>
+          <div class="chart-wrap"><canvas id="lChartLine"></canvas></div>
+        </div>
+      </div>
+      <div class="overflow-x-auto" id="lProdTable"></div>
+    </div>
+  </div>
+
+  <!-- ╔══════════════ STORES TAB ══════════════╗ -->
+  <div id="tab-stores" class="hidden">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <h2 class="font-bold text-gray-700">All Keith's Locations</h2>
+      <div class="flex gap-2 items-center">
+        <select id="storeRegionFilter" class="border rounded px-2 py-1 text-xs" onchange="renderStores()">
+          <option value="">All Regions</option>
+          <option value="Hattiesburg">Hattiesburg</option>
+          <option value="Pine Belt">Pine Belt</option>
+          <option value="Coastal">Coastal</option>
+          <option value="South MS">South MS</option>
+          <option value="Alabama">Alabama</option>
+        </select>
+        <select id="storeStatusFilter" class="border rounded px-2 py-1 text-xs" onchange="renderStores()">
+          <option value="">All Status</option>
+          <option value="ALERT">Alert</option>
+          <option value="WATCH">Watch</option>
+          <option value="CLEAN">Clean</option>
+        </select>
+      </div>
+    </div>
+    <div id="storeGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+  </div>
+
+  </div><!-- /card -->
+</div><!-- /main -->
 
 <!-- FOOTER -->
-<footer style="background:#003087;" class="text-center text-white text-xs py-3 mt-4">
-  <span class="opacity-70">Keith's Superstores — </span>
+<footer style="background:#003087;" class="text-center text-white text-xs py-3">
+  <span class="opacity-60">Keith's Superstores · </span>
   <em>"The Fastest And Friendliest"</em>
-  <span class="opacity-70"> — Shrink Shield v2.0</span>
+  <span class="opacity-60"> · Shrink Shield v3.0</span>
 </footer>
 
+<style>
+  .lbl{display:block;font-size:10px;font-weight:700;color:#6b7280;letter-spacing:.05em;margin-bottom:2px;}
+  .inp{display:block;border:1px solid #d1d5db;border-radius:6px;padding:5px 8px;font-size:13px;outline:none;}
+  .inp:focus{border-color:#003087;}
+  .num-inp{width:64px;border:1px solid #d1d5db;border-radius:6px;padding:4px 6px;font-size:13px;text-align:center;outline:none;}
+  .num-inp:focus{border-color:#003087;}
+</style>
+
 <script>
-// ============================================================
-// DATA & CONFIG
-// ============================================================
-const PRODUCTS = [
-  { id: 'viva',    name: 'Viva Zen Ultimate',        price: 14.99 },
-  { id: 'redtop',  name: 'Red Top',                  price: 12.99 },
-  { id: 'whtop',   name: 'White Top',                price: 12.99 },
-  { id: 'krelax',  name: 'Kryptic Kratom Relaxation',price: 11.99 },
-  { id: 'kthin',   name: 'Kryptic Kratom Thin',      price: 11.99 },
-  { id: 'extract', name: 'Kratom Extract',            price: 13.99 },
-  { id: 'kshot',   name: 'K Shot',                   price: 10.99 },
-  { id: 'hurry',   name: 'Hurry Relax Yellow Cap',   price: 9.99  },
-  { id: 'ff',      name: 'Feel Free',                price: 15.99 },
+// ═══════════════════════════════════════════════════
+// DATA DEFINITIONS
+// ═══════════════════════════════════════════════════
+
+const KRATOM = [
+  {id:'k1', name:'Viva Zen Ultimate',          price:14.99},
+  {id:'k2', name:'Viva Zen Red Top',           price:12.99},
+  {id:'k3', name:'Viva Zen White Top',         price:12.99},
+  {id:'k4', name:'Kryptic Kratom Relaxation',  price:11.99},
+  {id:'k5', name:'Kryptic Kratom Thin',        price:11.99},
+  {id:'k6', name:'Kratom Extract',             price:13.99},
+  {id:'k7', name:'K Shot',                     price:10.99},
+  {id:'k8', name:'Kratom Yellow Cap',          price: 9.99},
+  {id:'k9', name:'Feel Free',                  price:15.99},
+];
+
+const SCRATCHERS = [
+  {id:'s01', name:'Cash on the Spot',     price:1 },
+  {id:'s02', name:'$1 Lottery Ticket',    price:1 },
+  {id:'s03', name:'Piggy Bank Buck',      price:1 },
+  {id:'s04', name:'3 X Lucky',            price:2 },
+  {id:'s05', name:'Wonder Bucks',         price:2 },
+  {id:'s06', name:'Cruisin the Coast',    price:3 },
+  {id:'s07', name:'Jumbo Bucks',          price:2 },
+  {id:'s08', name:'Lucky Doubler',        price:2 },
+  {id:'s09', name:'Cash Grab',            price:2 },
+  {id:'s10', name:'Emerald Green',        price:3 },
+  {id:'s11', name:'25,000 Mad Money',     price:5 },
+  {id:'s12', name:'Bring the Heat',       price:3 },
+  {id:'s13', name:'Home Run',             price:3 },
+  {id:'s14', name:'Crossword',            price:3 },
+  {id:'s15', name:'Bingo',               price:2 },
+  {id:'s16', name:'5X the Bank',         price:5 },
+  {id:'s17', name:'Lucky Dog',           price:2 },
+  {id:'s18', name:'Blazin Hot BK',       price:3 },
+  {id:'s19', name:'Break the Bank',      price:3 },
+  {id:'s20', name:'Stacks of Cash',      price:2 },
+  {id:'s21', name:'Fun 5s',              price:5 },
+  {id:'s22', name:'20X the Money',       price:5 },
+  {id:'s23', name:'Cashtastic',          price:2 },
+  {id:'s24', name:'Wild Money',          price:2 },
+  {id:'s25', name:'Gold Bar Bingo',      price:3 },
+  {id:'s26', name:'Super Cashword',      price:3 },
+  {id:'s27', name:'Red Hot Cash',        price:3 },
+  {id:'s28', name:"Triple Red 7's",      price:3 },
+  {id:'s29', name:'50X the Money',       price:10},
+  {id:'s30', name:'100,000 Payout',      price:10},
+  {id:'s31', name:"Gold 7's",            price:2 },
+  {id:'s32', name:'Diamond White',       price:2 },
+  {id:'s33', name:'Spectacular Riches',  price:10},
+  {id:'s34', name:'Colossal Cash',       price:10},
+  {id:'s35', name:'Extravaganza',        price:20},
+  {id:'s36', name:'200X Cash Blitz',     price:20},
+  {id:'s37', name:'500,000 Extreme',     price:20},
 ];
 
 const STORES = [
-  { id: 'main',     name: 'Main St'   },
-  { id: 'west',     name: 'Westside'  },
-  { id: 'east',     name: 'Eastside'  },
-  { id: 'downtown', name: 'Downtown'  },
-  { id: 'north',    name: 'Northgate' },
+  // Hattiesburg Area
+  {id:'h01', name:'Hattiesburg HQ',      city:'Hattiesburg, MS', addr:'7048 US Hwy 49 N',     region:'Hattiesburg'},
+  {id:'h02', name:'Hattiesburg #2',      city:'Hattiesburg, MS', addr:'7276 US 49',            region:'Hattiesburg'},
+  {id:'h03', name:'Hattiesburg #3',      city:'Hattiesburg, MS', addr:'6750 US Hwy 49',        region:'Hattiesburg'},
+  {id:'h04', name:'Hattiesburg #4',      city:'Hattiesburg, MS', addr:'5331 Old Hwy 11',       region:'Hattiesburg'},
+  {id:'h05', name:'Hattiesburg #5',      city:'Hattiesburg, MS', addr:'5170 W 4th St',         region:'Hattiesburg'},
+  {id:'h06', name:'Hattiesburg #6',      city:'Hattiesburg, MS', addr:'5815 Hwy 11',           region:'Hattiesburg'},
+  {id:'pet', name:'Petal',               city:'Petal, MS',       addr:'',                      region:'Hattiesburg'},
+  // Pine Belt
+  {id:'pur1',name:'Purvis #1',           city:'Purvis, MS',      addr:'361 Hwy 589',           region:'Pine Belt'},
+  {id:'pur2',name:'Purvis #2',           city:'Purvis, MS',      addr:'5791 US Hwy 11',        region:'Pine Belt'},
+  {id:'sum', name:'Sumrall',             city:'Sumrall, MS',     addr:'',                      region:'Pine Belt'},
+  {id:'lum', name:'Lumberton',           city:'Lumberton, MS',   addr:'',                      region:'Pine Belt'},
+  {id:'ell', name:'Ellisville',          city:'Ellisville, MS',  addr:'5213 Hwy 11 N',         region:'Pine Belt'},
+  {id:'mos', name:'Moselle',             city:'Moselle, MS',     addr:'59 Moselle Seminary Rd',region:'Pine Belt'},
+  {id:'sem', name:'Seminary',            city:'Seminary, MS',    addr:'2078 US Hwy 49',        region:'Pine Belt'},
+  {id:'col', name:'Collins',             city:'Collins, MS',     addr:'3030 US 49',            region:'Pine Belt'},
+  // Coastal
+  {id:'gul', name:'Gulfport',            city:'Gulfport, MS',    addr:'9151 Hwy 49',           region:'Coastal'},
+  {id:'bsl1',name:'Bay St. Louis #1',    city:'Bay St. Louis, MS',addr:'4955 Hwy 90',          region:'Coastal'},
+  {id:'bsl2',name:'Bay St. Louis #2',    city:'Bay St. Louis, MS',addr:'10513 Hwy 603',        region:'Coastal'},
+  {id:'pas', name:'Pass Christian',      city:'Pass Christian, MS',addr:'109 E Beach Blvd',    region:'Coastal'},
+  {id:'gau', name:'Gautier',             city:'Gautier, MS',     addr:'819 Hwy 90',            region:'Coastal'},
+  {id:'dib', name:"D'Iberville",         city:"D'Iberville, MS", addr:'10175 Central Ave',     region:'Coastal'},
+  {id:'sau', name:'Saucier',             city:'Saucier, MS',     addr:'26181 US 49',           region:'Coastal'},
+  {id:'osp', name:'Ocean Springs',       city:'Ocean Springs, MS',addr:'',                     region:'Coastal'},
+  {id:'van', name:'Vancleave',           city:'Vancleave, MS',   addr:'',                      region:'Coastal'},
+  {id:'bil', name:'Biloxi',              city:'Biloxi, MS',      addr:'',                      region:'Coastal'},
+  // South MS
+  {id:'pic1',name:'Picayune #1',         city:'Picayune, MS',    addr:'1405 Hwy 43 N',         region:'South MS'},
+  {id:'pic2',name:'Picayune #2',         city:'Picayune, MS',    addr:'2001 Hwy 11 S',         region:'South MS'},
+  {id:'pic3',name:'Picayune #3',         city:'Picayune, MS',    addr:'1101 Memorial Blvd',    region:'South MS'},
+  {id:'car', name:'Carriere',            city:'Carriere, MS',    addr:'498 W Union Rd',        region:'South MS'},
+  {id:'luc', name:'Lucedale',            city:'Lucedale, MS',    addr:'6239 US-98',            region:'South MS'},
+  // Alabama
+  {id:'wil', name:'Wilmer',              city:'Wilmer, AL',      addr:'13443 Moffett Rd',      region:'Alabama'},
 ];
 
-// ============================================================
-// STATE (localStorage persistence)
-// ============================================================
-let currentCount = {}; // live count being entered
-let shiftLog = [];     // all submitted counts
+// Populate log store filter
+(function populateLogStoreFilter(){
+  const sel = document.getElementById('logStore');
+  STORES.forEach(s=>{
+    const o=document.createElement('option');
+    o.value=s.id; o.textContent=`${s.name} — ${s.city}`;
+    sel.appendChild(o);
+  });
+})();
 
-function saveState() {
-  localStorage.setItem('shrinkShield_log', JSON.stringify(shiftLog));
-}
-function loadState() {
-  const stored = localStorage.getItem('shrinkShield_log');
-  if (stored) shiftLog = JSON.parse(stored);
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let shiftLog = [];
+
+function saveState(){ localStorage.setItem('ss_log_v3', JSON.stringify(shiftLog)); }
+function loadState(){
+  const d = localStorage.getItem('ss_log_v3');
+  if(d) shiftLog = JSON.parse(d);
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════
 // DEMO DATA
-// ============================================================
-function seedDemoData() {
-  const shifts = ['Morning','Afternoon','Evening','Night'];
-  const clerks = ['Maria G','Tom B','Sarah K','James L','Nina R','Carlos M'];
-  const dates = ['2026-02-20','2026-02-21','2026-02-22','2026-02-23','2026-02-24','2026-02-25','2026-03-01','2026-03-02','2026-03-03','2026-03-04'];
-
-  // Deliberate shrinkage patterns for demo
-  const shrinkageMap = {
-    main:     { ff: 2, kshot: 1, viva: 0 },
-    west:     { ff: 3, redtop: 2, hurry: 1 },
-    east:     { ff: 0, kshot: 0 },
-    downtown: { viva: 2, ff: 1, extract: 1 },
-    north:    { redtop: 1 },
+// ═══════════════════════════════════════════════════
+function seedDemo(){
+  const shifts=['Morning','Afternoon','Evening','Night'];
+  const clerks=['Maria G','Tom B','Sarah K','James L','Nina R','Carlos M','Dana P','Leo W'];
+  const dates=['2026-02-15','2026-02-17','2026-02-19','2026-02-21','2026-02-24','2026-02-26','2026-03-01','2026-03-03','2026-03-05'];
+  // Deliberate shrinkage patterns per store
+  const kShrink={
+    h01:{k9:2,k1:1}, h02:{k9:1,k7:1}, gul:{k9:3,k2:1},
+    bsl1:{k9:1},     pic1:{k6:1,k9:2}, wil:{k7:1,k9:1}
+  };
+  const lShrink={
+    h01:{s29:1,s35:1}, h02:{s36:1},    gul:{s34:2,s29:1},
+    bsl1:{s35:1},      pic1:{s29:1},    wil:{s36:1,s33:1}
   };
 
-  STORES.forEach(store => {
-    dates.forEach((date, di) => {
-      const shift = shifts[di % shifts.length];
-      const items = {};
-      PRODUCTS.forEach(p => {
-        const begin = Math.floor(Math.random() * 15) + 5;
-        const sold = Math.floor(Math.random() * 4);
-        const shrink = (shrinkageMap[store.id]?.[p.id] || 0) * (di % 3 === 0 ? 1 : 0);
-        const endCount = Math.max(0, begin - sold - shrink);
-        items[p.id] = { begin, sold, end: endCount };
+  // Only seed 8 stores to keep data manageable
+  const seedStores=['h01','h02','h03','gul','bsl1','pic1','wil','ell'];
+
+  seedStores.forEach(sid=>{
+    const store=STORES.find(s=>s.id===sid);
+    dates.forEach((date,di)=>{
+      const shift=shifts[di%4];
+      const kratom={}, lottery={};
+
+      KRATOM.forEach(p=>{
+        const begin=Math.floor(Math.random()*15)+4;
+        const sales=Math.floor(Math.random()*4);
+        const shrink=(kShrink[sid]?.[p.id]||0)*(di%3===0?1:0);
+        const end=Math.max(0,begin-sales-shrink);
+        kratom[p.id]={begin,sales,end};
       });
+
+      SCRATCHERS.forEach(p=>{
+        const open=Math.floor(Math.random()*60)+20;
+        const sales=Math.floor(Math.random()*8);
+        const shrink=(lShrink[sid]?.[p.id]||0)*(di%4===0?1:0);
+        const close=Math.max(0,open-sales-shrink);
+        lottery[p.id]={open,sales,close};
+      });
+
       shiftLog.push({
-        id: `${store.id}_${date}_${shift}`.replace(/\s/g,''),
-        store: store.id,
-        storeName: store.name,
-        date,
-        shift,
-        outClerk: clerks[Math.floor(Math.random()*clerks.length)],
-        inClerk:  clerks[Math.floor(Math.random()*clerks.length)],
-        items,
-        ts: new Date(`${date}T08:00:00`).getTime() + di * 3600000,
+        id:`${sid}_${date}_${shift}`.replace(/\s/g,''),
+        store:sid, storeName:store.name, storeCity:store.city,
+        date, shift,
+        outClerk:clerks[Math.floor(Math.random()*clerks.length)],
+        inClerk: clerks[Math.floor(Math.random()*clerks.length)],
+        kratom, lottery,
+        ts:new Date(`${date}T06:00:00`).getTime()+di*28800000,
       });
     });
   });
   saveState();
 }
 
-// ============================================================
-// TABS
-// ============================================================
-function showTab(name) {
-  ['count','review','log','analytics','stores'].forEach(t => {
-    document.getElementById(`tab-${t}`).classList.add('hidden');
-    document.querySelectorAll('.tab-btn')[['count','review','log','analytics','stores'].indexOf(t)].classList.remove('active');
+// ═══════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════
+const TAB_NAMES=['count','review','log','analytics','stores'];
+function showTab(name){
+  TAB_NAMES.forEach((t,i)=>{
+    document.getElementById(`tab-${t}`).classList.toggle('hidden',t!==name);
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===name);
   });
-  document.getElementById(`tab-${name}`).classList.remove('hidden');
-  document.querySelectorAll('.tab-btn')[['count','review','log','analytics','stores'].indexOf(name)].classList.add('active');
-
-  if (name === 'analytics') renderAnalytics();
-  if (name === 'log') renderLog();
-  if (name === 'stores') renderStores();
-  if (name === 'review') renderReview();
+  if(name==='review')    renderReview('kratom');
+  if(name==='log')       renderLog();
+  if(name==='analytics') renderAnalytics('kratom');
+  if(name==='stores')    renderStores();
 }
 
-// ============================================================
-// COUNT TAB
-// ============================================================
-function renderCountTable() {
-  const tbody = document.getElementById('countTableBody');
-  tbody.innerHTML = '';
-  PRODUCTS.forEach(p => {
-    const row = document.createElement('tr');
-    row.id = `row-${p.id}`;
-    row.className = 'border-b hover:bg-gray-50';
-    row.innerHTML = `
+// ═══════════════════════════════════════════════════
+// COUNT SUB-TABS
+// ═══════════════════════════════════════════════════
+function showCountSub(type){
+  document.getElementById('sub-kratom').classList.toggle('hidden', type!=='kratom');
+  document.getElementById('sub-lottery').classList.toggle('hidden', type!=='lottery');
+  document.querySelectorAll('#tab-count .sub-btn').forEach((b,i)=>{
+    b.classList.toggle('active', (i===0&&type==='kratom')||(i===1&&type==='lottery'));
+    b.classList.toggle('text-gray-500', !b.classList.contains('active'));
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// BUILD COUNT TABLES
+// ═══════════════════════════════════════════════════
+function buildCountTables(){
+  // Kratom
+  const kb=document.getElementById('kratomBody');
+  kb.innerHTML='';
+  KRATOM.forEach(p=>{
+    const tr=document.createElement('tr');
+    tr.id=`krow-${p.id}`;
+    tr.innerHTML=`
       <td class="py-2 pr-3 font-medium text-gray-800">${p.name}</td>
-      <td class="py-2 px-2 text-center text-gray-500">$${p.price.toFixed(2)}</td>
-      <td class="py-2 px-2">
-        <input type="number" min="0" id="begin-${p.id}" placeholder="0"
-          class="w-16 border rounded px-2 py-1 text-center text-sm focus:outline-none focus:border-blue-500"
-          oninput="calcRow('${p.id}')">
-      </td>
-      <td class="py-2 px-2">
-        <input type="number" min="0" id="sold-${p.id}" placeholder="0"
-          class="w-16 border rounded px-2 py-1 text-center text-sm focus:outline-none focus:border-blue-500"
-          oninput="calcRow('${p.id}')">
-      </td>
-      <td class="py-2 px-2">
-        <input type="number" min="0" id="end-${p.id}" placeholder="0"
-          class="w-16 border rounded px-2 py-1 text-center text-sm focus:outline-none focus:border-blue-500"
-          oninput="calcRow('${p.id}')">
-      </td>
-      <td class="py-2 px-2 text-center font-mono text-sm" id="expected-${p.id}">—</td>
-      <td class="py-2 px-2 text-center font-bold text-sm" id="variance-${p.id}">—</td>
-      <td class="py-2 text-center" id="status-${p.id}">—</td>
-    `;
-    tbody.appendChild(row);
+      <td class="py-2 px-2 text-center text-gray-400 text-xs">$${p.price.toFixed(2)}</td>
+      <td class="py-2 px-1"><input type="number" min="0" id="kb-${p.id}" placeholder="—"
+        class="num-inp" oninput="calcKRow('${p.id}')"></td>
+      <td class="py-2 px-1"><input type="number" min="0" id="ks-${p.id}" placeholder="—"
+        class="num-inp" oninput="calcKRow('${p.id}')"></td>
+      <td class="py-2 px-1"><input type="number" min="0" id="ke-${p.id}" placeholder="—"
+        class="num-inp" oninput="calcKRow('${p.id}')"></td>
+      <td class="py-2 px-2 text-center text-xs font-mono" id="kexp-${p.id}">—</td>
+      <td class="py-2 px-2 text-center font-bold text-xs" id="kvar-${p.id}">—</td>
+      <td class="py-2 text-center" id="kstat-${p.id}">—</td>`;
+    kb.appendChild(tr);
+  });
+
+  // Scratch-offs
+  const lb=document.getElementById('lotteryBody');
+  lb.innerHTML='';
+  SCRATCHERS.forEach(p=>{
+    const tr=document.createElement('tr');
+    tr.id=`lrow-${p.id}`;
+    tr.innerHTML=`
+      <td class="py-2 pr-3 font-medium text-gray-800">${p.name}</td>
+      <td class="py-2 px-2 text-center text-gray-400 text-xs">$${p.price}</td>
+      <td class="py-2 px-1"><input type="number" min="0" id="lo-${p.id}" placeholder="—"
+        class="num-inp" oninput="calcLRow('${p.id}')"></td>
+      <td class="py-2 px-1"><input type="number" min="0" id="ls-${p.id}" placeholder="—"
+        class="num-inp" oninput="calcLRow('${p.id}')"></td>
+      <td class="py-2 px-1"><input type="number" min="0" id="lc-${p.id}" placeholder="—"
+        class="num-inp" oninput="calcLRow('${p.id}')"></td>
+      <td class="py-2 px-2 text-center text-xs font-mono" id="lcnt-${p.id}">—</td>
+      <td class="py-2 px-2 text-center font-bold text-xs" id="lvar-${p.id}">—</td>
+      <td class="py-2 text-center" id="lstat-${p.id}">—</td>`;
+    lb.appendChild(tr);
   });
 }
 
-function calcRow(pid) {
-  const begin = parseInt(document.getElementById(`begin-${pid}`)?.value) || 0;
-  const sold  = parseInt(document.getElementById(`sold-${pid}`)?.value)  || 0;
-  const end   = parseInt(document.getElementById(`end-${pid}`)?.value)   || 0;
-
-  const expected = sold + end;
-  const variance = begin - expected; // positive = shrinkage
-
-  const expEl = document.getElementById(`expected-${pid}`);
-  const varEl = document.getElementById(`variance-${pid}`);
-  const stEl  = document.getElementById(`status-${pid}`);
-  const row   = document.getElementById(`row-${pid}`);
-
-  const hasData = document.getElementById(`begin-${pid}`).value !== '';
-
-  if (!hasData) {
-    expEl.textContent = '—'; varEl.textContent = '—'; stEl.textContent = '—';
-    row.classList.remove('flag-row');
+// ═══════════════════════════════════════════════════
+// LIVE ROW CALCULATIONS
+// ═══════════════════════════════════════════════════
+function calcKRow(id){
+  const bEl=document.getElementById(`kb-${id}`);
+  const begin = parseFloat(bEl.value);
+  const sales = parseFloat(document.getElementById(`ks-${id}`).value)||0;
+  const end   = parseFloat(document.getElementById(`ke-${id}`).value)||0;
+  if(bEl.value===''){
+    ['kexp','kvar','kstat'].forEach(p=>document.getElementById(`${p}-${id}`).textContent='—');
+    document.getElementById(`krow-${id}`).classList.remove('flag-row');
     return;
   }
+  const expected = (begin||0) - sales;
+  const variance = expected - end; // positive = shrinkage
+  setVarianceUI({expId:`kexp-${id}`,varId:`kvar-${id}`,statId:`kstat-${id}`,rowId:`krow-${id}`,expected,variance});
+  updateKSummary();
+}
 
-  expEl.textContent = expected;
+function calcLRow(id){
+  const oEl=document.getElementById(`lo-${id}`);
+  const open  = parseFloat(oEl.value);
+  const sales = parseFloat(document.getElementById(`ls-${id}`).value)||0;
+  const close = parseFloat(document.getElementById(`lc-${id}`).value)||0;
+  const cntEl = document.getElementById(`lcnt-${id}`);
+  if(oEl.value===''){
+    cntEl.textContent='—';
+    ['lvar','lstat'].forEach(p=>document.getElementById(`${p}-${id}`).textContent='—');
+    document.getElementById(`lrow-${id}`).classList.remove('flag-row');
+    return;
+  }
+  const counted = (open||0) - close;
+  cntEl.textContent = counted >= 0 ? counted : `(${Math.abs(counted)})`;
+  const variance = counted - sales; // positive = shrinkage (counted sold > register sales)
+  // For lottery, variance means tickets missing from rolls vs register
+  // expected "close" from formula: open - sales
+  const expected = (open||0) - sales;
+  setVarianceUI({expId:null,varId:`lvar-${id}`,statId:`lstat-${id}`,rowId:`lrow-${id}`,expected,variance});
+  updateLSummary();
+}
 
-  if (variance > 0) {
-    varEl.textContent = `-${variance}`;
-    varEl.className = 'py-2 px-2 text-center font-bold text-sm text-red-600';
-    stEl.innerHTML = `<span class="badge-red text-xs px-2 py-0.5 rounded-full font-semibold">FLAGGED</span>`;
+function setVarianceUI({expId,varId,statId,rowId,expected,variance}){
+  if(expId) document.getElementById(expId).textContent = expected >= 0 ? expected : `(${Math.abs(expected)})`;
+  const varEl  = document.getElementById(varId);
+  const statEl = document.getElementById(statId);
+  const row    = document.getElementById(rowId);
+  if(variance>0){
+    varEl.textContent=`-${variance}`;
+    varEl.className='py-2 px-2 text-center font-bold text-xs text-red-600';
+    statEl.innerHTML=`<span class="badge-r text-xs px-2 py-0.5 rounded-full font-semibold">FLAGGED</span>`;
     row.classList.add('flag-row');
-  } else if (variance < 0) {
-    varEl.textContent = `+${Math.abs(variance)}`;
-    varEl.className = 'py-2 px-2 text-center font-bold text-sm text-yellow-600';
-    stEl.innerHTML = `<span class="badge-yellow text-xs px-2 py-0.5 rounded-full font-semibold">OVER</span>`;
+  } else if(variance<0){
+    varEl.textContent=`+${Math.abs(variance)}`;
+    varEl.className='py-2 px-2 text-center font-bold text-xs text-yellow-600';
+    statEl.innerHTML=`<span class="badge-y text-xs px-2 py-0.5 rounded-full font-semibold">OVER</span>`;
     row.classList.remove('flag-row');
   } else {
-    varEl.textContent = '0';
-    varEl.className = 'py-2 px-2 text-center font-bold text-sm text-green-600';
-    stEl.innerHTML = `<span class="badge-green text-xs px-2 py-0.5 rounded-full font-semibold">OK</span>`;
+    varEl.textContent='✓ 0';
+    varEl.className='py-2 px-2 text-center font-bold text-xs text-green-600';
+    statEl.innerHTML=`<span class="badge-g text-xs px-2 py-0.5 rounded-full font-semibold">OK</span>`;
     row.classList.remove('flag-row');
   }
-
-  updateCountSummary();
 }
 
-function updateCountSummary() {
-  let totalVariance = 0, totalDollar = 0, flags = 0;
-  PRODUCTS.forEach(p => {
-    const begin = parseInt(document.getElementById(`begin-${p.id}`)?.value) || 0;
-    const sold  = parseInt(document.getElementById(`sold-${p.id}`)?.value)  || 0;
-    const end   = parseInt(document.getElementById(`end-${p.id}`)?.value)   || 0;
-    const hasData = document.getElementById(`begin-${p.id}`).value !== '';
-    if (!hasData) return;
-    const variance = begin - (sold + end);
-    if (variance > 0) { totalVariance += variance; totalDollar += variance * p.price; flags++; }
+function updateKSummary(){
+  let tv=0,td=0,fl=0;
+  KRATOM.forEach(p=>{
+    const b=parseFloat(document.getElementById(`kb-${p.id}`).value);
+    if(isNaN(b)) return;
+    const s=parseFloat(document.getElementById(`ks-${p.id}`).value)||0;
+    const e=parseFloat(document.getElementById(`ke-${p.id}`).value)||0;
+    const v=(b-s)-e;
+    if(v>0){tv+=v;td+=v*p.price;fl++;}
   });
-  document.getElementById('countSummary').classList.remove('hidden');
-  document.getElementById('sumVariance').textContent = totalVariance;
-  document.getElementById('sumDollar').textContent = `$${totalDollar.toFixed(2)}`;
-  document.getElementById('sumFlags').textContent = flags;
+  const el=document.getElementById('kratomSummary');
+  el.classList.remove('hidden');
+  el.innerHTML=summaryHTML(tv,td,fl);
 }
 
-function clearCount() {
-  PRODUCTS.forEach(p => {
-    ['begin','sold','end'].forEach(f => { document.getElementById(`${f}-${p.id}`).value = ''; });
-    calcRow(p.id);
+function updateLSummary(){
+  let tv=0,td=0,fl=0;
+  SCRATCHERS.forEach(p=>{
+    const o=parseFloat(document.getElementById(`lo-${p.id}`).value);
+    if(isNaN(o)) return;
+    const s=parseFloat(document.getElementById(`ls-${p.id}`).value)||0;
+    const c=parseFloat(document.getElementById(`lc-${p.id}`).value)||0;
+    const v=(o-c)-s;
+    if(v>0){tv+=v;td+=v*p.price;fl++;}
   });
-  document.getElementById('countSummary').classList.add('hidden');
+  const el=document.getElementById('lotterySummary');
+  el.classList.remove('hidden');
+  el.innerHTML=summaryHTML(tv,td,fl);
 }
 
-function submitCount() {
-  const outClerk = document.getElementById('outClerk').value.trim();
-  const inClerk  = document.getElementById('inClerk').value.trim();
-  const shift    = document.getElementById('shiftSelect').value;
-  const storeId  = document.getElementById('storeSelect').value;
-  const store    = STORES.find(s => s.id === storeId);
+function summaryHTML(tv,td,fl){
+  return `<div class="grid grid-cols-3 gap-3">
+    <div class="bg-gray-50 rounded p-3 text-center">
+      <div class="text-xs text-gray-400">Variance Units</div>
+      <div class="text-2xl font-black ${tv>0?'text-red-600':'text-green-600'}">${tv}</div>
+    </div>
+    <div class="bg-gray-50 rounded p-3 text-center">
+      <div class="text-xs text-gray-400">Est. $ Loss</div>
+      <div class="text-2xl font-black ${td>0?'text-red-600':'text-green-600'}">$${td.toFixed(2)}</div>
+    </div>
+    <div class="bg-gray-50 rounded p-3 text-center">
+      <div class="text-xs text-gray-400">Flagged</div>
+      <div class="text-2xl font-black ${fl>0?'text-orange-500':'text-green-600'}">${fl}</div>
+    </div>
+  </div>`;
+}
 
-  let hasAny = false;
-  const items = {};
-  PRODUCTS.forEach(p => {
-    const bv = document.getElementById(`begin-${p.id}`).value;
-    if (bv === '') return;
-    hasAny = true;
-    items[p.id] = {
-      begin: parseInt(bv) || 0,
-      sold:  parseInt(document.getElementById(`sold-${p.id}`).value)  || 0,
-      end:   parseInt(document.getElementById(`end-${p.id}`).value)   || 0,
+// ═══════════════════════════════════════════════════
+// CLEAR & SUBMIT
+// ═══════════════════════════════════════════════════
+function clearCount(){
+  KRATOM.forEach(p=>{
+    ['kb','ks','ke'].forEach(f=>document.getElementById(`${f}-${p.id}`).value='');
+    calcKRow(p.id);
+  });
+  SCRATCHERS.forEach(p=>{
+    ['lo','ls','lc'].forEach(f=>document.getElementById(`${f}-${p.id}`).value='');
+    calcLRow(p.id);
+  });
+  document.getElementById('kratomSummary').classList.add('hidden');
+  document.getElementById('lotterySummary').classList.add('hidden');
+}
+
+function submitCount(){
+  const sid   = document.getElementById('storeSelect').value;
+  const store = STORES.find(s=>s.id===sid)||{name:sid,city:''};
+  const shift = document.getElementById('shiftSel').value;
+  const date  = document.getElementById('shiftDate').value || new Date().toISOString().split('T')[0];
+  const outC  = document.getElementById('outClerk').value.trim();
+  const inC   = document.getElementById('inClerk').value.trim();
+
+  if(!outC||!inC){ alert('Please enter both clerk names.'); return; }
+
+  const kratom={}, lottery={};
+  let kAny=false, lAny=false;
+
+  KRATOM.forEach(p=>{
+    const b=document.getElementById(`kb-${p.id}`).value;
+    if(b==='') return;
+    kAny=true;
+    kratom[p.id]={
+      begin:parseInt(b)||0,
+      sales:parseInt(document.getElementById(`ks-${p.id}`).value)||0,
+      end:  parseInt(document.getElementById(`ke-${p.id}`).value)||0,
     };
   });
 
-  if (!hasAny) { alert('Please enter at least one product count.'); return; }
-  if (!outClerk || !inClerk) { alert('Please enter both clerk names.'); return; }
+  SCRATCHERS.forEach(p=>{
+    const o=document.getElementById(`lo-${p.id}`).value;
+    if(o==='') return;
+    lAny=true;
+    lottery[p.id]={
+      open: parseInt(o)||0,
+      sales:parseInt(document.getElementById(`ls-${p.id}`).value)||0,
+      close:parseInt(document.getElementById(`lc-${p.id}`).value)||0,
+    };
+  });
 
-  const now = new Date();
-  const entry = {
-    id: `${storeId}_${Date.now()}`,
-    store: storeId,
-    storeName: store.name,
-    date: now.toISOString().split('T')[0],
-    shift,
-    outClerk,
-    inClerk,
-    items,
-    ts: now.getTime(),
-  };
+  if(!kAny&&!lAny){ alert('Please enter at least one count.'); return; }
 
-  shiftLog.unshift(entry);
+  shiftLog.unshift({
+    id:`${sid}_${Date.now()}`,
+    store:sid, storeName:store.name, storeCity:store.city,
+    date, shift, outClerk:outC, inClerk:inC,
+    kratom, lottery,
+    ts:Date.now(),
+  });
   saveState();
   clearCount();
-  alert(`Count submitted for ${store.name} — ${shift} shift!\nCheck the REVIEW tab for results.`);
+  alert(`✓ Count submitted for ${store.name} — ${shift} shift!`);
   showTab('review');
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════
 // REVIEW TAB
-// ============================================================
-function renderReview() {
-  const el = document.getElementById('reviewContent');
-  const storeId = document.getElementById('storeSelect').value;
-  const recent = shiftLog.filter(e => e.store === storeId)[0];
+// ═══════════════════════════════════════════════════
+let revSub='kratom';
+function showRevSub(type){
+  revSub=type;
+  document.getElementById('revTabK').classList.toggle('active',type==='kratom');
+  document.getElementById('revTabL').classList.toggle('active',type==='lottery');
+  document.getElementById('revTabK').classList.toggle('text-gray-500',type!=='kratom');
+  document.getElementById('revTabL').classList.toggle('text-gray-500',type!=='lottery');
+  renderReview(type);
+}
 
-  if (!recent) {
-    el.innerHTML = `<p class="text-gray-400 italic text-sm">No count submitted yet for this store.</p>`;
-    return;
+function renderReview(type='kratom'){
+  const sid=document.getElementById('storeSelect').value;
+  const entry=[...shiftLog].find(e=>e.store===sid);
+  const el=document.getElementById('reviewContent');
+
+  if(!entry){ el.innerHTML=`<p class="text-gray-400 italic text-sm">No counts for this store yet.</p>`; return; }
+
+  const metaBar=`<div class="flex flex-wrap gap-3 text-xs text-gray-600 bg-gray-50 rounded p-2.5 mb-4">
+    <span><strong>Store:</strong> ${entry.storeName}</span>
+    <span><strong>Date:</strong> ${entry.date}</span>
+    <span><strong>Shift:</strong> ${entry.shift}</span>
+    <span><strong>Out:</strong> ${entry.outClerk}</span>
+    <span><strong>In:</strong> ${entry.inClerk}</span>
+  </div>`;
+
+  if(type==='kratom'){
+    el.innerHTML = metaBar + buildReviewTable(KRATOM, entry.kratom||{},
+      p=>{ const d=entry.kratom?.[p.id]; if(!d)return null;
+           return {open:d.begin,sales:d.sales,close:d.end}; },
+      ['BEGIN','SALES','END','EXP. END','VARIANCE','STATUS']);
+  } else {
+    el.innerHTML = metaBar + buildReviewTable(SCRATCHERS, entry.lottery||{},
+      p=>{ const d=entry.lottery?.[p.id]; if(!d)return null;
+           return {open:d.open,sales:d.sales,close:d.close}; },
+      ['OPEN','SALES','CLOSE','COUNTED SOLD','VARIANCE','STATUS']);
   }
+}
 
-  let totalVar = 0, totalDollar = 0, flags = 0;
-  let rows = '';
-  PRODUCTS.forEach(p => {
-    const d = recent.items[p.id];
-    if (!d) return;
-    const expected = d.sold + d.end;
-    const variance = d.begin - expected;
-    if (variance > 0) { totalVar += variance; totalDollar += variance * p.price; flags++; }
-    const varClass = variance > 0 ? 'text-red-600' : variance < 0 ? 'text-yellow-600' : 'text-green-600';
-    const badge = variance > 0
-      ? `<span class="badge-red text-xs px-2 py-0.5 rounded-full font-semibold">FLAGGED</span>`
-      : variance < 0
-        ? `<span class="badge-yellow text-xs px-2 py-0.5 rounded-full font-semibold">OVER</span>`
-        : `<span class="badge-green text-xs px-2 py-0.5 rounded-full font-semibold">OK</span>`;
-    const rowClass = variance > 0 ? 'flag-row' : '';
-    rows += `<tr class="border-b ${rowClass}">
-      <td class="py-2 pr-3 font-medium">${p.name}</td>
-      <td class="py-2 px-3 text-center">${d.begin}</td>
-      <td class="py-2 px-3 text-center">${d.sold}</td>
-      <td class="py-2 px-3 text-center">${d.end}</td>
-      <td class="py-2 px-3 text-center">${expected}</td>
-      <td class="py-2 px-3 text-center font-bold ${varClass}">${variance > 0 ? '-'+variance : variance < 0 ? '+'+Math.abs(variance) : '0'}</td>
+function buildReviewTable(products, dataObj, getter, headers){
+  let tv=0,td=0,fl=0,rows='';
+  products.forEach(p=>{
+    const d=getter(p);
+    if(!d) return;
+    const {open,sales,close}=d;
+    const counted=open-close;
+    const variance=(open-sales)-close; // = counted - sales for lottery; = begin-sales-end for kratom
+    if(variance>0){tv+=variance;td+=variance*p.price;fl++;}
+    const varClass=variance>0?'text-red-600':variance<0?'text-yellow-600':'text-green-600';
+    const badge=variance>0?`<span class="badge-r text-xs px-2 py-0.5 rounded-full">FLAGGED</span>`
+               :variance<0?`<span class="badge-y text-xs px-2 py-0.5 rounded-full">OVER</span>`
+               :`<span class="badge-g text-xs px-2 py-0.5 rounded-full">OK</span>`;
+    const rowCls=variance>0?'flag-row':'';
+    rows+=`<tr class="${rowCls}">
+      <td class="py-2 pr-3 font-medium text-sm">${p.name}</td>
+      <td class="py-2 px-2 text-center text-sm">${open}</td>
+      <td class="py-2 px-2 text-center text-sm">${sales}</td>
+      <td class="py-2 px-2 text-center text-sm">${close}</td>
+      <td class="py-2 px-2 text-center text-sm font-mono">${open-sales}</td>
+      <td class="py-2 px-2 text-center font-bold text-sm ${varClass}">${variance>0?'-'+variance:variance<0?'+'+Math.abs(variance):'✓ 0'}</td>
       <td class="py-2 text-center">${badge}</td>
     </tr>`;
   });
 
-  el.innerHTML = `
-    <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4 bg-gray-50 rounded p-3">
-      <span><strong>Store:</strong> ${recent.storeName}</span>
-      <span><strong>Date:</strong> ${recent.date}</span>
-      <span><strong>Shift:</strong> ${recent.shift}</span>
-      <span><strong>Out:</strong> ${recent.outClerk}</span>
-      <span><strong>In:</strong> ${recent.inClerk}</span>
-    </div>
-    <div class="grid grid-cols-3 gap-3 mb-4">
-      <div class="bg-gray-50 rounded p-3 text-center">
-        <div class="text-xs text-gray-500">Total Variance</div>
-        <div class="text-xl font-bold ${totalVar > 0 ? 'text-red-600' : 'text-green-600'}">${totalVar}</div>
-      </div>
-      <div class="bg-gray-50 rounded p-3 text-center">
-        <div class="text-xs text-gray-500">Est. $ Loss</div>
-        <div class="text-xl font-bold ${totalDollar > 0 ? 'text-red-600' : 'text-green-600'}">$${totalDollar.toFixed(2)}</div>
-      </div>
-      <div class="bg-gray-50 rounded p-3 text-center">
-        <div class="text-xs text-gray-500">Flagged Items</div>
-        <div class="text-xl font-bold ${flags > 0 ? 'text-orange-500' : 'text-green-600'}">${flags}</div>
-      </div>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead><tr class="text-xs text-gray-500 text-left border-b-2" style="border-color:#003087;">
-          <th class="pb-2 pr-3">Product</th>
-          <th class="pb-2 px-3 text-center">Begin</th>
-          <th class="pb-2 px-3 text-center">Sold</th>
-          <th class="pb-2 px-3 text-center">End</th>
-          <th class="pb-2 px-3 text-center">Expected Begin</th>
-          <th class="pb-2 px-3 text-center">Variance</th>
-          <th class="pb-2 text-center">Status</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+  return `<div class="grid grid-cols-3 gap-3 mb-4">
+    ${cardHTML('Variance Units',tv,tv>0?'text-red-600':'text-green-600')}
+    ${cardHTML('Est. $ Loss','$'+td.toFixed(2),td>0?'text-red-600':'text-green-600')}
+    ${cardHTML('Flagged Items',fl,fl>0?'text-orange-500':'text-green-600')}
+  </div>
+  <div class="overflow-x-auto"><table class="w-full text-sm">
+    <thead><tr class="text-xs text-gray-500 text-left">
+      <th class="pb-2 pr-3">PRODUCT / GAME</th>
+      ${headers.map(h=>`<th class="pb-2 px-2 text-center">${h}</th>`).join('')}
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
 }
 
-// ============================================================
+function cardHTML(label,val,cls){
+  return `<div class="bg-gray-50 rounded p-3 text-center">
+    <div class="text-xs text-gray-400">${label}</div>
+    <div class="text-xl font-black mt-1 ${cls}">${val}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════
 // LOG TAB
-// ============================================================
-function renderLog() {
-  const filter = document.getElementById('logStoreFilter').value;
-  const entries = filter ? shiftLog.filter(e => e.store === filter) : shiftLog;
-  const el = document.getElementById('logContent');
+// ═══════════════════════════════════════════════════
+function renderLog(){
+  const storeF = document.getElementById('logStore').value;
+  const typeF  = document.getElementById('logType').value;
+  const entries=[...shiftLog]
+    .filter(e=>!storeF||e.store===storeF)
+    .sort((a,b)=>b.ts-a.ts)
+    .slice(0,60);
+  const el=document.getElementById('logContent');
+  if(!entries.length){ el.innerHTML=`<p class="text-gray-400 italic text-sm">No logs found.</p>`; return; }
 
-  if (!entries.length) {
-    el.innerHTML = `<p class="text-gray-400 italic text-sm">No shift logs found.</p>`;
-    return;
-  }
+  el.innerHTML=entries.map(e=>{
+    const kFlags=[],lFlags=[];
+    let kDollar=0,lDollar=0;
 
-  const sorted = [...entries].sort((a,b) => b.ts - a.ts);
-  el.innerHTML = sorted.slice(0, 40).map(entry => {
-    let flags = 0, totalDollar = 0;
-    const flaggedProducts = [];
-    PRODUCTS.forEach(p => {
-      const d = entry.items[p.id];
-      if (!d) return;
-      const v = d.begin - (d.sold + d.end);
-      if (v > 0) { flags++; totalDollar += v * p.price; flaggedProducts.push(`${p.name} (−${v})`); }
-    });
-    const statusBadge = flags > 0
-      ? `<span class="badge-red text-xs px-2 py-0.5 rounded-full">${flags} FLAG${flags>1?'S':''}</span>`
-      : `<span class="badge-green text-xs px-2 py-0.5 rounded-full">CLEAN</span>`;
+    if(typeF!=='lottery'){
+      KRATOM.forEach(p=>{
+        const d=e.kratom?.[p.id]; if(!d)return;
+        const v=(d.begin-d.sales)-d.end;
+        if(v>0){kFlags.push(`${p.name}(−${v})`);kDollar+=v*p.price;}
+      });
+    }
+    if(typeF!=='kratom'){
+      SCRATCHERS.forEach(p=>{
+        const d=e.lottery?.[p.id]; if(!d)return;
+        const v=(d.open-d.close)-d.sales;
+        if(v>0){lFlags.push(`${p.name}(−${v})`);lDollar+=v*p.price;}
+      });
+    }
 
-    return `<div class="border rounded-lg p-4 mb-3 ${flags > 0 ? 'border-red-200 bg-red-50' : 'border-gray-200'}">
-      <div class="flex flex-wrap items-start justify-between gap-2">
+    const totalFlags=kFlags.length+lFlags.length;
+    const totalDollar=kDollar+lDollar;
+    const hasShrink=totalFlags>0;
+    const cls=hasShrink?'border-red-200 bg-red-50':'border-gray-200';
+    const badge=hasShrink
+      ?`<span class="badge-r text-xs px-2 py-0.5 rounded-full">${totalFlags} FLAG${totalFlags>1?'S':''}</span>`
+      :`<span class="badge-g text-xs px-2 py-0.5 rounded-full">CLEAN</span>`;
+
+    return `<div class="border rounded-lg p-3 mb-2 ${cls}">
+      <div class="flex flex-wrap items-start justify-between gap-1">
         <div>
-          <div class="font-semibold text-gray-800">${entry.storeName} — ${entry.shift} Shift</div>
-          <div class="text-xs text-gray-500 mt-0.5">${entry.date} &nbsp;|&nbsp; Out: ${entry.outClerk} &nbsp;|&nbsp; In: ${entry.inClerk}</div>
+          <div class="font-semibold text-sm text-gray-800">${e.storeName} — ${e.shift} Shift</div>
+          <div class="text-xs text-gray-400">${e.date} &nbsp;·&nbsp; Out: ${e.outClerk} &nbsp;·&nbsp; In: ${e.inClerk}</div>
         </div>
         <div class="flex items-center gap-2">
-          ${statusBadge}
-          ${flags > 0 ? `<span class="text-xs text-red-600 font-bold">$${totalDollar.toFixed(2)} loss</span>` : ''}
+          ${badge}
+          ${hasShrink?`<span class="text-xs text-red-600 font-bold">$${totalDollar.toFixed(2)}</span>`:''}
         </div>
       </div>
-      ${flaggedProducts.length ? `<div class="text-xs text-red-700 mt-2 bg-red-100 rounded p-2">Flagged: ${flaggedProducts.join(' · ')}</div>` : ''}
+      ${kFlags.length?`<div class="mt-2 text-xs bg-red-100 rounded px-2 py-1 text-red-700">Kratom: ${kFlags.join(' · ')}</div>`:''}
+      ${lFlags.length?`<div class="mt-1 text-xs bg-orange-50 rounded px-2 py-1 text-orange-700 border border-orange-200">Scratch-Offs: ${lFlags.join(' · ')}</div>`:''}
     </div>`;
   }).join('');
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════
 // ANALYTICS TAB
-// ============================================================
-let chartVarProduct = null, chartTrend = null;
+// ═══════════════════════════════════════════════════
+let kBar=null,kLine=null,lBar=null,lLine=null;
 
-function renderAnalytics() {
-  // Summary cards
-  let totalVar = 0, totalDollar = 0, flaggedShifts = 0, totalShifts = shiftLog.length;
-  shiftLog.forEach(entry => {
-    let shiftFlagged = false;
-    PRODUCTS.forEach(p => {
-      const d = entry.items[p.id]; if (!d) return;
-      const v = d.begin - (d.sold + d.end);
-      if (v > 0) { totalVar += v; totalDollar += v * p.price; shiftFlagged = true; }
-    });
-    if (shiftFlagged) flaggedShifts++;
-  });
-
-  document.getElementById('analyticsCards').innerHTML = `
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-      <div class="text-xs text-red-500 font-semibold">TOTAL VARIANCE UNITS</div>
-      <div class="text-3xl font-black text-red-600 mt-1">${totalVar}</div>
-    </div>
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-      <div class="text-xs text-red-500 font-semibold">EST. TOTAL $ LOSS</div>
-      <div class="text-3xl font-black text-red-600 mt-1">$${totalDollar.toFixed(0)}</div>
-    </div>
-    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
-      <div class="text-xs text-orange-500 font-semibold">FLAGGED SHIFTS</div>
-      <div class="text-3xl font-black text-orange-500 mt-1">${flaggedShifts}</div>
-    </div>
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-      <div class="text-xs text-blue-500 font-semibold">TOTAL SHIFTS LOGGED</div>
-      <div class="text-3xl font-black text-blue-700 mt-1">${totalShifts}</div>
-    </div>`;
-
-  // Chart 1: Variance by Product
-  const varByProduct = {};
-  PRODUCTS.forEach(p => { varByProduct[p.id] = 0; });
-  shiftLog.forEach(entry => {
-    PRODUCTS.forEach(p => {
-      const d = entry.items[p.id]; if (!d) return;
-      const v = d.begin - (d.sold + d.end);
-      if (v > 0) varByProduct[p.id] += v;
-    });
-  });
-
-  const prodLabels = PRODUCTS.map(p => p.name.length > 16 ? p.name.substring(0,16)+'…' : p.name);
-  const prodData   = PRODUCTS.map(p => varByProduct[p.id]);
-
-  if (chartVarProduct) chartVarProduct.destroy();
-  chartVarProduct = new Chart(document.getElementById('chartVarianceByProduct'), {
-    type: 'bar',
-    data: {
-      labels: prodLabels,
-      datasets: [{ label: 'Variance Units', data: prodData,
-        backgroundColor: prodData.map(v => v > 3 ? '#dc2626' : v > 1 ? '#f97316' : '#16a34a'),
-        borderRadius: 4 }]
-    },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-      scales: { x: { ticks: { font: { size: 10 } } }, y: { beginAtZero: true } } }
-  });
-
-  // Chart 2: Trend over time (by date)
-  const dateMap = {};
-  const sorted = [...shiftLog].sort((a,b) => a.ts - b.ts);
-  sorted.forEach(entry => {
-    if (!dateMap[entry.date]) dateMap[entry.date] = 0;
-    PRODUCTS.forEach(p => {
-      const d = entry.items[p.id]; if (!d) return;
-      const v = d.begin - (d.sold + d.end);
-      if (v > 0) dateMap[entry.date] += v;
-    });
-  });
-  const trendDates = Object.keys(dateMap).slice(-14);
-  const trendData  = trendDates.map(d => dateMap[d]);
-
-  if (chartTrend) chartTrend.destroy();
-  chartTrend = new Chart(document.getElementById('chartTrend'), {
-    type: 'line',
-    data: {
-      labels: trendDates,
-      datasets: [{ label: 'Daily Variance', data: trendData,
-        borderColor: '#003087', backgroundColor: 'rgba(0,48,135,0.1)',
-        fill: true, tension: 0.3, pointRadius: 4 }]
-    },
-    options: { responsive: true, maintainAspectRatio: false,
-      scales: { x: { ticks: { font: { size: 10 } } }, y: { beginAtZero: true } } }
-  });
-
-  // Product breakdown table
-  const tbody = document.getElementById('analyticsProductTable');
-  tbody.innerHTML = PRODUCTS.map(p => {
-    const tv = varByProduct[p.id];
-    const dl = (tv * p.price).toFixed(2);
-    let fs = 0;
-    shiftLog.forEach(e => {
-      const d = e.items[p.id]; if (!d) return;
-      if (d.begin - (d.sold + d.end) > 0) fs++;
-    });
-    const level = tv >= 6 ? 'HIGH' : tv >= 2 ? 'MEDIUM' : 'LOW';
-    const badge = level === 'HIGH'
-      ? `<span class="badge-red text-xs px-2 py-0.5 rounded-full">${level}</span>`
-      : level === 'MEDIUM'
-        ? `<span class="badge-yellow text-xs px-2 py-0.5 rounded-full">${level}</span>`
-        : `<span class="badge-green text-xs px-2 py-0.5 rounded-full">${level}</span>`;
-    return `<tr class="border-b hover:bg-gray-50">
-      <td class="py-2 pr-4 font-medium">${p.name}</td>
-      <td class="py-2 px-3 text-center font-bold ${tv > 0 ? 'text-red-600' : 'text-green-600'}">${tv}</td>
-      <td class="py-2 px-3 text-center text-red-600">$${dl}</td>
-      <td class="py-2 px-3 text-center">${fs}</td>
-      <td class="py-2 text-center">${badge}</td>
-    </tr>`;
-  }).join('');
+function showAnSub(type){
+  document.getElementById('an-kratom').classList.toggle('hidden',type!=='kratom');
+  document.getElementById('an-lottery').classList.toggle('hidden',type!=='lottery');
+  document.getElementById('anTabK').classList.toggle('active',type==='kratom');
+  document.getElementById('anTabL').classList.toggle('active',type==='lottery');
+  document.getElementById('anTabK').classList.toggle('text-gray-500',type!=='kratom');
+  document.getElementById('anTabL').classList.toggle('text-gray-500',type!=='lottery');
+  renderAnalytics(type);
 }
 
-// ============================================================
+function renderAnalytics(type='kratom'){
+  if(type==='kratom') renderKAnalytics();
+  else renderLAnalytics();
+}
+
+function renderKAnalytics(){
+  let tv=0,td=0,fl=0;
+  const varByProd={};
+  const dateMap={};
+  KRATOM.forEach(p=>{varByProd[p.id]=0;});
+
+  shiftLog.forEach(e=>{
+    let shiftF=false;
+    KRATOM.forEach(p=>{
+      const d=e.kratom?.[p.id]; if(!d)return;
+      const v=(d.begin-d.sales)-d.end;
+      if(v>0){tv+=v;td+=v*p.price;varByProd[p.id]+=v;shiftF=true;
+        dateMap[e.date]=(dateMap[e.date]||0)+v;}
+    });
+    if(shiftF)fl++;
+  });
+
+  document.getElementById('kCards').innerHTML=analyticsCards(tv,td,fl,shiftLog.length);
+
+  const pData=KRATOM.map(p=>varByProd[p.id]);
+  if(kBar)kBar.destroy();
+  kBar=new Chart(document.getElementById('kChartBar'),{type:'bar',
+    data:{labels:KRATOM.map(p=>p.name.substring(0,14)+'…'),
+      datasets:[{label:'Variance',data:pData,backgroundColor:pData.map(v=>v>3?'#dc2626':v>1?'#f97316':'#16a34a'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
+
+  const tDates=Object.keys(dateMap).sort().slice(-14);
+  if(kLine)kLine.destroy();
+  kLine=new Chart(document.getElementById('kChartLine'),{type:'line',
+    data:{labels:tDates,datasets:[{label:'Daily Variance',data:tDates.map(d=>dateMap[d]||0),
+      borderColor:'#003087',backgroundColor:'rgba(0,48,135,.1)',fill:true,tension:.3,pointRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
+
+  document.getElementById('kProdTable').innerHTML=prodTable(KRATOM,varByProd);
+}
+
+function renderLAnalytics(){
+  let tv=0,td=0,fl=0;
+  const varByProd={};
+  const dateMap={};
+  SCRATCHERS.forEach(p=>{varByProd[p.id]=0;});
+
+  shiftLog.forEach(e=>{
+    let shiftF=false;
+    SCRATCHERS.forEach(p=>{
+      const d=e.lottery?.[p.id]; if(!d)return;
+      const v=(d.open-d.close)-d.sales;
+      if(v>0){tv+=v;td+=v*p.price;varByProd[p.id]+=v;shiftF=true;
+        dateMap[e.date]=(dateMap[e.date]||0)+v;}
+    });
+    if(shiftF)fl++;
+  });
+
+  document.getElementById('lCards').innerHTML=analyticsCards(tv,td,fl,shiftLog.length);
+
+  const top10=SCRATCHERS.map(p=>({p,v:varByProd[p.id]})).sort((a,b)=>b.v-a.v).slice(0,12);
+  const tData=top10.map(x=>x.v);
+  if(lBar)lBar.destroy();
+  lBar=new Chart(document.getElementById('lChartBar'),{type:'bar',
+    data:{labels:top10.map(x=>x.p.name.substring(0,16)),
+      datasets:[{label:'Variance',data:tData,backgroundColor:tData.map(v=>v>3?'#dc2626':v>1?'#f97316':'#16a34a'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
+
+  const dDates=Object.keys(dateMap).sort().slice(-14);
+  if(lLine)lLine.destroy();
+  lLine=new Chart(document.getElementById('lChartLine'),{type:'line',
+    data:{labels:dDates,datasets:[{label:'Daily Variance',data:dDates.map(d=>dateMap[d]||0),
+      borderColor:'#C8102E',backgroundColor:'rgba(200,16,46,.1)',fill:true,tension:.3,pointRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
+
+  document.getElementById('lProdTable').innerHTML=prodTable(SCRATCHERS,varByProd);
+}
+
+function analyticsCards(tv,td,fl,total){
+  const c=(v,cl,lbl)=>`<div class="rounded-lg p-3 border bg-white">
+    <div class="text-xs font-semibold ${cl.replace('text-','text-').replace('600','500')} uppercase tracking-wide">${lbl}</div>
+    <div class="text-2xl font-black ${cl} mt-1">${v}</div>
+  </div>`;
+  return c(tv,'text-red-600','Total Variance Units')+
+         c('$'+td.toFixed(0),'text-red-600','Est. $ Loss')+
+         c(fl,'text-orange-500','Flagged Shifts')+
+         c(total,'text-blue-700','Total Shifts');
+}
+
+function prodTable(products,varByProd){
+  const rows=products.map(p=>{
+    const tv=varByProd[p.id]||0;
+    const td=(tv*p.price).toFixed(2);
+    const level=tv>=6?'HIGH':tv>=2?'MEDIUM':'LOW';
+    const badge=level==='HIGH'?`<span class="badge-r text-xs px-2 py-0.5 rounded-full">HIGH</span>`
+                :level==='MEDIUM'?`<span class="badge-y text-xs px-2 py-0.5 rounded-full">MEDIUM</span>`
+                :`<span class="badge-g text-xs px-2 py-0.5 rounded-full">LOW</span>`;
+    return `<tr><td class="py-1.5 pr-4 text-sm font-medium">${p.name}</td>
+      <td class="py-1.5 px-3 text-center text-sm font-bold ${tv>0?'text-red-600':'text-green-600'}">${tv}</td>
+      <td class="py-1.5 px-3 text-center text-sm text-red-600">$${td}</td>
+      <td class="py-1.5 text-center">${badge}</td></tr>`;
+  }).join('');
+  return `<table class="w-full text-sm mt-2">
+    <thead><tr class="text-xs text-gray-500 text-left">
+      <th class="pb-2 pr-4">Product / Game</th>
+      <th class="pb-2 px-3 text-center">Variance</th>
+      <th class="pb-2 px-3 text-center">Est. $ Loss</th>
+      <th class="pb-2 text-center">Alert</th>
+    </tr></thead>
+    <tbody>${rows}</tbody></table>`;
+}
+
+// ═══════════════════════════════════════════════════
 // STORES TAB
-// ============================================================
-function renderStores() {
-  const grid = document.getElementById('storeGrid');
-  grid.innerHTML = STORES.map(store => {
-    const entries = shiftLog.filter(e => e.store === store.id);
-    let totalVar = 0, totalDollar = 0, flaggedShifts = 0;
-    entries.forEach(entry => {
-      let f = false;
-      PRODUCTS.forEach(p => {
-        const d = entry.items[p.id]; if (!d) return;
-        const v = d.begin - (d.sold + d.end);
-        if (v > 0) { totalVar += v; totalDollar += v * p.price; f = true; }
+// ═══════════════════════════════════════════════════
+function onStoreChange(){
+  // re-render review if it's visible
+  if(!document.getElementById('tab-review').classList.contains('hidden'))
+    renderReview(revSub);
+}
+
+function renderStores(){
+  const regionF=document.getElementById('storeRegionFilter').value;
+  const statusF=document.getElementById('storeStatusFilter').value;
+  const grid=document.getElementById('storeGrid');
+
+  const storeStats=STORES.map(store=>{
+    const entries=shiftLog.filter(e=>e.store===store.id);
+    let kVar=0,lVar=0,kDollar=0,lDollar=0,flaggedShifts=0;
+    entries.forEach(e=>{
+      let f=false;
+      KRATOM.forEach(p=>{
+        const d=e.kratom?.[p.id]; if(!d)return;
+        const v=(d.begin-d.sales)-d.end;
+        if(v>0){kVar+=v;kDollar+=v*p.price;f=true;}
       });
-      if (f) flaggedShifts++;
+      SCRATCHERS.forEach(p=>{
+        const d=e.lottery?.[p.id]; if(!d)return;
+        const v=(d.open-d.close)-d.sales;
+        if(v>0){lVar+=v;lDollar+=v*p.price;f=true;}
+      });
+      if(f)flaggedShifts++;
     });
-    const lastEntry = [...entries].sort((a,b) => b.ts - a.ts)[0];
-    const lastDate  = lastEntry ? lastEntry.date : 'No data';
+    const totalDollar=kDollar+lDollar;
+    const totalVar=kVar+lVar;
+    const last=[...entries].sort((a,b)=>b.ts-a.ts)[0];
+    const level=totalVar>=10?'ALERT':totalVar>=3?'WATCH':'CLEAN';
+    return {...store,entries,kVar,lVar,kDollar,lDollar,totalDollar,totalVar,flaggedShifts,lastDate:last?.date||null,level};
+  });
 
-    const alertLevel = totalVar >= 10 ? 'red' : totalVar >= 4 ? 'yellow' : 'green';
-    const borderClass = alertLevel === 'red' ? 'border-red-400' : alertLevel === 'yellow' ? 'border-yellow-400' : 'border-green-400';
-    const badgeClass  = alertLevel === 'red' ? 'badge-red' : alertLevel === 'yellow' ? 'badge-yellow' : 'badge-green';
-    const badgeText   = alertLevel === 'red' ? 'ALERT' : alertLevel === 'yellow' ? 'WATCH' : 'CLEAN';
+  const filtered=storeStats
+    .filter(s=>!regionF||s.region===regionF)
+    .filter(s=>!statusF||s.level===statusF);
 
-    return `<div class="border-2 ${borderClass} rounded-xl p-5 bg-white hover:shadow-md transition-shadow">
-      <div class="flex items-start justify-between mb-3">
+  grid.innerHTML=filtered.map(s=>{
+    const border=s.level==='ALERT'?'border-red-400':s.level==='WATCH'?'border-yellow-400':'border-green-300';
+    const badgeCls=s.level==='ALERT'?'badge-r':s.level==='WATCH'?'badge-y':'badge-g';
+    const dot=s.level==='ALERT'?'bg-red-500':s.level==='WATCH'?'bg-yellow-500':'bg-green-500';
+    return `<div class="border-2 ${border} rounded-xl p-4 bg-white hover:shadow-md transition">
+      <div class="flex items-start justify-between mb-1">
         <div>
-          <div class="font-bold text-gray-800 text-lg">${store.name}</div>
-          <div class="text-xs text-gray-400">Last count: ${lastDate}</div>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full ${dot} inline-block"></span>
+            <span class="font-bold text-gray-800">${s.name}</span>
+          </div>
+          <div class="text-xs text-gray-400 ml-4">${s.city}${s.addr?` · ${s.addr}`:''}</div>
         </div>
-        <span class="${badgeClass} text-xs px-2 py-1 rounded-full font-bold">${badgeText}</span>
+        <span class="${badgeCls} text-xs px-2 py-0.5 rounded-full font-bold">${s.level}</span>
       </div>
-      <div class="grid grid-cols-3 gap-2 text-center">
-        <div class="bg-gray-50 rounded p-2">
-          <div class="text-xs text-gray-400">Shifts</div>
-          <div class="font-bold text-gray-700">${entries.length}</div>
-        </div>
-        <div class="bg-gray-50 rounded p-2">
+      <div class="text-xs text-gray-400 mb-3">Last count: ${s.lastDate||'No data'} &nbsp;·&nbsp; ${s.entries.length} shifts logged</div>
+      <div class="grid grid-cols-4 gap-1 text-center">
+        <div class="bg-gray-50 rounded p-1.5">
           <div class="text-xs text-gray-400">Flags</div>
-          <div class="font-bold ${flaggedShifts > 0 ? 'text-orange-500' : 'text-green-600'}">${flaggedShifts}</div>
+          <div class="font-bold ${s.flaggedShifts>0?'text-orange-500':'text-green-600'} text-sm">${s.flaggedShifts}</div>
         </div>
-        <div class="bg-gray-50 rounded p-2">
-          <div class="text-xs text-gray-400">$ Loss</div>
-          <div class="font-bold ${totalDollar > 0 ? 'text-red-600' : 'text-green-600'}">$${totalDollar.toFixed(0)}</div>
+        <div class="bg-gray-50 rounded p-1.5">
+          <div class="text-xs text-gray-400">K Loss</div>
+          <div class="font-bold ${s.kDollar>0?'text-red-600':'text-green-600'} text-sm">$${s.kDollar.toFixed(0)}</div>
+        </div>
+        <div class="bg-gray-50 rounded p-1.5">
+          <div class="text-xs text-gray-400">Lotto Loss</div>
+          <div class="font-bold ${s.lDollar>0?'text-red-600':'text-green-600'} text-sm">$${s.lDollar.toFixed(0)}</div>
+        </div>
+        <div class="bg-gray-50 rounded p-1.5">
+          <div class="text-xs text-gray-400">Total</div>
+          <div class="font-bold ${s.totalDollar>0?'text-red-700':'text-green-600'} text-sm">$${s.totalDollar.toFixed(0)}</div>
         </div>
       </div>
-      ${totalVar > 0 ? `<div class="mt-3 text-xs text-center text-red-600 font-semibold">${totalVar} units unaccounted across all shifts</div>` : `<div class="mt-3 text-xs text-center text-green-600 font-semibold">No shrinkage detected</div>`}
     </div>`;
   }).join('');
+
+  if(!filtered.length) grid.innerHTML=`<p class="text-gray-400 italic text-sm col-span-3">No stores match filters.</p>`;
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════
 // CLOCK
-// ============================================================
-function updateClock() {
-  const now = new Date();
-  document.getElementById('currentDateTime').textContent =
-    now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }) +
-    ' · ' + now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+// ═══════════════════════════════════════════════════
+function tick(){
+  const n=new Date();
+  document.getElementById('hdrClock').textContent=
+    n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+
+    ' · '+n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
 }
 
-// ============================================================
+// ═══════════════════════════════════════════════════
 // INIT
-// ============================================================
+// ═══════════════════════════════════════════════════
 loadState();
-if (shiftLog.length === 0) seedDemoData();
-renderCountTable();
-updateClock();
-setInterval(updateClock, 30000);
+if(!shiftLog.length) seedDemo();
+buildCountTables();
+
+// Set today's date in shift date field
+document.getElementById('shiftDate').value=new Date().toISOString().split('T')[0];
+
+tick();
+setInterval(tick,30000);
 </script>
 </body>
 </html>
