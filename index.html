@@ -610,7 +610,8 @@ function fromDistrictRow(r){
 
 // ── Shared UI helpers ──
 function showFormError(errEl, msg, err){
-  errEl.textContent = msg + (err ? ': ' + err.message : '');
+  const detail = err ? (err instanceof TypeError ? 'Network error — please try again.' : err.message) : '';
+  errEl.textContent = msg + (detail ? ': ' + detail : '');
   errEl.classList.remove('hidden');
   if(err) console.error(err);
 }
@@ -988,7 +989,7 @@ async function submitCount(){
     await db_insertShift(entry);
   } catch(e) {
     console.error(e);
-    alert('Error saving count to database. Check your connection and try again.');
+    alert(e instanceof TypeError ? 'Network error — please check your connection and try again.' : 'Error saving count: ' + e.message);
     return;
   }
   shiftLog.unshift(entry);
