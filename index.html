@@ -6,6 +6,7 @@
 <title>Shrink Shield — Keith's Superstores</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <style>
   :root{--kb:#003087;--kr:#C8102E;}
   body{font-family:'Segoe UI',sans-serif;background:#f1f5f9;}
@@ -1586,6 +1587,248 @@ if(session){
 
 tick();
 setInterval(tick,30000);
+</script>
+
+<script>
+
+/* ---------------------------
+SUPABASE CONNECTION
+--------------------------- */
+
+const SUPABASE_URL =
+"https://ylfsqjbqhewpfiooytlg.supabase.co"
+
+const SUPABASE_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZnNxamJxaGV3cGZpb295dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzQwODQsImV4cCI6MjA4ODM1MDA4NH0.Ssl5J6ktZIVtLd2cq8vH7PWdR4-yZwI5tt4PtXkVqWk"
+
+const supabase =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+)
+
+/* ---------------------------
+EDITABLE PRICES
+--------------------------- */
+
+function makePricesEditable(){
+
+document.querySelectorAll(".price")
+.forEach(p=>{
+
+let val = p.innerText.replace("$","")
+
+p.innerHTML =
+`<input class="priceEdit"
+type="number"
+step="0.01"
+value="${val}"
+style="width:70px">`
+
+})
+
+}
+
+/* ---------------------------
+GET PRICE VALUE
+--------------------------- */
+
+function getRowPrice(row){
+
+let input =
+row.querySelector(".priceEdit")
+
+if(!input) return 0
+
+return parseFloat(input.value) || 0
+
+}
+
+/* ---------------------------
+VARIANCE ALERT
+--------------------------- */
+
+function checkVariance(v){
+
+if(Math.abs(v) >= 10){
+
+return "ALERT"
+
+}else{
+
+return "OK"
+
+}
+
+}
+
+/* ---------------------------
+SAVE COUNT TO SUPABASE
+--------------------------- */
+
+async function saveCount(record){
+
+const { error } =
+await supabase
+.from("counts")
+.insert([record])
+
+if(error){
+
+console.log("DB ERROR",error)
+
+}
+
+}
+
+/* ---------------------------
+SUBMIT COUNT WRAPPER
+--------------------------- */
+
+async function submitCount(data){
+
+let variance =
+data.end - data.begin
+
+let status =
+checkVariance(variance)
+
+await saveCount({
+
+store:data.store,
+location:data.location,
+product:data.product,
+shift:data.shift,
+begin_count:data.begin,
+end_count:data.end,
+variance:variance,
+price:data.price,
+status:status,
+user_name:data.user
+
+})
+
+}
+
+/* ---------------------------
+LOAD MANAGER DATA
+--------------------------- */
+
+async function loadManagerCounts(){
+
+let {data,error} =
+await supabase
+.from("counts")
+.select("*")
+.order("created_at",{ascending:false})
+
+if(error){
+
+console.log(error)
+return
+
+}
+
+buildLeaderboard(data)
+
+}
+
+/* ---------------------------
+STORE LEADERBOARD
+--------------------------- */
+
+function buildLeaderboard(rows){
+
+let totals={}
+
+rows.forEach(r=>{
+
+if(!totals[r.store]){
+
+totals[r.store]=0
+
+}
+
+totals[r.store]+=Math.abs(r.variance)
+
+})
+
+let list =
+Object.entries(totals)
+.sort((a,b)=>a[1]-b[1])
+
+renderLeaderboard(list)
+
+}
+
+/* ---------------------------
+RENDER LEADERBOARD
+--------------------------- */
+
+function renderLeaderboard(list){
+
+let board =
+document.getElementById("leaderboard")
+
+if(!board) return
+
+board.innerHTML=""
+
+list.forEach(r=>{
+
+let row =
+document.createElement("div")
+
+row.innerHTML =
+r[0] + " : " + r[1]
+
+board.appendChild(row)
+
+})
+
+}
+
+/* ---------------------------
+BLIND SHIFT FILTER
+--------------------------- */
+
+function filterByShift(rows,user){
+
+if(user.role === "employee"){
+
+return rows.filter(
+r => r.shift === user.shift
+)
+
+}
+
+return rows
+
+}
+
+/* ---------------------------
+AUTO REFRESH
+--------------------------- */
+
+setInterval(()=>{
+
+loadManagerCounts()
+
+},10000)
+
+/* ---------------------------
+INIT
+--------------------------- */
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+makePricesEditable()
+
+}
+)
+
 </script>
 </body>
 </html>
