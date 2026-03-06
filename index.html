@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shrink Shield — Keith's Superstores</title>
@@ -32,39 +33,9 @@
 </style>
 </head>
 <body>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<!-- ═══════════════════ LOGIN SCREEN ═══════════════════ -->
-<div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center" style="background:#003087;">
-  <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4">
-    <div class="text-center mb-6">
-      <img src="logo.png" onerror="this.style.display='none'" class="h-20 mx-auto mb-2 rounded" id="loginLogo">
-      <div class="mb-2">
-        <div style="color:#003087;font-weight:900;font-size:22px;letter-spacing:2px;">KEITH'S</div>
-        <div style="color:#C8102E;font-weight:900;font-size:14px;letter-spacing:1px;">SUPERSTORES</div>
-      </div>
-      <div class="text-xl font-black tracking-widest text-gray-800">SHRINK SHIELD</div>
-      <div class="text-xs text-gray-400 mt-0.5">Loss Prevention System</div>
-    </div>
-    <form onsubmit="doLogin(event)" class="space-y-3">
-      <div>
-        <label class="lbl">USERNAME</label>
-        <input id="loginUser" type="text" autocomplete="username" placeholder="Enter username"
-          class="inp w-full" autofocus>
-      </div>
-      <div>
-        <label class="lbl">PASSWORD</label>
-        <input id="loginPass" type="password" autocomplete="current-password" placeholder="Enter password"
-          class="inp w-full">
-      </div>
-      <div id="loginError" class="hidden text-red-600 text-sm text-center bg-red-50 rounded p-2"></div>
-      <button type="submit" style="background:#003087;"
-        class="w-full py-2.5 rounded-lg text-white font-bold text-sm hover:opacity-90 transition mt-1">
-        Sign In
-      </button>
-    </form>
-    <div class="text-center text-xs text-gray-400 mt-4">v4.0 · Keith's Superstores</div>
-  </div>
-</div>
+<title>Store Inventory Count System</title>
 
 <!-- ═══════════════════ APP (hidden until login) ═══════════════════ -->
 <div id="appScreen" class="hidden">
@@ -501,14 +472,9 @@
 </footer>
 
 </div><!-- /appScreen -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-  .lbl{display:block;font-size:10px;font-weight:700;color:#6b7280;letter-spacing:.05em;margin-bottom:2px;}
-  .inp{display:block;border:1px solid #d1d5db;border-radius:6px;padding:5px 8px;font-size:13px;outline:none;}
-  .inp:focus{border-color:#003087;}
-  .num-inp{width:64px;border:1px solid #d1d5db;border-radius:6px;padding:4px 6px;font-size:13px;text-align:center;outline:none;}
-  .num-inp:focus{border-color:#003087;}
-</style>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -734,20 +700,24 @@ function seedDemo(){
     });
   });
   // saveState() called by caller after seedDemo()
+body{
+font-family:Arial;
+background:#f2f4f7;
+margin:0;
+padding:20px;
 }
 
-// showTab is defined in the AUTH section below (needs canAccess)
+.container{
+max-width:900px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
 
-// ═══════════════════════════════════════════════════
-// COUNT SUB-TABS
-// ═══════════════════════════════════════════════════
-function showCountSub(type){
-  document.getElementById('sub-kratom').classList.toggle('hidden', type!=='kratom');
-  document.getElementById('sub-lottery').classList.toggle('hidden', type!=='lottery');
-  document.querySelectorAll('#tab-count .sub-btn').forEach((b,i)=>{
-    b.classList.toggle('active', (i===0&&type==='kratom')||(i===1&&type==='lottery'));
-    b.classList.toggle('text-gray-500', !b.classList.contains('active'));
-  });
+h1,h2{
+text-align:center;
 }
 
 // ═══════════════════════════════════════════════════
@@ -800,133 +770,56 @@ function buildCountTables(){
       <td class="py-2 text-center" id="lstat-${p.id}">—</td>`;
     lb.appendChild(tr);
   });
+label{
+font-weight:bold;
+margin-top:10px;
+display:block;
 }
 
-// ═══════════════════════════════════════════════════
-// LIVE ROW CALCULATIONS
-// ═══════════════════════════════════════════════════
-function calcKRow(id){
-  const bEl=document.getElementById(`kb-${id}`);
-  const begin = parseFloat(bEl.value);
-  const sales = parseFloat(document.getElementById(`ks-${id}`).value)||0;
-  const end   = parseFloat(document.getElementById(`ke-${id}`).value)||0;
-  if(bEl.value===''){
-    ['kexp','kvar','kstat'].forEach(p=>document.getElementById(`${p}-${id}`).textContent='—');
-    document.getElementById(`krow-${id}`).classList.remove('flag-row');
-    return;
-  }
-  const expected = (begin||0) - sales;
-  const variance = expected - end; // positive = shrinkage
-  setVarianceUI({expId:`kexp-${id}`,varId:`kvar-${id}`,statId:`kstat-${id}`,rowId:`krow-${id}`,expected,variance});
-  updateKSummary();
+input,select{
+width:100%;
+padding:10px;
+margin-top:5px;
+font-size:16px;
 }
 
-function calcLRow(id){
-  const oEl=document.getElementById(`lo-${id}`);
-  const open  = parseFloat(oEl.value);
-  const sales = parseFloat(document.getElementById(`ls-${id}`).value)||0;
-  const close = parseFloat(document.getElementById(`lc-${id}`).value)||0;
-  const cntEl = document.getElementById(`lcnt-${id}`);
-  if(oEl.value===''){
-    cntEl.textContent='—';
-    ['lvar','lstat'].forEach(p=>document.getElementById(`${p}-${id}`).textContent='—');
-    document.getElementById(`lrow-${id}`).classList.remove('flag-row');
-    return;
-  }
-  const counted = (open||0) - close;
-  cntEl.textContent = counted >= 0 ? counted : `(${Math.abs(counted)})`;
-  const variance = counted - sales; // positive = shrinkage (counted sold > register sales)
-  // For lottery, variance means tickets missing from rolls vs register
-  // expected "close" from formula: open - sales
-  const expected = (open||0) - sales;
-  setVarianceUI({expId:null,varId:`lvar-${id}`,statId:`lstat-${id}`,rowId:`lrow-${id}`,expected,variance});
-  updateLSummary();
+button{
+margin-top:15px;
+padding:12px;
+font-size:16px;
+border:none;
+background:#1976d2;
+color:white;
+border-radius:6px;
+cursor:pointer;
 }
 
-function setVarianceUI({expId,varId,statId,rowId,expected,variance}){
-  if(expId) document.getElementById(expId).textContent = expected >= 0 ? expected : `(${Math.abs(expected)})`;
-  const varEl  = document.getElementById(varId);
-  const statEl = document.getElementById(statId);
-  const row    = document.getElementById(rowId);
-  if(variance>0){
-    varEl.textContent=`-${variance}`;
-    varEl.className='py-2 px-2 text-center font-bold text-xs text-red-600';
-    statEl.innerHTML=`<span class="badge-r text-xs px-2 py-0.5 rounded-full font-semibold">FLAGGED</span>`;
-    row.classList.add('flag-row');
-  } else if(variance<0){
-    varEl.textContent=`+${Math.abs(variance)}`;
-    varEl.className='py-2 px-2 text-center font-bold text-xs text-yellow-600';
-    statEl.innerHTML=`<span class="badge-y text-xs px-2 py-0.5 rounded-full font-semibold">OVER</span>`;
-    row.classList.remove('flag-row');
-  } else {
-    varEl.textContent='✓ 0';
-    varEl.className='py-2 px-2 text-center font-bold text-xs text-green-600';
-    statEl.innerHTML=`<span class="badge-g text-xs px-2 py-0.5 rounded-full font-semibold">OK</span>`;
-    row.classList.remove('flag-row');
-  }
+button:hover{
+background:#125ca1;
 }
 
-function updateKSummary(){
-  let tv=0,td=0,fl=0;
-  KRATOM.forEach(p=>{
-    const b=parseFloat(document.getElementById(`kb-${p.id}`).value);
-    if(isNaN(b)) return;
-    const s=parseFloat(document.getElementById(`ks-${p.id}`).value)||0;
-    const e=parseFloat(document.getElementById(`ke-${p.id}`).value)||0;
-    const v=(b-s)-e;
-    if(v>0){tv+=v;td+=v*p.price;fl++;}
-  });
-  const el=document.getElementById('kratomSummary');
-  el.classList.remove('hidden');
-  el.innerHTML=summaryHTML(tv,td,fl);
+.alert{
+color:red;
+font-weight:bold;
+text-align:center;
+margin-top:10px;
 }
 
-function updateLSummary(){
-  let tv=0,td=0,fl=0;
-  SCRATCHERS.forEach(p=>{
-    const o=parseFloat(document.getElementById(`lo-${p.id}`).value);
-    if(isNaN(o)) return;
-    const s=parseFloat(document.getElementById(`ls-${p.id}`).value)||0;
-    const c=parseFloat(document.getElementById(`lc-${p.id}`).value)||0;
-    const v=(o-c)-s;
-    if(v>0){tv+=v;td+=v*p.price;fl++;}
-  });
-  const el=document.getElementById('lotterySummary');
-  el.classList.remove('hidden');
-  el.innerHTML=summaryHTML(tv,td,fl);
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
 }
 
-function summaryHTML(tv,td,fl){
-  return `<div class="grid grid-cols-3 gap-3">
-    <div class="bg-gray-50 rounded p-3 text-center">
-      <div class="text-xs text-gray-400">Variance Units</div>
-      <div class="text-2xl font-black ${tv>0?'text-red-600':'text-green-600'}">${tv}</div>
-    </div>
-    <div class="bg-gray-50 rounded p-3 text-center">
-      <div class="text-xs text-gray-400">Est. $ Loss</div>
-      <div class="text-2xl font-black ${td>0?'text-red-600':'text-green-600'}">$${td.toFixed(2)}</div>
-    </div>
-    <div class="bg-gray-50 rounded p-3 text-center">
-      <div class="text-xs text-gray-400">Flagged</div>
-      <div class="text-2xl font-black ${fl>0?'text-orange-500':'text-green-600'}">${fl}</div>
-    </div>
-  </div>`;
+th,td{
+border:1px solid #ddd;
+padding:8px;
+text-align:center;
 }
 
-// ═══════════════════════════════════════════════════
-// CLEAR & SUBMIT
-// ═══════════════════════════════════════════════════
-function clearCount(){
-  KRATOM.forEach(p=>{
-    ['kb','ks','ke'].forEach(f=>document.getElementById(`${f}-${p.id}`).value='');
-    calcKRow(p.id);
-  });
-  SCRATCHERS.forEach(p=>{
-    ['lo','ls','lc'].forEach(f=>document.getElementById(`${f}-${p.id}`).value='');
-    calcLRow(p.id);
-  });
-  document.getElementById('kratomSummary').classList.add('hidden');
-  document.getElementById('lotterySummary').classList.add('hidden');
+th{
+background:#1976d2;
+color:white;
 }
 
 async function submitCount(){
@@ -984,382 +877,211 @@ async function submitCount(){
   clearCount();
   alert(`✓ Count submitted for ${store.name} — ${shift} shift!`);
   showTab('review');
+.hidden{
+display:none;
 }
 
-// ═══════════════════════════════════════════════════
-// REVIEW TAB
-// ═══════════════════════════════════════════════════
-let revSub='kratom';
-function showRevSub(type){
-  revSub=type;
-  document.getElementById('revTabK').classList.toggle('active',type==='kratom');
-  document.getElementById('revTabL').classList.toggle('active',type==='lottery');
-  document.getElementById('revTabK').classList.toggle('text-gray-500',type!=='kratom');
-  document.getElementById('revTabL').classList.toggle('text-gray-500',type!=='lottery');
-  renderReview(type);
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Shift Inventory Count</h1>
+
+<div id="employeeSection">
+
+<label>Store</label>
+<input id="store">
+
+<label>Location</label>
+<input id="location">
+
+<label>Product</label>
+<input id="product">
+
+<label>User</label>
+<input id="user">
+
+<label>Shift</label>
+<select id="shift">
+<option>Morning</option>
+<option>Evening</option>
+<option>Night</option>
+</select>
+
+<label>Beginning Count</label>
+<input type="number" id="begin">
+
+<label>Ending Count</label>
+<input type="number" id="end">
+
+<label>Variance</label>
+<input id="variance" readonly>
+
+<div id="alert" class="alert"></div>
+
+<button onclick="saveCount()">Submit Count</button>
+
+</div>
+
+
+<h2>Manager Access</h2>
+
+<input id="managerPass" placeholder="Manager Password">
+<button onclick="managerLogin()">Open Dashboard</button>
+
+
+<div id="managerSection" class="hidden">
+
+<h2>Manager Dashboard</h2>
+
+<button onclick="loadCounts()">Refresh Data</button>
+
+<h3>Store Leaderboard</h3>
+<table id="leaderboard">
+<thead>
+<tr>
+<th>Store</th>
+<th>Total Variance</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+
+<h3>All Counts</h3>
+<table id="table">
+
+<thead>
+<tr>
+<th>Store</th>
+<th>Location</th>
+<th>Product</th>
+<th>Shift</th>
+<th>Begin</th>
+<th>End</th>
+<th>Variance</th>
+<th>User</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<script>
+
+const SUPABASE_URL="https://ylfsqjbqhewpfiooytlg.supabase.co"
+
+const SUPABASE_KEY="YOUR_ANON_KEY_HERE"
+
+const supabase=window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+)
+
+const beginInput=document.getElementById("begin")
+const endInput=document.getElementById("end")
+const varianceInput=document.getElementById("variance")
+const alertBox=document.getElementById("alert")
+
+beginInput.addEventListener("input",calcVariance)
+endInput.addEventListener("input",calcVariance)
+
+function calcVariance(){
+
+let begin=parseInt(beginInput.value)||0
+let end=parseInt(endInput.value)||0
+
+let variance=end-begin
+
+varianceInput.value=variance
+
+if(Math.abs(variance)>=10){
+
+alertBox.innerText="⚠ Variance exceeds allowed limit"
+
+}else{
+
+alertBox.innerText=""
+
 }
 
-function renderReview(type='kratom'){
-  const sid=document.getElementById('storeSelect').value;
-  const entry=[...shiftLog].find(e=>e.store===sid);
-  const el=document.getElementById('reviewContent');
-
-  if(!entry){ el.innerHTML=`<p class="text-gray-400 italic text-sm">No counts for this store yet.</p>`; return; }
-
-  const metaBar=`<div class="flex flex-wrap gap-3 text-xs text-gray-600 bg-gray-50 rounded p-2.5 mb-4">
-    <span><strong>Store:</strong> ${entry.storeName}</span>
-    <span><strong>Date:</strong> ${entry.date}</span>
-    <span><strong>Shift:</strong> ${entry.shift}</span>
-    <span><strong>Out:</strong> ${entry.outClerk}</span>
-    <span><strong>In:</strong> ${entry.inClerk}</span>
-  </div>`;
-
-  if(type==='kratom'){
-    el.innerHTML = metaBar + buildReviewTable(KRATOM, entry.kratom||{},
-      p=>{ const d=entry.kratom?.[p.id]; if(!d)return null;
-           return {open:d.begin,sales:d.sales,close:d.end}; },
-      ['BEGIN','SALES','END','EXP. END','VARIANCE','STATUS']);
-  } else {
-    el.innerHTML = metaBar + buildReviewTable(SCRATCHERS, entry.lottery||{},
-      p=>{ const d=entry.lottery?.[p.id]; if(!d)return null;
-           return {open:d.open,sales:d.sales,close:d.close}; },
-      ['OPEN','SALES','CLOSE','COUNTED SOLD','VARIANCE','STATUS']);
-  }
 }
 
-function buildReviewTable(products, dataObj, getter, headers){
-  let tv=0,td=0,fl=0,rows='';
-  products.forEach(p=>{
-    const d=getter(p);
-    if(!d) return;
-    const {open,sales,close}=d;
-    const counted=open-close;
-    const variance=(open-sales)-close; // = counted - sales for lottery; = begin-sales-end for kratom
-    if(variance>0){tv+=variance;td+=variance*p.price;fl++;}
-    const varClass=variance>0?'text-red-600':variance<0?'text-yellow-600':'text-green-600';
-    const badge=variance>0?`<span class="badge-r text-xs px-2 py-0.5 rounded-full">FLAGGED</span>`
-               :variance<0?`<span class="badge-y text-xs px-2 py-0.5 rounded-full">OVER</span>`
-               :`<span class="badge-g text-xs px-2 py-0.5 rounded-full">OK</span>`;
-    const rowCls=variance>0?'flag-row':'';
-    rows+=`<tr class="${rowCls}">
-      <td class="py-2 pr-3 font-medium text-sm">${p.name}</td>
-      <td class="py-2 px-2 text-center text-sm">${open}</td>
-      <td class="py-2 px-2 text-center text-sm">${sales}</td>
-      <td class="py-2 px-2 text-center text-sm">${close}</td>
-      <td class="py-2 px-2 text-center text-sm font-mono">${open-sales}</td>
-      <td class="py-2 px-2 text-center font-bold text-sm ${varClass}">${variance>0?'-'+variance:variance<0?'+'+Math.abs(variance):'✓ 0'}</td>
-      <td class="py-2 text-center">${badge}</td>
-    </tr>`;
-  });
+async function saveCount(){
 
-  return `<div class="grid grid-cols-3 gap-3 mb-4">
-    ${cardHTML('Variance Units',tv,tv>0?'text-red-600':'text-green-600')}
-    ${cardHTML('Est. $ Loss','$'+td.toFixed(2),td>0?'text-red-600':'text-green-600')}
-    ${cardHTML('Flagged Items',fl,fl>0?'text-orange-500':'text-green-600')}
-  </div>
-  <div class="overflow-x-auto"><table class="w-full text-sm">
-    <thead><tr class="text-xs text-gray-500 text-left">
-      <th class="pb-2 pr-3">PRODUCT / GAME</th>
-      ${headers.map(h=>`<th class="pb-2 px-2 text-center">${h}</th>`).join('')}
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table></div>`;
+let record={
+
+store:document.getElementById("store").value,
+location:document.getElementById("location").value,
+product:document.getElementById("product").value,
+shift:document.getElementById("shift").value,
+user_name:document.getElementById("user").value,
+begin_count:parseInt(beginInput.value),
+end_count:parseInt(endInput.value),
+variance:parseInt(varianceInput.value)
+
 }
 
-function cardHTML(label,val,cls){
-  return `<div class="bg-gray-50 rounded p-3 text-center">
-    <div class="text-xs text-gray-400">${label}</div>
-    <div class="text-xl font-black mt-1 ${cls}">${val}</div>
-  </div>`;
+const {error}=await supabase
+.from("counts")
+.insert([record])
+
+if(error){
+
+alert("Save failed")
+
+}else{
+
+alert("Count saved")
+
+beginInput.value=""
+endInput.value=""
+varianceInput.value=""
+
 }
 
-// ═══════════════════════════════════════════════════
-// LOG TAB
-// ═══════════════════════════════════════════════════
-function renderLog(){
-  const storeF = document.getElementById('logStore').value;
-  const typeF  = document.getElementById('logType').value;
-  const entries=[...shiftLog]
-    .filter(e=>!storeF||e.store===storeF)
-    .sort((a,b)=>b.ts-a.ts)
-    .slice(0,60);
-  const el=document.getElementById('logContent');
-  if(!entries.length){ el.innerHTML=`<p class="text-gray-400 italic text-sm">No logs found.</p>`; return; }
-
-  el.innerHTML=entries.map(e=>{
-    const kFlags=[],lFlags=[];
-    let kDollar=0,lDollar=0;
-
-    if(typeF!=='lottery'){
-      KRATOM.forEach(p=>{
-        const d=e.kratom?.[p.id]; if(!d)return;
-        const v=(d.begin-d.sales)-d.end;
-        if(v>0){kFlags.push(`${p.name}(−${v})`);kDollar+=v*p.price;}
-      });
-    }
-    if(typeF!=='kratom'){
-      SCRATCHERS.forEach(p=>{
-        const d=e.lottery?.[p.id]; if(!d)return;
-        const v=(d.open-d.close)-d.sales;
-        if(v>0){lFlags.push(`${p.name}(−${v})`);lDollar+=v*p.price;}
-      });
-    }
-
-    const totalFlags=kFlags.length+lFlags.length;
-    const totalDollar=kDollar+lDollar;
-    const hasShrink=totalFlags>0;
-    const cls=hasShrink?'border-red-200 bg-red-50':'border-gray-200';
-    const badge=hasShrink
-      ?`<span class="badge-r text-xs px-2 py-0.5 rounded-full">${totalFlags} FLAG${totalFlags>1?'S':''}</span>`
-      :`<span class="badge-g text-xs px-2 py-0.5 rounded-full">CLEAN</span>`;
-
-    return `<div class="border rounded-lg p-3 mb-2 ${cls}">
-      <div class="flex flex-wrap items-start justify-between gap-1">
-        <div>
-          <div class="font-semibold text-sm text-gray-800">${e.storeName} — ${e.shift} Shift</div>
-          <div class="text-xs text-gray-400">${e.date} &nbsp;·&nbsp; Out: ${e.outClerk} &nbsp;·&nbsp; In: ${e.inClerk}</div>
-        </div>
-        <div class="flex items-center gap-2">
-          ${badge}
-          ${hasShrink?`<span class="text-xs text-red-600 font-bold">$${totalDollar.toFixed(2)}</span>`:''}
-        </div>
-      </div>
-      ${kFlags.length?`<div class="mt-2 text-xs bg-red-100 rounded px-2 py-1 text-red-700">Kratom: ${kFlags.join(' · ')}</div>`:''}
-      ${lFlags.length?`<div class="mt-1 text-xs bg-orange-50 rounded px-2 py-1 text-orange-700 border border-orange-200">Scratch-Offs: ${lFlags.join(' · ')}</div>`:''}
-    </div>`;
-  }).join('');
 }
 
-// ═══════════════════════════════════════════════════
-// ANALYTICS TAB
-// ═══════════════════════════════════════════════════
-let kBar=null,kLine=null,lBar=null,lLine=null;
+function managerLogin(){
 
-function showAnSub(type){
-  document.getElementById('an-kratom').classList.toggle('hidden',type!=='kratom');
-  document.getElementById('an-lottery').classList.toggle('hidden',type!=='lottery');
-  document.getElementById('anTabK').classList.toggle('active',type==='kratom');
-  document.getElementById('anTabL').classList.toggle('active',type==='lottery');
-  document.getElementById('anTabK').classList.toggle('text-gray-500',type!=='kratom');
-  document.getElementById('anTabL').classList.toggle('text-gray-500',type!=='lottery');
-  renderAnalytics(type);
+let pass=document.getElementById("managerPass").value
+
+if(pass==="manager123"){
+
+document.getElementById("managerSection").classList.remove("hidden")
+
+loadCounts()
+
+}else{
+
+alert("Invalid password")
+
 }
 
-function renderAnalytics(type='kratom'){
-  if(type==='kratom') renderKAnalytics();
-  else renderLAnalytics();
 }
 
-function renderKAnalytics(){
-  let tv=0,td=0,fl=0;
-  const varByProd={};
-  const dateMap={};
-  KRATOM.forEach(p=>{varByProd[p.id]=0;});
+async function loadCounts(){
 
-  shiftLog.forEach(e=>{
-    let shiftF=false;
-    KRATOM.forEach(p=>{
-      const d=e.kratom?.[p.id]; if(!d)return;
-      const v=(d.begin-d.sales)-d.end;
-      if(v>0){tv+=v;td+=v*p.price;varByProd[p.id]+=v;shiftF=true;
-        dateMap[e.date]=(dateMap[e.date]||0)+v;}
-    });
-    if(shiftF)fl++;
-  });
+const {data,error}=await supabase
+.from("counts")
+.select("*")
+.order("created_at",{ascending:false})
 
-  document.getElementById('kCards').innerHTML=analyticsCards(tv,td,fl,shiftLog.length);
+if(error){
 
-  const pData=KRATOM.map(p=>varByProd[p.id]);
-  if(kBar)kBar.destroy();
-  kBar=new Chart(document.getElementById('kChartBar'),{type:'bar',
-    data:{labels:KRATOM.map(p=>p.name.substring(0,14)+'…'),
-      datasets:[{label:'Variance',data:pData,backgroundColor:pData.map(v=>v>3?'#dc2626':v>1?'#f97316':'#16a34a'),borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
-
-  const tDates=Object.keys(dateMap).sort().slice(-14);
-  if(kLine)kLine.destroy();
-  kLine=new Chart(document.getElementById('kChartLine'),{type:'line',
-    data:{labels:tDates,datasets:[{label:'Daily Variance',data:tDates.map(d=>dateMap[d]||0),
-      borderColor:'#003087',backgroundColor:'rgba(0,48,135,.1)',fill:true,tension:.3,pointRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
-
-  document.getElementById('kProdTable').innerHTML=prodTable(KRATOM,varByProd);
-}
-
-function renderLAnalytics(){
-  let tv=0,td=0,fl=0;
-  const varByProd={};
-  const dateMap={};
-  SCRATCHERS.forEach(p=>{varByProd[p.id]=0;});
-
-  shiftLog.forEach(e=>{
-    let shiftF=false;
-    SCRATCHERS.forEach(p=>{
-      const d=e.lottery?.[p.id]; if(!d)return;
-      const v=(d.open-d.close)-d.sales;
-      if(v>0){tv+=v;td+=v*p.price;varByProd[p.id]+=v;shiftF=true;
-        dateMap[e.date]=(dateMap[e.date]||0)+v;}
-    });
-    if(shiftF)fl++;
-  });
-
-  document.getElementById('lCards').innerHTML=analyticsCards(tv,td,fl,shiftLog.length);
-
-  const top10=SCRATCHERS.map(p=>({p,v:varByProd[p.id]})).sort((a,b)=>b.v-a.v).slice(0,12);
-  const tData=top10.map(x=>x.v);
-  if(lBar)lBar.destroy();
-  lBar=new Chart(document.getElementById('lChartBar'),{type:'bar',
-    data:{labels:top10.map(x=>x.p.name.substring(0,16)),
-      datasets:[{label:'Variance',data:tData,backgroundColor:tData.map(v=>v>3?'#dc2626':v>1?'#f97316':'#16a34a'),borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
-
-  const dDates=Object.keys(dateMap).sort().slice(-14);
-  if(lLine)lLine.destroy();
-  lLine=new Chart(document.getElementById('lChartLine'),{type:'line',
-    data:{labels:dDates,datasets:[{label:'Daily Variance',data:dDates.map(d=>dateMap[d]||0),
-      borderColor:'#C8102E',backgroundColor:'rgba(200,16,46,.1)',fill:true,tension:.3,pointRadius:3}]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
-
-  document.getElementById('lProdTable').innerHTML=prodTable(SCRATCHERS,varByProd);
-}
-
-function analyticsCards(tv,td,fl,total){
-  const c=(v,cl,lbl)=>`<div class="rounded-lg p-3 border bg-white">
-    <div class="text-xs font-semibold ${cl.replace('text-','text-').replace('600','500')} uppercase tracking-wide">${lbl}</div>
-    <div class="text-2xl font-black ${cl} mt-1">${v}</div>
-  </div>`;
-  return c(tv,'text-red-600','Total Variance Units')+
-         c('$'+td.toFixed(0),'text-red-600','Est. $ Loss')+
-         c(fl,'text-orange-500','Flagged Shifts')+
-         c(total,'text-blue-700','Total Shifts');
-}
-
-function prodTable(products,varByProd){
-  const rows=products.map(p=>{
-    const tv=varByProd[p.id]||0;
-    const td=(tv*p.price).toFixed(2);
-    const level=tv>=6?'HIGH':tv>=2?'MEDIUM':'LOW';
-    const badge=level==='HIGH'?`<span class="badge-r text-xs px-2 py-0.5 rounded-full">HIGH</span>`
-                :level==='MEDIUM'?`<span class="badge-y text-xs px-2 py-0.5 rounded-full">MEDIUM</span>`
-                :`<span class="badge-g text-xs px-2 py-0.5 rounded-full">LOW</span>`;
-    return `<tr><td class="py-1.5 pr-4 text-sm font-medium">${p.name}</td>
-      <td class="py-1.5 px-3 text-center text-sm font-bold ${tv>0?'text-red-600':'text-green-600'}">${tv}</td>
-      <td class="py-1.5 px-3 text-center text-sm text-red-600">$${td}</td>
-      <td class="py-1.5 text-center">${badge}</td></tr>`;
-  }).join('');
-  return `<table class="w-full text-sm mt-2">
-    <thead><tr class="text-xs text-gray-500 text-left">
-      <th class="pb-2 pr-4">Product / Game</th>
-      <th class="pb-2 px-3 text-center">Variance</th>
-      <th class="pb-2 px-3 text-center">Est. $ Loss</th>
-      <th class="pb-2 text-center">Alert</th>
-    </tr></thead>
-    <tbody>${rows}</tbody></table>`;
-}
-
-// ═══════════════════════════════════════════════════
-// STORES TAB
-// ═══════════════════════════════════════════════════
-function onStoreChange(){
-  // re-render review if it's visible
-  if(!document.getElementById('tab-review').classList.contains('hidden'))
-    renderReview(revSub);
-}
-
-function renderStores(){
-  const regionF=document.getElementById('storeRegionFilter').value;
-  const statusF=document.getElementById('storeStatusFilter').value;
-  const grid=document.getElementById('storeGrid');
-
-  const storeStats=STORES.map(store=>{
-    const entries=shiftLog.filter(e=>e.store===store.id);
-    let kVar=0,lVar=0,kDollar=0,lDollar=0,flaggedShifts=0;
-    entries.forEach(e=>{
-      let f=false;
-      KRATOM.forEach(p=>{
-        const d=e.kratom?.[p.id]; if(!d)return;
-        const v=(d.begin-d.sales)-d.end;
-        if(v>0){kVar+=v;kDollar+=v*p.price;f=true;}
-      });
-      SCRATCHERS.forEach(p=>{
-        const d=e.lottery?.[p.id]; if(!d)return;
-        const v=(d.open-d.close)-d.sales;
-        if(v>0){lVar+=v;lDollar+=v*p.price;f=true;}
-      });
-      if(f)flaggedShifts++;
-    });
-    const totalDollar=kDollar+lDollar;
-    const totalVar=kVar+lVar;
-    const last=[...entries].sort((a,b)=>b.ts-a.ts)[0];
-    const level=totalVar>=10?'ALERT':totalVar>=3?'WATCH':'CLEAN';
-    return {...store,entries,kVar,lVar,kDollar,lDollar,totalDollar,totalVar,flaggedShifts,lastDate:last?.date||null,level};
-  });
-
-  const filtered=storeStats
-    .filter(s=>!regionF||s.region===regionF)
-    .filter(s=>!statusF||s.level===statusF);
-
-  grid.innerHTML=filtered.map(s=>{
-    const border=s.level==='ALERT'?'border-red-400':s.level==='WATCH'?'border-yellow-400':'border-green-300';
-    const badgeCls=s.level==='ALERT'?'badge-r':s.level==='WATCH'?'badge-y':'badge-g';
-    const dot=s.level==='ALERT'?'bg-red-500':s.level==='WATCH'?'bg-yellow-500':'bg-green-500';
-    return `<div class="border-2 ${border} rounded-xl p-4 bg-white hover:shadow-md transition">
-      <div class="flex items-start justify-between mb-1">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full ${dot} inline-block"></span>
-            <span class="font-bold text-gray-800">${s.name}</span>
-          </div>
-          <div class="text-xs text-gray-400 ml-4">${s.city}${s.addr?` · ${s.addr}`:''}</div>
-        </div>
-        <span class="${badgeCls} text-xs px-2 py-0.5 rounded-full font-bold">${s.level}</span>
-      </div>
-      <div class="text-xs text-gray-400 mt-0.5 ml-4">${s.phone}</div>
-      ${s.hours?`<div class="text-xs text-gray-400 ml-4 leading-tight">${s.hours}</div>`:''}
-      <div class="text-xs text-gray-400 mt-2 mb-2">Last count: ${s.lastDate||'No data'} &nbsp;·&nbsp; ${s.entries.length} shifts logged</div>
-      <div class="grid grid-cols-4 gap-1 text-center">
-        <div class="bg-gray-50 rounded p-1.5">
-          <div class="text-xs text-gray-400">Flags</div>
-          <div class="font-bold ${s.flaggedShifts>0?'text-orange-500':'text-green-600'} text-sm">${s.flaggedShifts}</div>
-        </div>
-        <div class="bg-gray-50 rounded p-1.5">
-          <div class="text-xs text-gray-400">K Loss</div>
-          <div class="font-bold ${s.kDollar>0?'text-red-600':'text-green-600'} text-sm">$${s.kDollar.toFixed(0)}</div>
-        </div>
-        <div class="bg-gray-50 rounded p-1.5">
-          <div class="text-xs text-gray-400">Lotto Loss</div>
-          <div class="font-bold ${s.lDollar>0?'text-red-600':'text-green-600'} text-sm">$${s.lDollar.toFixed(0)}</div>
-        </div>
-        <div class="bg-gray-50 rounded p-1.5">
-          <div class="text-xs text-gray-400">Total</div>
-          <div class="font-bold ${s.totalDollar>0?'text-red-700':'text-green-600'} text-sm">$${s.totalDollar.toFixed(0)}</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-
-  if(!filtered.length) grid.innerHTML=`<p class="text-gray-400 italic text-sm col-span-3">No stores match filters.</p>`;
-}
-
-// ═══════════════════════════════════════════════════
-// CLOCK
-// ═══════════════════════════════════════════════════
-function tick(){
-  const el=document.getElementById('hdrClock');
-  if(!el) return;
-  const n=new Date();
-  el.textContent=
-    n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+
-    ' · '+n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-}
-
-// ═══════════════════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════════════════
-const ADMIN_CRED={id:'__admin__',username:'admin',password:'Keith2024!',name:'Administrator',role:'admin'};
-let users=[], districts=[], session=null;
+console.log(error)
+return
 
 async function saveAuth(){
   const [ue,de] = await Promise.all([
@@ -1401,96 +1123,131 @@ function doLogin(e){
   errEl.classList.remove('hidden');
 }
 
-function doLogout(){
-  session=null; saveSession();
-  document.getElementById('appScreen').classList.add('hidden');
-  document.getElementById('loginScreen').classList.remove('hidden');
-  document.getElementById('loginUser').value='';
-  document.getElementById('loginPass').value='';
+const tbody=document.querySelector("#table tbody")
+
+tbody.innerHTML=""
+
+let storeTotals={}
+
+data.forEach(row=>{
+
+let tr=document.createElement("tr")
+
+tr.innerHTML=`
+
+<td>${row.store}</td>
+<td>${row.location}</td>
+<td>${row.product}</td>
+<td>${row.shift}</td>
+<td>${row.begin_count}</td>
+<td>${row.end_count}</td>
+<td>${row.variance}</td>
+<td>${row.user_name}</td>
+<td>${new Date(row.created_at).toLocaleString()}</td>
+
+`
+
+tbody.appendChild(tr)
+
+if(!storeTotals[row.store]){
+
+storeTotals[row.store]=0
+
 }
 
-function onLoginSuccess(){
-  document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('appScreen').classList.remove('hidden');
-  applyRoleUI();
-  buildCountTables();
-  document.getElementById('shiftDate').value=new Date().toISOString().split('T')[0];
-  // Auto-set store for store_leader/employee
-  if(session.storeId){
-    const sel=document.getElementById('storeSelect');
-    sel.value=session.storeId;
-    sel.disabled=(session.role==='employee');
-  }
-  showTab('count');
-  tick();
+storeTotals[row.store]+=Math.abs(row.variance)
+
+})
+
+updateLeaderboard(storeTotals)
+
 }
 
-// ── Role helpers ──
-function visibleStoreIds(){
-  if(!session) return [];
-  if(session.role==='admin') return STORES.map(s=>s.id);
-  if(session.role==='dm'){
-    const d=districts.find(x=>x.id===session.districtId);
-    return d?d.storeIds:[];
-  }
-  return session.storeId?[session.storeId]:[];
+function updateLeaderboard(totals){
+
+const board=document.querySelector("#leaderboard tbody")
+
+board.innerHTML=""
+
+let entries=Object.entries(totals)
+
+entries.sort((a,b)=>a[1]-b[1])
+
+entries.forEach(e=>{
+
+let tr=document.createElement("tr")
+
+tr.innerHTML=`
+
+<td>${e[0]}</td>
+<td>${e[1]}</td>
+
+`
+
+board.appendChild(tr)
+
+})
+
 }
-function canAccess(tab){
-  if(!session) return false;
-  const r=session.role;
-  if(tab==='count') return true;
-  if(tab==='review') return ['store_leader','dm','admin'].includes(r);
-  if(tab==='log') return ['store_leader','dm','admin'].includes(r);
-  if(tab==='analytics') return ['dm','admin'].includes(r);
-  if(tab==='stores') return ['dm','admin'].includes(r);
-  if(tab==='admin') return r==='admin';
-  return false;
+
+setInterval(loadCounts,10000)
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+
+/* ---------------------------
+SUPABASE CONNECTION
+--------------------------- */
+
+const SUPABASE_URL =
+"https://ylfsqjbqhewpfiooytlg.supabase.co"
+
+const SUPABASE_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZnNxamJxaGV3cGZpb295dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzQwODQsImV4cCI6MjA4ODM1MDA4NH0.Ssl5J6ktZIVtLd2cq8vH7PWdR4-yZwI5tt4PtXkVqWk"
+
+const supabase =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+)
+
+/* ---------------------------
+EDITABLE PRICES
+--------------------------- */
+
+function makePricesEditable(){
+
+document.querySelectorAll(".price")
+.forEach(p=>{
+
+let val = p.innerText.replace("$","")
+
+p.innerHTML =
+`<input class="priceEdit"
+type="number"
+step="0.01"
+value="${val}"
+style="width:70px">`
+
+})
+
 }
 
-function applyRoleUI(){
-  if(!session)return;
-  // Tab visibility
-  const tabNames=['count','review','log','analytics','stores'];
-  document.querySelectorAll('.tab-btn').forEach((btn,i)=>{
-    if(i<tabNames.length) btn.classList.toggle('hidden',!canAccess(tabNames[i]));
-  });
-  document.getElementById('adminTabBtn').classList.toggle('hidden',!canAccess('admin'));
+/* ---------------------------
+GET PRICE VALUE
+--------------------------- */
 
-  // User chip
-  const chip=document.getElementById('userChip');
-  chip.classList.remove('hidden');
-  const colors={admin:'bg-red-500',dm:'bg-yellow-500',store_leader:'bg-green-600',employee:'bg-blue-500'};
-  const labels={admin:'Admin',dm:'DM',store_leader:'Store Leader',employee:'Employee'};
-  chip.innerHTML=`<span class="text-white text-xs font-semibold">${session.name}</span>
-    <span class="${colors[session.role]||'bg-gray-500'} text-white text-xs px-1.5 py-0.5 rounded-full">${labels[session.role]||session.role}</span>
-    <button onclick="doLogout()" class="text-white opacity-60 hover:opacity-100 text-xs ml-1 font-bold">✕</button>`;
+function getRowPrice(row){
 
-  // Populate store selector (filtered by role)
-  const visible=visibleStoreIds();
-  const visStores=STORES.filter(s=>visible.includes(s.id));
-  const sel=document.getElementById('storeSelect');
-  sel.innerHTML='';
-  const regions=[...new Set(visStores.map(s=>s.region))];
-  regions.forEach(r=>{
-    const og=document.createElement('optgroup'); og.label=`── ${r} ──`;
-    visStores.filter(s=>s.region===r).forEach(s=>{
-      const o=document.createElement('option');
-      o.value=s.id; o.textContent=`#${s.num} — ${s.addr||s.city}`;
-      og.appendChild(o);
-    });
-    sel.appendChild(og);
-  });
+let input =
+row.querySelector(".priceEdit")
 
-  // Store selector visibility
-  if(session.role==='employee') sel.disabled=true; else sel.disabled=false;
+if(!input) return 0
 
-  // Populate log store filter
-  const logSel=document.getElementById('logStore');
-  logSel.innerHTML='<option value="">All Stores</option>';
-  visStores.forEach(s=>{
-    const o=document.createElement('option'); o.value=s.id;
-    o.textContent=`#${s.num} ${s.name} — ${s.city}`; logSel.appendChild(o);
-  });
+return parseFloat(input.value) || 0
+
 }
 
 // Override showTab to check access
@@ -1633,49 +1390,41 @@ async function resetItemsToDefaults(){
   await saveItems();
   buildCountTables();
   renderItemsTables();
+/* ---------------------------
+VARIANCE ALERT
+--------------------------- */
+
+function checkVariance(v){
+
+if(Math.abs(v) >= 10){
+
+return "ALERT"
+
+}else{
+
+return "OK"
+
 }
 
-// ── User form ──
-let editUserId=null;
-function showUserForm(id=null){
-  editUserId=id;
-  const f=document.getElementById('userForm');
-  document.getElementById('userFormTitle').textContent=id?'Edit User':'Add User';
-  document.getElementById('ufError').classList.add('hidden');
-  if(id){
-    const u=users.find(x=>x.id===id);
-    document.getElementById('ufId').value=u.id;
-    document.getElementById('ufName').value=u.name;
-    document.getElementById('ufUser').value=u.username;
-    document.getElementById('ufPass').value=u.password;
-    document.getElementById('ufRole').value=u.role;
-    document.getElementById('ufDistrict').value=u.districtId||'';
-    document.getElementById('ufStore').value=u.storeId||'';
-  } else {
-    ['ufId','ufName','ufUser','ufPass'].forEach(x=>document.getElementById(x).value='');
-    document.getElementById('ufRole').value='employee';
-  }
-  populateUfSelects();
-  ufRoleChange();
-  f.classList.remove('hidden');
-}
-function hideUserForm(){ document.getElementById('userForm').classList.add('hidden'); }
-
-function populateUfSelects(){
-  // Districts dropdown
-  const ds=document.getElementById('ufDistrict');
-  ds.innerHTML='<option value="">— Unassigned —</option>';
-  districts.forEach(d=>{ const o=document.createElement('option');o.value=d.id;o.textContent=d.name;ds.appendChild(o); });
-  // Store dropdown
-  const ss=document.getElementById('ufStore');
-  ss.innerHTML='<option value="">— Select Store —</option>';
-  STORES.forEach(s=>{ const o=document.createElement('option');o.value=s.id;o.textContent=`#${s.num} ${s.city}`;ss.appendChild(o); });
 }
 
-function ufRoleChange(){
-  const role=document.getElementById('ufRole').value;
-  document.getElementById('ufDistrictWrap').classList.toggle('hidden',role!=='dm');
-  document.getElementById('ufStoreWrap').classList.toggle('hidden',role==='dm');
+/* ---------------------------
+SAVE COUNT TO SUPABASE
+--------------------------- */
+
+async function saveCount(record){
+
+const { error } =
+await supabase
+.from("counts")
+.insert([record])
+
+if(error){
+
+console.log("DB ERROR",error)
+
+}
+
 }
 
 async function saveUser(){
@@ -1710,60 +1459,72 @@ async function deleteUser(id){
   if(error){alert('Error deleting user: '+error.message);console.error(error);return;}
   users=users.filter(x=>x.id!==id);
   renderUsersTable();
+/* ---------------------------
+SUBMIT COUNT WRAPPER
+--------------------------- */
+
+async function submitCount(data){
+
+let variance =
+data.end - data.begin
+
+let status =
+checkVariance(variance)
+
+await saveCount({
+
+store:data.store,
+location:data.location,
+product:data.product,
+shift:data.shift,
+begin_count:data.begin,
+end_count:data.end,
+variance:variance,
+price:data.price,
+status:status,
+user_name:data.user
+
+})
+
 }
 
-function renderUsersTable(){
-  const tbody=document.getElementById('usersBody');
-  if(!users.length){ tbody.innerHTML=`<tr><td colspan="5" class="py-4 text-gray-400 italic text-sm">No users yet. Add users above.</td></tr>`; return; }
-  const roleBadge={dm:'badge-y',store_leader:'badge-g',employee:'badge-b'};
-  const roleLabel={dm:'District Manager',store_leader:'Store Leader',employee:'Employee'};
-  tbody.innerHTML=users.map(u=>{
-    const store=STORES.find(s=>s.id===u.storeId);
-    const dist=districts.find(d=>d.id===u.districtId);
-    const loc=u.role==='dm'?(dist?dist.name:'Unassigned'):(store?`#${store.num} ${store.city}`:'Unassigned');
-    return `<tr>
-      <td class="py-2 pr-4 font-medium text-sm">${u.name}</td>
-      <td class="py-2 pr-4 text-sm font-mono text-gray-600">${u.username}</td>
-      <td class="py-2 pr-4"><span class="${roleBadge[u.role]||'badge-b'} text-xs px-2 py-0.5 rounded-full">${roleLabel[u.role]||u.role}</span></td>
-      <td class="py-2 pr-4 text-sm text-gray-600">${loc}</td>
-      <td class="py-2 flex gap-2">
-        <button onclick="showUserForm('${u.id}')" class="text-xs text-blue-600 hover:underline">Edit</button>
-        <button onclick="deleteUser('${u.id}')" class="text-xs text-red-500 hover:underline">Delete</button>
-      </td>
-    </tr>`;
-  }).join('');
+/* ---------------------------
+LOAD MANAGER DATA
+--------------------------- */
+
+async function loadManagerCounts(){
+
+let {data,error} =
+await supabase
+.from("counts")
+.select("*")
+.order("created_at",{ascending:false})
+
+if(error){
+
+console.log(error)
+return
+
 }
 
-// ── District form ──
-let editDistrictId=null;
-function showDistrictForm(id=null){
-  editDistrictId=id;
-  document.getElementById('districtFormTitle').textContent=id?'Edit District':'Add District';
-  document.getElementById('dfError').classList.add('hidden');
-  // Populate DM dropdown
-  const dmSel=document.getElementById('dfDm');
-  dmSel.innerHTML='<option value="">— Unassigned —</option>';
-  users.filter(u=>u.role==='dm').forEach(u=>{
-    const o=document.createElement('option'); o.value=u.id; o.textContent=u.name; dmSel.appendChild(o);
-  });
-  // Populate store checklist
-  const storesDiv=document.getElementById('dfStores');
-  storesDiv.innerHTML=STORES.map(s=>`
-    <label class="flex items-center gap-1.5 text-xs cursor-pointer py-0.5">
-      <input type="checkbox" class="dfStoreChk" value="${s.id}">
-      <span>#${s.num} ${s.city}</span>
-    </label>`).join('');
-  if(id){
-    const d=districts.find(x=>x.id===id);
-    document.getElementById('dfId').value=d.id;
-    document.getElementById('dfName').value=d.name;
-    dmSel.value=d.dmId||'';
-    document.querySelectorAll('.dfStoreChk').forEach(cb=>{ cb.checked=d.storeIds.includes(cb.value); });
-  } else {
-    document.getElementById('dfId').value='';
-    document.getElementById('dfName').value='';
-  }
-  document.getElementById('districtForm').classList.remove('hidden');
+buildLeaderboard(data)
+
+}
+
+/* ---------------------------
+STORE LEADERBOARD
+--------------------------- */
+
+function buildLeaderboard(rows){
+
+let totals={}
+
+rows.forEach(r=>{
+
+if(!totals[r.store]){
+
+totals[r.store]=0
+
 }
 function hideDistrictForm(){ document.getElementById('districtForm').classList.add('hidden'); }
 
@@ -1799,52 +1560,62 @@ async function deleteDistrict(id){
   affected.forEach(u=>u.districtId=null);
   if(affected.length) await sb.from('app_users').update({district_id:null}).in('id',affected.map(u=>u.id));
   renderDistrictsGrid();
+
+totals[r.store]+=Math.abs(r.variance)
+
+})
+
+let list =
+Object.entries(totals)
+.sort((a,b)=>a[1]-b[1])
+
+renderLeaderboard(list)
+
 }
 
-function renderDistrictsGrid(){
-  const el=document.getElementById('districtsGrid');
-  if(!districts.length){
-    el.innerHTML=`<div class="col-span-2 text-gray-400 italic text-sm py-4">No districts yet. Create one above.</div>`;
-    return;
-  }
-  el.innerHTML=districts.map(d=>{
-    const dm=users.find(u=>u.id===d.dmId);
-    const storeNames=d.storeIds.slice(0,4).map(id=>{ const s=STORES.find(x=>x.id===id); return s?`#${s.num} ${s.city}`:''; }).filter(Boolean);
-    const more=d.storeIds.length-4;
-    return `<div class="border rounded-xl p-4 bg-white hover:shadow-md transition">
-      <div class="flex items-start justify-between mb-1">
-        <div class="font-bold text-gray-800">${d.name}</div>
-        <div class="flex gap-2">
-          <button onclick="showDistrictForm('${d.id}')" class="text-xs text-blue-600 hover:underline">Edit</button>
-          <button onclick="deleteDistrict('${d.id}')" class="text-xs text-red-500 hover:underline">Delete</button>
-        </div>
-      </div>
-      <div class="text-xs text-gray-500 mb-2">DM: <span class="font-medium">${dm?dm.name:'Unassigned'}</span></div>
-      <div class="text-xs text-gray-500 mb-1">${d.storeIds.length} stores assigned</div>
-      <div class="text-xs text-gray-400">${storeNames.join(' · ')}${more>0?` · +${more} more`:''}</div>
-    </div>`;
-  }).join('');
+/* ---------------------------
+RENDER LEADERBOARD
+--------------------------- */
+
+function renderLeaderboard(list){
+
+let board =
+document.getElementById("leaderboard")
+
+if(!board) return
+
+board.innerHTML=""
+
+list.forEach(r=>{
+
+let row =
+document.createElement("div")
+
+row.innerHTML =
+r[0] + " : " + r[1]
+
+board.appendChild(row)
+
+})
+
 }
 
-// Override showTab to add admin case + access check
-function showTab(name){
-  if(!canAccess(name)) return;
-  const allTabs=['count','review','log','analytics','stores','admin'];
-  allTabs.forEach(t=>{
-    const el=document.getElementById(`tab-${t}`);
-    if(el) el.classList.toggle('hidden',t!==name);
-  });
-  // Regular tab buttons
-  ['count','review','log','analytics','stores'].forEach((t,i)=>{
-    const btns=document.querySelectorAll('.tab-btn');
-    if(btns[i]) btns[i].classList.toggle('active',t===name);
-  });
-  document.getElementById('adminTabBtn').classList.toggle('active',name==='admin');
-  if(name==='review')    renderReview(revSub);
-  if(name==='log')       renderLog();
-  if(name==='analytics') renderAnalytics('kratom');
-  if(name==='stores')    renderStores();
-  if(name==='admin')     { showAdSub('users'); }
+/* ---------------------------
+BLIND SHIFT FILTER
+--------------------------- */
+
+function filterByShift(rows,user){
+
+if(user.role === "employee"){
+
+return rows.filter(
+r => r.shift === user.shift
+)
+
+}
+
+return rows
+
 }
 
 // ═══════════════════════════════════════════════════
@@ -1876,7 +1647,28 @@ async function init(){
   } else {
     document.getElementById('loginScreen').classList.remove('hidden');
   }
+/* ---------------------------
+AUTO REFRESH
+--------------------------- */
+
+setInterval(()=>{
+
+loadManagerCounts()
+
+},10000)
+
+/* ---------------------------
+INIT
+--------------------------- */
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+makePricesEditable()
+
 }
+)
 
 tick();
 setInterval(tick,30000);
