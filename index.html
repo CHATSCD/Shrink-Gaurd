@@ -32,12 +32,49 @@
 </head>
 <body>
 
+<!-- ═══════════════════ LOGIN SCREEN ═══════════════════ -->
+<div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center" style="background:#003087;">
+  <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4">
+    <div class="text-center mb-6">
+      <img src="logo.png" onerror="this.style.display='none'" class="h-20 mx-auto mb-2 rounded" id="loginLogo">
+      <div class="mb-2">
+        <div style="color:#003087;font-weight:900;font-size:22px;letter-spacing:2px;">KEITH'S</div>
+        <div style="color:#C8102E;font-weight:900;font-size:14px;letter-spacing:1px;">SUPERSTORES</div>
+      </div>
+      <div class="text-xl font-black tracking-widest text-gray-800">SHRINK SHIELD</div>
+      <div class="text-xs text-gray-400 mt-0.5">Loss Prevention System</div>
+    </div>
+    <form onsubmit="doLogin(event)" class="space-y-3">
+      <div>
+        <label class="lbl">USERNAME</label>
+        <input id="loginUser" type="text" autocomplete="username" placeholder="Enter username"
+          class="inp w-full" autofocus>
+      </div>
+      <div>
+        <label class="lbl">PASSWORD</label>
+        <input id="loginPass" type="password" autocomplete="current-password" placeholder="Enter password"
+          class="inp w-full">
+      </div>
+      <div id="loginError" class="hidden text-red-600 text-sm text-center bg-red-50 rounded p-2"></div>
+      <button type="submit" style="background:#003087;"
+        class="w-full py-2.5 rounded-lg text-white font-bold text-sm hover:opacity-90 transition mt-1">
+        Sign In
+      </button>
+    </form>
+    <div class="text-center text-xs text-gray-400 mt-4">v4.0 · Keith's Superstores</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ APP (hidden until login) ═══════════════════ -->
+<div id="appScreen" class="hidden">
+
 <!-- ═══════════════════ HEADER ═══════════════════ -->
 <header style="background:#003087;" class="shadow-lg sticky top-0 z-50">
   <div class="max-w-7xl mx-auto px-3 py-2 flex flex-wrap items-center gap-2">
 
     <div class="flex items-center gap-2 flex-shrink-0">
-      <div class="bg-white rounded px-1.5 py-0.5 text-center leading-tight">
+      <img src="logo.png" onerror="this.style.display='none';document.getElementById('logoText').classList.remove('hidden');" class="h-10 rounded">
+      <div id="logoText" class="hidden bg-white rounded px-1.5 py-0.5 text-center leading-tight">
         <div style="color:#003087;font-weight:900;font-size:10px;letter-spacing:.5px;">KEITH'S</div>
         <div style="color:#C8102E;font-weight:900;font-size:8px;letter-spacing:.3px;">SUPERSTORES</div>
       </div>
@@ -48,6 +85,7 @@
     </div>
 
     <div class="flex items-center gap-2 ml-auto flex-wrap">
+      <div id="userChip" class="hidden flex items-center gap-1.5 bg-blue-800 rounded-full px-3 py-1"></div>
       <select id="storeSelect" onchange="onStoreChange()"
         class="text-xs bg-blue-900 text-white border border-blue-700 rounded px-2 py-1.5 w-64">
         <optgroup label="── Hattiesburg Area ──">
@@ -118,6 +156,7 @@
     <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold" onclick="showTab('log')">LOG</button>
     <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold" onclick="showTab('analytics')">ANALYTICS</button>
     <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold" onclick="showTab('stores')">STORES</button>
+    <button id="adminTabBtn" class="tab-btn hidden flex-1 py-2 px-1 rounded-t-lg text-xs font-bold" onclick="showTab('admin')">ADMIN</button>
   </div>
 
   <div class="bg-white rounded-b-xl shadow-lg p-4">
@@ -300,6 +339,94 @@
     <div id="storeGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
   </div>
 
+  <!-- ╔══════════════ ADMIN TAB ══════════════╗ -->
+  <div id="tab-admin" class="hidden">
+    <div class="flex gap-4 border-b mb-5">
+      <button class="sub-btn active pb-2 text-sm" id="adTabU" onclick="showAdSub('users')">USERS</button>
+      <button class="sub-btn pb-2 text-sm text-gray-500" id="adTabD" onclick="showAdSub('districts')">DISTRICTS</button>
+    </div>
+
+    <!-- USERS sub -->
+    <div id="ad-users">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-700">User Accounts</h3>
+        <button onclick="showUserForm()" style="background:#003087;"
+          class="px-3 py-1.5 rounded text-xs text-white font-bold">+ Add User</button>
+      </div>
+      <!-- Add/Edit form (hidden by default) -->
+      <div id="userForm" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+        <div class="font-bold text-sm text-gray-700 mb-3" id="userFormTitle">Add User</div>
+        <input type="hidden" id="ufId">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+          <div><label class="lbl">FULL NAME</label><input id="ufName" class="inp w-full" placeholder="Jane Smith"></div>
+          <div><label class="lbl">USERNAME</label><input id="ufUser" class="inp w-full" placeholder="jane.smith"></div>
+          <div><label class="lbl">PASSWORD</label><input id="ufPass" type="password" class="inp w-full" placeholder="••••••••"></div>
+          <div><label class="lbl">ROLE</label>
+            <select id="ufRole" class="inp w-full" onchange="ufRoleChange()">
+              <option value="employee">Employee</option>
+              <option value="store_leader">Store Leader</option>
+              <option value="dm">District Manager</option>
+            </select>
+          </div>
+          <div id="ufDistrictWrap" class="hidden">
+            <label class="lbl">DISTRICT</label>
+            <select id="ufDistrict" class="inp w-full"><option value="">— Unassigned —</option></select>
+          </div>
+          <div id="ufStoreWrap">
+            <label class="lbl">STORE</label>
+            <select id="ufStore" class="inp w-full"><option value="">— Select Store —</option></select>
+          </div>
+        </div>
+        <div id="ufError" class="hidden text-red-600 text-xs mb-2"></div>
+        <div class="flex gap-2">
+          <button onclick="saveUser()" style="background:#003087;" class="px-4 py-1.5 rounded text-xs text-white font-bold">Save</button>
+          <button onclick="hideUserForm()" class="px-4 py-1.5 border rounded text-xs text-gray-600">Cancel</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm" id="usersTable">
+          <thead><tr class="text-xs text-gray-500 text-left">
+            <th class="pb-2 pr-4">Name</th>
+            <th class="pb-2 pr-4">Username</th>
+            <th class="pb-2 pr-4">Role</th>
+            <th class="pb-2 pr-4">District / Store</th>
+            <th class="pb-2">Actions</th>
+          </tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DISTRICTS sub -->
+    <div id="ad-districts" class="hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-700">Districts</h3>
+        <button onclick="showDistrictForm()" style="background:#003087;"
+          class="px-3 py-1.5 rounded text-xs text-white font-bold">+ Add District</button>
+      </div>
+      <div id="districtForm" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+        <div class="font-bold text-sm text-gray-700 mb-3" id="districtFormTitle">Add District</div>
+        <input type="hidden" id="dfId">
+        <div class="grid md:grid-cols-2 gap-3 mb-3">
+          <div><label class="lbl">DISTRICT NAME</label><input id="dfName" class="inp w-full" placeholder="e.g. Hattiesburg District"></div>
+          <div><label class="lbl">DISTRICT MANAGER</label>
+            <select id="dfDm" class="inp w-full"><option value="">— Unassigned —</option></select>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="lbl">STORES IN THIS DISTRICT</label>
+          <div id="dfStores" class="border rounded-lg bg-white p-3 max-h-48 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-1"></div>
+        </div>
+        <div id="dfError" class="hidden text-red-600 text-xs mb-2"></div>
+        <div class="flex gap-2">
+          <button onclick="saveDistrict()" style="background:#003087;" class="px-4 py-1.5 rounded text-xs text-white font-bold">Save</button>
+          <button onclick="hideDistrictForm()" class="px-4 py-1.5 border rounded text-xs text-gray-600">Cancel</button>
+        </div>
+      </div>
+      <div id="districtsGrid" class="grid md:grid-cols-2 gap-3"></div>
+    </div>
+  </div>
+
   </div><!-- /card -->
 </div><!-- /main -->
 
@@ -307,8 +434,10 @@
 <footer style="background:#003087;" class="text-center text-white text-xs py-3">
   <span class="opacity-60">Keith's Superstores · </span>
   <em>"The Fastest And Friendliest"</em>
-  <span class="opacity-60"> · Shrink Shield v3.0</span>
+  <span class="opacity-60"> · Shrink Shield v4.0</span>
 </footer>
+
+</div><!-- /appScreen -->
 
 <style>
   .lbl{display:block;font-size:10px;font-weight:700;color:#6b7280;letter-spacing:.05em;margin-bottom:2px;}
@@ -425,15 +554,7 @@ const STORES = [
   {id:'s060',num:'60', name:'Store #60', city:'Wilmer, AL',      addr:'13515 Moffett Rd',     phone:'(251) 649-6544',hours:'Mon–Sun 5am–12am',region:'Alabama'},
 ];
 
-// Populate log store filter
-(function populateLogStoreFilter(){
-  const sel = document.getElementById('logStore');
-  STORES.forEach(s=>{
-    const o=document.createElement('option');
-    o.value=s.id; o.textContent=`${s.name} — ${s.city}`;
-    sel.appendChild(o);
-  });
-})();
+// (log store filter populated after login via applyRoleUI)
 
 // ═══════════════════════════════════════════════════
 // STATE
@@ -502,20 +623,7 @@ function seedDemo(){
   saveState();
 }
 
-// ═══════════════════════════════════════════════════
-// TAB SWITCHING
-// ═══════════════════════════════════════════════════
-const TAB_NAMES=['count','review','log','analytics','stores'];
-function showTab(name){
-  TAB_NAMES.forEach((t,i)=>{
-    document.getElementById(`tab-${t}`).classList.toggle('hidden',t!==name);
-    document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===name);
-  });
-  if(name==='review')    renderReview('kratom');
-  if(name==='log')       renderLog();
-  if(name==='analytics') renderAnalytics('kratom');
-  if(name==='stores')    renderStores();
-}
+// showTab is defined in the AUTH section below (needs canAccess)
 
 // ═══════════════════════════════════════════════════
 // COUNT SUB-TABS
@@ -1114,21 +1222,367 @@ function renderStores(){
 // CLOCK
 // ═══════════════════════════════════════════════════
 function tick(){
+  const el=document.getElementById('hdrClock');
+  if(!el) return;
   const n=new Date();
-  document.getElementById('hdrClock').textContent=
+  el.textContent=
     n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+
     ' · '+n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
 }
 
 // ═══════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════
+const ADMIN_CRED={id:'__admin__',username:'admin',password:'Keith2024!',name:'Administrator',role:'admin'};
+let users=[], districts=[], session=null;
+
+function saveAuth(){ localStorage.setItem('ss_auth_v1',JSON.stringify({users,districts})); }
+function loadAuth(){
+  const d=localStorage.getItem('ss_auth_v1');
+  if(d){const p=JSON.parse(d);users=p.users||[];districts=p.districts||[];}
+}
+function saveSession(){ if(session)sessionStorage.setItem('ss_sess',JSON.stringify(session));else sessionStorage.removeItem('ss_sess'); }
+function loadSession(){ const d=sessionStorage.getItem('ss_sess');if(d)session=JSON.parse(d); }
+
+function doLogin(e){
+  e.preventDefault();
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const errEl=document.getElementById('loginError');
+  errEl.classList.add('hidden');
+  if(u===ADMIN_CRED.username&&p===ADMIN_CRED.password){
+    session={userId:'__admin__',username:'admin',name:'Administrator',role:'admin',districtId:null,storeId:null};
+    saveSession(); onLoginSuccess(); return;
+  }
+  const user=users.find(x=>x.username===u&&x.password===p);
+  if(user){
+    session={userId:user.id,username:user.username,name:user.name,role:user.role,districtId:user.districtId||null,storeId:user.storeId||null};
+    saveSession(); onLoginSuccess(); return;
+  }
+  errEl.textContent='Invalid username or password.';
+  errEl.classList.remove('hidden');
+}
+
+function doLogout(){
+  session=null; saveSession();
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+
+function onLoginSuccess(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  applyRoleUI();
+  buildCountTables();
+  document.getElementById('shiftDate').value=new Date().toISOString().split('T')[0];
+  // Auto-set store for store_leader/employee
+  if(session.storeId){
+    const sel=document.getElementById('storeSelect');
+    sel.value=session.storeId;
+    sel.disabled=(session.role==='employee');
+  }
+  showTab('count');
+  tick();
+}
+
+// ── Role helpers ──
+function visibleStoreIds(){
+  if(!session) return [];
+  if(session.role==='admin') return STORES.map(s=>s.id);
+  if(session.role==='dm'){
+    const d=districts.find(x=>x.id===session.districtId);
+    return d?d.storeIds:[];
+  }
+  return session.storeId?[session.storeId]:[];
+}
+function canAccess(tab){
+  if(!session) return false;
+  const r=session.role;
+  if(tab==='count') return true;
+  if(tab==='review') return ['store_leader','dm','admin'].includes(r);
+  if(tab==='log') return ['store_leader','dm','admin'].includes(r);
+  if(tab==='analytics') return ['dm','admin'].includes(r);
+  if(tab==='stores') return ['dm','admin'].includes(r);
+  if(tab==='admin') return r==='admin';
+  return false;
+}
+
+function applyRoleUI(){
+  if(!session)return;
+  // Tab visibility
+  const tabNames=['count','review','log','analytics','stores'];
+  document.querySelectorAll('.tab-btn').forEach((btn,i)=>{
+    if(i<tabNames.length) btn.classList.toggle('hidden',!canAccess(tabNames[i]));
+  });
+  document.getElementById('adminTabBtn').classList.toggle('hidden',!canAccess('admin'));
+
+  // User chip
+  const chip=document.getElementById('userChip');
+  chip.classList.remove('hidden');
+  const colors={admin:'bg-red-500',dm:'bg-yellow-500',store_leader:'bg-green-600',employee:'bg-blue-500'};
+  const labels={admin:'Admin',dm:'DM',store_leader:'Store Leader',employee:'Employee'};
+  chip.innerHTML=`<span class="text-white text-xs font-semibold">${session.name}</span>
+    <span class="${colors[session.role]||'bg-gray-500'} text-white text-xs px-1.5 py-0.5 rounded-full">${labels[session.role]||session.role}</span>
+    <button onclick="doLogout()" class="text-white opacity-60 hover:opacity-100 text-xs ml-1 font-bold">✕</button>`;
+
+  // Populate store selector (filtered by role)
+  const visible=visibleStoreIds();
+  const visStores=STORES.filter(s=>visible.includes(s.id));
+  const sel=document.getElementById('storeSelect');
+  sel.innerHTML='';
+  const regions=[...new Set(visStores.map(s=>s.region))];
+  regions.forEach(r=>{
+    const og=document.createElement('optgroup'); og.label=`── ${r} ──`;
+    visStores.filter(s=>s.region===r).forEach(s=>{
+      const o=document.createElement('option');
+      o.value=s.id; o.textContent=`#${s.num} — ${s.addr||s.city}`;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+
+  // Store selector visibility
+  if(session.role==='employee') sel.disabled=true; else sel.disabled=false;
+
+  // Populate log store filter
+  const logSel=document.getElementById('logStore');
+  logSel.innerHTML='<option value="">All Stores</option>';
+  visStores.forEach(s=>{
+    const o=document.createElement('option'); o.value=s.id;
+    o.textContent=`#${s.num} ${s.name} — ${s.city}`; logSel.appendChild(o);
+  });
+}
+
+// Override showTab to check access
+const _origShowTab=showTab;
+// (defined after auth block — see showTab below, which already has canAccess guard)
+
+// ═══════════════════════════════════════════════════
+// ADMIN PANEL
+// ═══════════════════════════════════════════════════
+function showAdSub(type){
+  document.getElementById('ad-users').classList.toggle('hidden',type!=='users');
+  document.getElementById('ad-districts').classList.toggle('hidden',type!=='districts');
+  document.getElementById('adTabU').classList.toggle('active',type==='users');
+  document.getElementById('adTabD').classList.toggle('active',type==='districts');
+  document.getElementById('adTabU').classList.toggle('text-gray-500',type!=='users');
+  document.getElementById('adTabD').classList.toggle('text-gray-500',type!=='districts');
+  if(type==='users') renderUsersTable();
+  if(type==='districts') renderDistrictsGrid();
+}
+
+// ── User form ──
+let editUserId=null;
+function showUserForm(id=null){
+  editUserId=id;
+  const f=document.getElementById('userForm');
+  document.getElementById('userFormTitle').textContent=id?'Edit User':'Add User';
+  document.getElementById('ufError').classList.add('hidden');
+  if(id){
+    const u=users.find(x=>x.id===id);
+    document.getElementById('ufId').value=u.id;
+    document.getElementById('ufName').value=u.name;
+    document.getElementById('ufUser').value=u.username;
+    document.getElementById('ufPass').value=u.password;
+    document.getElementById('ufRole').value=u.role;
+    document.getElementById('ufDistrict').value=u.districtId||'';
+    document.getElementById('ufStore').value=u.storeId||'';
+  } else {
+    ['ufId','ufName','ufUser','ufPass'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('ufRole').value='employee';
+  }
+  populateUfSelects();
+  ufRoleChange();
+  f.classList.remove('hidden');
+}
+function hideUserForm(){ document.getElementById('userForm').classList.add('hidden'); }
+
+function populateUfSelects(){
+  // Districts dropdown
+  const ds=document.getElementById('ufDistrict');
+  ds.innerHTML='<option value="">— Unassigned —</option>';
+  districts.forEach(d=>{ const o=document.createElement('option');o.value=d.id;o.textContent=d.name;ds.appendChild(o); });
+  // Store dropdown
+  const ss=document.getElementById('ufStore');
+  ss.innerHTML='<option value="">— Select Store —</option>';
+  STORES.forEach(s=>{ const o=document.createElement('option');o.value=s.id;o.textContent=`#${s.num} ${s.city}`;ss.appendChild(o); });
+}
+
+function ufRoleChange(){
+  const role=document.getElementById('ufRole').value;
+  document.getElementById('ufDistrictWrap').classList.toggle('hidden',role!=='dm');
+  document.getElementById('ufStoreWrap').classList.toggle('hidden',role==='dm');
+}
+
+function saveUser(){
+  const name=document.getElementById('ufName').value.trim();
+  const uname=document.getElementById('ufUser').value.trim();
+  const pass=document.getElementById('ufPass').value;
+  const role=document.getElementById('ufRole').value;
+  const districtId=document.getElementById('ufDistrict').value||null;
+  const storeId=document.getElementById('ufStore').value||null;
+  const errEl=document.getElementById('ufError');
+  if(!name||!uname||(!pass&&!editUserId)){errEl.textContent='Name, username and password are required.';errEl.classList.remove('hidden');return;}
+  if(!editUserId&&users.find(x=>x.username===uname)){errEl.textContent='Username already exists.';errEl.classList.remove('hidden');return;}
+  if(editUserId){
+    const u=users.find(x=>x.id===editUserId);
+    u.name=name; u.username=uname; if(pass)u.password=pass;
+    u.role=role; u.districtId=role==='dm'?districtId:null; u.storeId=role!=='dm'?storeId:null;
+  } else {
+    users.push({id:'u'+Date.now(),name,username:uname,password:pass,role,
+      districtId:role==='dm'?districtId:null, storeId:role!=='dm'?storeId:null});
+  }
+  saveAuth(); hideUserForm(); renderUsersTable();
+}
+
+function deleteUser(id){
+  if(!confirm('Delete this user?'))return;
+  users=users.filter(x=>x.id!==id);
+  saveAuth(); renderUsersTable();
+}
+
+function renderUsersTable(){
+  const tbody=document.getElementById('usersBody');
+  if(!users.length){ tbody.innerHTML=`<tr><td colspan="5" class="py-4 text-gray-400 italic text-sm">No users yet. Add users above.</td></tr>`; return; }
+  const roleBadge={dm:'badge-y',store_leader:'badge-g',employee:'badge-b'};
+  const roleLabel={dm:'District Manager',store_leader:'Store Leader',employee:'Employee'};
+  tbody.innerHTML=users.map(u=>{
+    const store=STORES.find(s=>s.id===u.storeId);
+    const dist=districts.find(d=>d.id===u.districtId);
+    const loc=u.role==='dm'?(dist?dist.name:'Unassigned'):(store?`#${store.num} ${store.city}`:'Unassigned');
+    return `<tr>
+      <td class="py-2 pr-4 font-medium text-sm">${u.name}</td>
+      <td class="py-2 pr-4 text-sm font-mono text-gray-600">${u.username}</td>
+      <td class="py-2 pr-4"><span class="${roleBadge[u.role]||'badge-b'} text-xs px-2 py-0.5 rounded-full">${roleLabel[u.role]||u.role}</span></td>
+      <td class="py-2 pr-4 text-sm text-gray-600">${loc}</td>
+      <td class="py-2 flex gap-2">
+        <button onclick="showUserForm('${u.id}')" class="text-xs text-blue-600 hover:underline">Edit</button>
+        <button onclick="deleteUser('${u.id}')" class="text-xs text-red-500 hover:underline">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── District form ──
+let editDistrictId=null;
+function showDistrictForm(id=null){
+  editDistrictId=id;
+  document.getElementById('districtFormTitle').textContent=id?'Edit District':'Add District';
+  document.getElementById('dfError').classList.add('hidden');
+  // Populate DM dropdown
+  const dmSel=document.getElementById('dfDm');
+  dmSel.innerHTML='<option value="">— Unassigned —</option>';
+  users.filter(u=>u.role==='dm').forEach(u=>{
+    const o=document.createElement('option'); o.value=u.id; o.textContent=u.name; dmSel.appendChild(o);
+  });
+  // Populate store checklist
+  const storesDiv=document.getElementById('dfStores');
+  storesDiv.innerHTML=STORES.map(s=>`
+    <label class="flex items-center gap-1.5 text-xs cursor-pointer py-0.5">
+      <input type="checkbox" class="dfStoreChk" value="${s.id}">
+      <span>#${s.num} ${s.city}</span>
+    </label>`).join('');
+  if(id){
+    const d=districts.find(x=>x.id===id);
+    document.getElementById('dfId').value=d.id;
+    document.getElementById('dfName').value=d.name;
+    dmSel.value=d.dmId||'';
+    document.querySelectorAll('.dfStoreChk').forEach(cb=>{ cb.checked=d.storeIds.includes(cb.value); });
+  } else {
+    document.getElementById('dfId').value='';
+    document.getElementById('dfName').value='';
+  }
+  document.getElementById('districtForm').classList.remove('hidden');
+}
+function hideDistrictForm(){ document.getElementById('districtForm').classList.add('hidden'); }
+
+function saveDistrict(){
+  const name=document.getElementById('dfName').value.trim();
+  const dmId=document.getElementById('dfDm').value||null;
+  const storeIds=[...document.querySelectorAll('.dfStoreChk:checked')].map(x=>x.value);
+  const errEl=document.getElementById('dfError');
+  if(!name){errEl.textContent='District name is required.';errEl.classList.remove('hidden');return;}
+  if(editDistrictId){
+    const d=districts.find(x=>x.id===editDistrictId);
+    d.name=name; d.dmId=dmId; d.storeIds=storeIds;
+    // Update DM user's districtId
+    if(dmId){const u=users.find(x=>x.id===dmId);if(u)u.districtId=editDistrictId;}
+  } else {
+    const did='d'+Date.now();
+    districts.push({id:did,name,dmId,storeIds});
+    if(dmId){const u=users.find(x=>x.id===dmId);if(u)u.districtId=did;}
+  }
+  saveAuth(); hideDistrictForm(); renderDistrictsGrid();
+}
+
+function deleteDistrict(id){
+  if(!confirm('Delete this district?'))return;
+  districts=districts.filter(x=>x.id!==id);
+  users.forEach(u=>{ if(u.districtId===id)u.districtId=null; });
+  saveAuth(); renderDistrictsGrid();
+}
+
+function renderDistrictsGrid(){
+  const el=document.getElementById('districtsGrid');
+  if(!districts.length){
+    el.innerHTML=`<div class="col-span-2 text-gray-400 italic text-sm py-4">No districts yet. Create one above.</div>`;
+    return;
+  }
+  el.innerHTML=districts.map(d=>{
+    const dm=users.find(u=>u.id===d.dmId);
+    const storeNames=d.storeIds.slice(0,4).map(id=>{ const s=STORES.find(x=>x.id===id); return s?`#${s.num} ${s.city}`:''; }).filter(Boolean);
+    const more=d.storeIds.length-4;
+    return `<div class="border rounded-xl p-4 bg-white hover:shadow-md transition">
+      <div class="flex items-start justify-between mb-1">
+        <div class="font-bold text-gray-800">${d.name}</div>
+        <div class="flex gap-2">
+          <button onclick="showDistrictForm('${d.id}')" class="text-xs text-blue-600 hover:underline">Edit</button>
+          <button onclick="deleteDistrict('${d.id}')" class="text-xs text-red-500 hover:underline">Delete</button>
+        </div>
+      </div>
+      <div class="text-xs text-gray-500 mb-2">DM: <span class="font-medium">${dm?dm.name:'Unassigned'}</span></div>
+      <div class="text-xs text-gray-500 mb-1">${d.storeIds.length} stores assigned</div>
+      <div class="text-xs text-gray-400">${storeNames.join(' · ')}${more>0?` · +${more} more`:''}</div>
+    </div>`;
+  }).join('');
+}
+
+// Override showTab to add admin case + access check
+function showTab(name){
+  if(!canAccess(name)) return;
+  const allTabs=['count','review','log','analytics','stores','admin'];
+  allTabs.forEach(t=>{
+    const el=document.getElementById(`tab-${t}`);
+    if(el) el.classList.toggle('hidden',t!==name);
+  });
+  // Regular tab buttons
+  ['count','review','log','analytics','stores'].forEach((t,i)=>{
+    const btns=document.querySelectorAll('.tab-btn');
+    if(btns[i]) btns[i].classList.toggle('active',t===name);
+  });
+  document.getElementById('adminTabBtn').classList.toggle('active',name==='admin');
+  if(name==='review')    renderReview(revSub);
+  if(name==='log')       renderLog();
+  if(name==='analytics') renderAnalytics('kratom');
+  if(name==='stores')    renderStores();
+  if(name==='admin')     { showAdSub('users'); }
+}
+
+// ═══════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════
+loadAuth();
 loadState();
+loadSession();
 if(!shiftLog.length) seedDemo();
-buildCountTables();
 
-// Set today's date in shift date field
-document.getElementById('shiftDate').value=new Date().toISOString().split('T')[0];
+if(session){
+  onLoginSuccess();
+} else {
+  document.getElementById('loginScreen').classList.remove('hidden');
+}
 
 tick();
 setInterval(tick,30000);
