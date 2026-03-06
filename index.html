@@ -49,47 +49,58 @@
 
     <div class="flex items-center gap-2 ml-auto flex-wrap">
       <select id="storeSelect" onchange="onStoreChange()"
-        class="text-xs bg-blue-900 text-white border border-blue-700 rounded px-2 py-1.5 w-52">
+        class="text-xs bg-blue-900 text-white border border-blue-700 rounded px-2 py-1.5 w-64">
         <optgroup label="── Hattiesburg Area ──">
-          <option value="h01">HQ — 7048 US Hwy 49 N, Hattiesburg</option>
-          <option value="h02">Hattiesburg #2 — 7276 US 49</option>
-          <option value="h03">Hattiesburg #3 — 6750 US Hwy 49</option>
-          <option value="h04">Hattiesburg #4 — 5331 Old Hwy 11</option>
-          <option value="h05">Hattiesburg #5 — 5170 W 4th St</option>
-          <option value="h06">Hattiesburg #6 — 5815 Hwy 11</option>
-          <option value="pet">Petal</option>
+          <option value="s135">#135 — 5331 Old Hwy 11, Hattiesburg</option>
+          <option value="s137">#137 — 5170 W. 4th St., Hattiesburg</option>
+          <option value="s150">#150 — 6750 Hwy 49, Hattiesburg</option>
+          <option value="s151">#151 — 7276 Hwy 49, Hattiesburg</option>
+          <option value="s157">#157 — 2462 US Hwy 49, Hattiesburg</option>
+          <option value="s173">#173 — 1858 Evelyn Gandy Pkwy, Hattiesburg</option>
+          <option value="s175">#175 — 101 Carterville Rd, Petal</option>
         </optgroup>
         <optgroup label="── Pine Belt ──">
-          <option value="pur1">Purvis #1 — 361 Hwy 589</option>
-          <option value="pur2">Purvis #2 — 5791 US Hwy 11</option>
-          <option value="sum">Sumrall</option>
-          <option value="lum">Lumberton</option>
-          <option value="ell">Ellisville — 5213 Hwy 11 N</option>
-          <option value="mos">Moselle — 59 Moselle Seminary Rd</option>
-          <option value="sem">Seminary — 2078 US Hwy 49</option>
-          <option value="col">Collins — 3030 US 49</option>
+          <option value="s100">#100 — 304 Hill St., Ellisville</option>
+          <option value="s105">#105 — 5213 Hwy 11 N., Ellisville</option>
+          <option value="sMos">Moselle — 59 Moselle Seminary Rd.</option>
+          <option value="s117">#117 — 2675 Hwy 15, Bay Springs</option>
+          <option value="s125">#125 — 2078 US Hwy 49, Seminary</option>
+          <option value="s127">#127 — 3030 Hwy 49, Collins</option>
+          <option value="s130">#130 — 1475 Hwy 98 E., Columbia</option>
+          <option value="s140">#140 — 1196 Rock Hill Rd., Mount Olive</option>
+          <option value="s155">#155 — 8431 Hwy 98, Sumrall</option>
+          <option value="s185">#185 — 918 E. Main Ave, Lumberton</option>
         </optgroup>
-        <optgroup label="── Coastal ──">
-          <option value="gul">Gulfport — 9151 Hwy 49</option>
-          <option value="bsl1">Bay St. Louis #1 — 4955 Hwy 90</option>
-          <option value="bsl2">Bay St. Louis #2 — 10513 Hwy 603</option>
-          <option value="pas">Pass Christian — 109 E Beach Blvd</option>
-          <option value="gau">Gautier — 819 Hwy 90</option>
-          <option value="dib">D'Iberville — 10175 Central Ave</option>
-          <option value="sau">Saucier — 26181 US 49</option>
-          <option value="osp">Ocean Springs</option>
-          <option value="van">Vancleave</option>
-          <option value="bil">Biloxi</option>
+        <optgroup label="── Gulf Coast ──">
+          <option value="s082">#82 — 21000 Hwy 613, Moss Point</option>
+          <option value="s085">#85 — 6820 Hwy 613, Moss Point</option>
+          <option value="s086">#86 — 6718 Hwy 63, Moss Point</option>
+          <option value="s088">#88 — 10909 Hwy 57, Vancleave</option>
+          <option value="s089">#89 — 7501 Washington Ave, Ocean Springs</option>
+          <option value="s090">#90 — Ocean Springs</option>
+          <option value="s107">#107 — 26181 Hwy 49 S., Saucier</option>
+          <option value="s108">#108 — 19000 28th St., Long Beach</option>
+          <option value="s109">#109 — 102 E Beach Blvd, Pass Christian</option>
+          <option value="s112">#112 — 819 Hwy 90, Gautier</option>
+          <option value="s182">#182 — 10513 Hwy 603, Waveland</option>
+          <option value="s183">#183 — 701 Hwy 90, Bay St. Louis</option>
+          <option value="s184">#184 — 4955 Hwy 90, Bay St. Louis</option>
         </optgroup>
         <optgroup label="── South MS ──">
-          <option value="pic1">Picayune #1 — 1405 Hwy 43 N</option>
-          <option value="pic2">Picayune #2 — 2001 Hwy 11 S</option>
-          <option value="pic3">Picayune #3 — 1101 Memorial Blvd</option>
-          <option value="car">Carriere — 498 W Union Rd</option>
-          <option value="luc">Lucedale — 6239 US-98</option>
+          <option value="s080">#80 — 6239 Hwy 98, Lucedale</option>
+          <option value="s081">#81 — 7292 Hwy 63 S., Lucedale</option>
+          <option value="s091">#91 — 1220 W. Central Ave., Wiggins</option>
+          <option value="s120">#120 — 5812 Hwy 11, Purvis</option>
+          <option value="s122">#122 — 5791 Hwy 11, Purvis</option>
+          <option value="s123">#123 — 361 Hwy 589, Purvis</option>
+          <option value="s160">#160 — 114 Magnolia Dr., Wiggins</option>
+          <option value="s161">#161 — 3333 Hwy 49, Wiggins</option>
+          <option value="s192">#192 — 1405 Hwy 43 N., Picayune</option>
+          <option value="s194">#194 — 498 W. Union Rd., Carriere</option>
+          <option value="s196">#196 — 4670 Hwy 53, Poplarville</option>
         </optgroup>
         <optgroup label="── Alabama ──">
-          <option value="wil">Wilmer, AL — 13443 Moffett Rd</option>
+          <option value="s060">#60 — 13515 Moffett Rd, Wilmer, AL</option>
         </optgroup>
       </select>
       <div id="hdrClock" class="text-xs text-blue-200 hidden sm:block text-right"></div>
@@ -274,7 +285,7 @@
           <option value="">All Regions</option>
           <option value="Hattiesburg">Hattiesburg</option>
           <option value="Pine Belt">Pine Belt</option>
-          <option value="Coastal">Coastal</option>
+          <option value="Gulf Coast">Gulf Coast</option>
           <option value="South MS">South MS</option>
           <option value="Alabama">Alabama</option>
         </select>
@@ -365,42 +376,53 @@ const SCRATCHERS = [
 ];
 
 const STORES = [
-  // Hattiesburg Area
-  {id:'h01', name:'Hattiesburg HQ',      city:'Hattiesburg, MS', addr:'7048 US Hwy 49 N',     region:'Hattiesburg'},
-  {id:'h02', name:'Hattiesburg #2',      city:'Hattiesburg, MS', addr:'7276 US 49',            region:'Hattiesburg'},
-  {id:'h03', name:'Hattiesburg #3',      city:'Hattiesburg, MS', addr:'6750 US Hwy 49',        region:'Hattiesburg'},
-  {id:'h04', name:'Hattiesburg #4',      city:'Hattiesburg, MS', addr:'5331 Old Hwy 11',       region:'Hattiesburg'},
-  {id:'h05', name:'Hattiesburg #5',      city:'Hattiesburg, MS', addr:'5170 W 4th St',         region:'Hattiesburg'},
-  {id:'h06', name:'Hattiesburg #6',      city:'Hattiesburg, MS', addr:'5815 Hwy 11',           region:'Hattiesburg'},
-  {id:'pet', name:'Petal',               city:'Petal, MS',       addr:'',                      region:'Hattiesburg'},
-  // Pine Belt
-  {id:'pur1',name:'Purvis #1',           city:'Purvis, MS',      addr:'361 Hwy 589',           region:'Pine Belt'},
-  {id:'pur2',name:'Purvis #2',           city:'Purvis, MS',      addr:'5791 US Hwy 11',        region:'Pine Belt'},
-  {id:'sum', name:'Sumrall',             city:'Sumrall, MS',     addr:'',                      region:'Pine Belt'},
-  {id:'lum', name:'Lumberton',           city:'Lumberton, MS',   addr:'',                      region:'Pine Belt'},
-  {id:'ell', name:'Ellisville',          city:'Ellisville, MS',  addr:'5213 Hwy 11 N',         region:'Pine Belt'},
-  {id:'mos', name:'Moselle',             city:'Moselle, MS',     addr:'59 Moselle Seminary Rd',region:'Pine Belt'},
-  {id:'sem', name:'Seminary',            city:'Seminary, MS',    addr:'2078 US Hwy 49',        region:'Pine Belt'},
-  {id:'col', name:'Collins',             city:'Collins, MS',     addr:'3030 US 49',            region:'Pine Belt'},
-  // Coastal
-  {id:'gul', name:'Gulfport',            city:'Gulfport, MS',    addr:'9151 Hwy 49',           region:'Coastal'},
-  {id:'bsl1',name:'Bay St. Louis #1',    city:'Bay St. Louis, MS',addr:'4955 Hwy 90',          region:'Coastal'},
-  {id:'bsl2',name:'Bay St. Louis #2',    city:'Bay St. Louis, MS',addr:'10513 Hwy 603',        region:'Coastal'},
-  {id:'pas', name:'Pass Christian',      city:'Pass Christian, MS',addr:'109 E Beach Blvd',    region:'Coastal'},
-  {id:'gau', name:'Gautier',             city:'Gautier, MS',     addr:'819 Hwy 90',            region:'Coastal'},
-  {id:'dib', name:"D'Iberville",         city:"D'Iberville, MS", addr:'10175 Central Ave',     region:'Coastal'},
-  {id:'sau', name:'Saucier',             city:'Saucier, MS',     addr:'26181 US 49',           region:'Coastal'},
-  {id:'osp', name:'Ocean Springs',       city:'Ocean Springs, MS',addr:'',                     region:'Coastal'},
-  {id:'van', name:'Vancleave',           city:'Vancleave, MS',   addr:'',                      region:'Coastal'},
-  {id:'bil', name:'Biloxi',              city:'Biloxi, MS',      addr:'',                      region:'Coastal'},
-  // South MS
-  {id:'pic1',name:'Picayune #1',         city:'Picayune, MS',    addr:'1405 Hwy 43 N',         region:'South MS'},
-  {id:'pic2',name:'Picayune #2',         city:'Picayune, MS',    addr:'2001 Hwy 11 S',         region:'South MS'},
-  {id:'pic3',name:'Picayune #3',         city:'Picayune, MS',    addr:'1101 Memorial Blvd',    region:'South MS'},
-  {id:'car', name:'Carriere',            city:'Carriere, MS',    addr:'498 W Union Rd',        region:'South MS'},
-  {id:'luc', name:'Lucedale',            city:'Lucedale, MS',    addr:'6239 US-98',            region:'South MS'},
-  // Alabama
-  {id:'wil', name:'Wilmer',              city:'Wilmer, AL',      addr:'13443 Moffett Rd',      region:'Alabama'},
+  // ── Hattiesburg Area ──
+  {id:'s135',num:'135',name:'Store #135',city:'Hattiesburg, MS',addr:'5331 Old Hwy 11',       phone:'(601) 271-8711',hours:'Mon–Sun 5am–12am',region:'Hattiesburg'},
+  {id:'s137',num:'137',name:'Store #137',city:'Hattiesburg, MS',addr:'5170 W. 4th St.',       phone:'(601) 296-6008',hours:'Sun–Thurs 5am–11pm · Fri–Sat 5am–12am',region:'Hattiesburg'},
+  {id:'s150',num:'150',name:'Store #150',city:'Hattiesburg, MS',addr:'6750 Hwy 49',           phone:'(601) 271-8400',hours:'Mon–Sun 5am–12am',region:'Hattiesburg'},
+  {id:'s151',num:'151',name:'Store #151',city:'Hattiesburg, MS',addr:'7276 Hwy 49',           phone:'(601) 296-6761',hours:'Sun–Thurs 5am–11pm · Fri–Sat 5am–12am',region:'Hattiesburg'},
+  {id:'s157',num:'157',name:'Store #157',city:'Hattiesburg, MS',addr:'2462 US Hwy 49',        phone:'(601) 336-1340',hours:'Mon–Sun 5am–12am',region:'Hattiesburg'},
+  {id:'s173',num:'173',name:'Store #173',city:'Hattiesburg, MS',addr:'1858 Evelyn Gandy Pkwy',phone:'(601) 583-4485',hours:'Mon–Sun 5am–11pm',region:'Hattiesburg'},
+  {id:'s175',num:'175',name:'Store #175',city:'Petal, MS',       addr:'101 Carterville Rd',   phone:'(601) 584-8665',hours:'Mon–Thurs 5am–11pm · Fri–Sat 5am–12am',region:'Hattiesburg'},
+  // ── Pine Belt ──
+  {id:'s100',num:'100',name:'Store #100',city:'Ellisville, MS',  addr:'304 Hill St.',         phone:'(601) 477-9990',hours:'Mon–Sun 5am–12am',region:'Pine Belt'},
+  {id:'s105',num:'105',name:'Store #105',city:'Ellisville, MS',  addr:'5213 Hwy 11 N.',       phone:'(601) 425-3085',hours:'Mon–Sun 5am–12am',region:'Pine Belt'},
+  {id:'sMos',num:'—',  name:'Moselle',   city:'Moselle, MS',     addr:'59 Moselle Seminary Rd',phone:'(601) 582-8330',hours:'Mon–Sun 4am–11pm',region:'Pine Belt'},
+  {id:'s117',num:'117',name:'Store #117',city:'Bay Springs, MS', addr:'2675 Hwy 15',          phone:'(601) 764-4580',hours:'',region:'Pine Belt'},
+  {id:'s125',num:'125',name:'Store #125',city:'Seminary, MS',    addr:'2078 US Hwy 49',       phone:'(601) 722-4323',hours:'Mon–Sun 5am–10pm',region:'Pine Belt'},
+  {id:'s127',num:'127',name:'Store #127',city:'Collins, MS',     addr:'3030 Hwy 49',          phone:'(601) 909-9133',hours:'Sun–Thurs 5am–11pm · Fri–Sat 5am–12am',region:'Pine Belt'},
+  {id:'s130',num:'130',name:'Store #130',city:'Columbia, MS',    addr:'1475 Hwy 98 E.',       phone:'(601) 736-6662',hours:'Sun–Thurs 5am–11pm · Fri–Sat 5am–12am',region:'Pine Belt'},
+  {id:'s140',num:'140',name:'Store #140',city:'Mount Olive, MS', addr:'1196 Rock Hill Rd.',   phone:'(601) 797-4545',hours:'Mon–Sun 5am–11pm',region:'Pine Belt'},
+  {id:'s155',num:'155',name:'Store #155',city:'Sumrall, MS',     addr:'8431 Hwy 98',          phone:'(601) 296-4721',hours:'Sun–Thurs 5am–9pm · Fri–Sat 5am–10pm',region:'Pine Belt'},
+  {id:'s185',num:'185',name:'Store #185',city:'Lumberton, MS',   addr:'918 E. Main Ave',      phone:'(601) 796-2780',hours:'Mon–Sun 5am–11pm',region:'Pine Belt'},
+  // ── Gulf Coast ──
+  {id:'s082',num:'82', name:'Store #82', city:'Moss Point, MS',  addr:'21000 Hwy 613',        phone:'(228) 588-2134',hours:'Mon–Sun 4am–12am',region:'Gulf Coast'},
+  {id:'s085',num:'85', name:'Store #85', city:'Moss Point, MS',  addr:'6820 Hwy 613',         phone:'(228) 474-2556',hours:'Mon–Thurs 3am–11pm · Fri 3am–12am · Sat 5am–12am · Sun 5am–11pm',region:'Gulf Coast'},
+  {id:'s086',num:'86', name:'Store #86', city:'Moss Point, MS',  addr:'6718 Hwy 63',          phone:'(228) 474-0004',hours:'Mon–Sun 4am–12am',region:'Gulf Coast'},
+  {id:'s088',num:'88', name:'Store #88', city:'Vancleave, MS',   addr:'10909 Hwy 57',         phone:'(228) 826-9115',hours:'Mon–Sun 4am–12am',region:'Gulf Coast'},
+  {id:'s089',num:'89', name:'Store #89', city:'Ocean Springs, MS',addr:'7501 Washington Ave', phone:'(228) 872-1955',hours:'Open 24/7',region:'Gulf Coast'},
+  {id:'s090',num:'90', name:'Store #90', city:'Ocean Springs, MS',addr:'',                    phone:'(228) 392-9084',hours:'Open 24/7',region:'Gulf Coast'},
+  {id:'s107',num:'107',name:'Store #107',city:'Saucier, MS',     addr:'26181 Hwy 49 S.',      phone:'(228) 832-0298',hours:'Sun–Thurs 5am–11pm · Fri–Sat 5am–12am',region:'Gulf Coast'},
+  {id:'s108',num:'108',name:'Store #108',city:'Long Beach, MS',  addr:'19000 28th St.',       phone:'(228) 575-6822',hours:'Mon–Sun 5am–12am',region:'Gulf Coast'},
+  {id:'s109',num:'109',name:'Store #109',city:'Pass Christian, MS',addr:'102 E Beach Blvd',   phone:'(228) 452-5651',hours:'Mon–Sun 5am–12am',region:'Gulf Coast'},
+  {id:'s112',num:'112',name:'Store #112',city:'Gautier, MS',     addr:'819 Hwy 90',           phone:'(228) 497-9687',hours:'Mon–Fri 3am–11pm · Sat 4am–12am · Sun 5am–12am',region:'Gulf Coast'},
+  {id:'s182',num:'182',name:'Store #182',city:'Waveland, MS',    addr:'10513 Hwy 603',        phone:'(228) 466-4494',hours:'Mon–Sun 5am–11pm',region:'Gulf Coast'},
+  {id:'s183',num:'183',name:'Store #183',city:'Bay St. Louis, MS',addr:'701 Hwy 90',          phone:'(251) 649-6544',hours:'Mon–Sun 5am–11pm',region:'Gulf Coast'},
+  {id:'s184',num:'184',name:'Store #184',city:'Bay St. Louis, MS',addr:'4955 Hwy 90',         phone:'(228) 466-4336',hours:'Mon–Sun 5am–11pm',region:'Gulf Coast'},
+  // ── South MS ──
+  {id:'s080',num:'80', name:'Store #80', city:'Lucedale, MS',    addr:'6239 Hwy 98',          phone:'(601) 947-7520',hours:'Mon–Sun 5am–12am',region:'South MS'},
+  {id:'s081',num:'81', name:'Store #81', city:'Lucedale, MS',    addr:'7292 Hwy 63 S.',       phone:'(601) 947-8120',hours:'Mon–Sun 5am–12am',region:'South MS'},
+  {id:'s091',num:'91', name:'Store #91', city:'Wiggins, MS',     addr:'1220 W. Central Ave.', phone:'(601) 928-9403',hours:'Sun–Thurs 5am–11pm · Fri–Sat 5am–12am',region:'South MS'},
+  {id:'s120',num:'120',name:'Store #120',city:'Purvis, MS',      addr:'5812 Hwy 11',          phone:'(601) 794-2249',hours:'Mon–Sun 5am–10pm',region:'South MS'},
+  {id:'s122',num:'122',name:'Store #122',city:'Purvis, MS',      addr:'5791 Hwy 11',          phone:'(601) 794-0422',hours:'Mon–Sun 5am–10pm',region:'South MS'},
+  {id:'s123',num:'123',name:'Store #123',city:'Purvis, MS',      addr:'361 Hwy 589',          phone:'(601) 744-0660',hours:'Sun–Thurs 5am–11pm · Fri–Sat 5am–12am',region:'South MS'},
+  {id:'s160',num:'160',name:'Store #160',city:'Wiggins, MS',     addr:'114 Magnolia Dr.',     phone:'(601) 528-9002',hours:'Mon–Sun 5am–11pm',region:'South MS'},
+  {id:'s161',num:'161',name:'Store #161',city:'Wiggins, MS',     addr:'3333 Hwy 49',          phone:'(601) 928-7826',hours:'Mon–Sun 5am–10pm',region:'South MS'},
+  {id:'s192',num:'192',name:'Store #192',city:'Picayune, MS',    addr:'1405 Hwy 43 N.',       phone:'(601) 798-9554',hours:'Sun–Thurs 5am–11pm · Fri–Sat 5am–12am',region:'South MS'},
+  {id:'s194',num:'194',name:'Store #194',city:'Carriere, MS',    addr:'498 W. Union Rd.',     phone:'(601) 889-0394',hours:'Open 24/7',region:'South MS'},
+  {id:'s196',num:'196',name:'Store #196',city:'Poplarville, MS', addr:'4670 Hwy 53',          phone:'(601) 403-8290',hours:'Sun–Thurs 5am–11pm · Fri–Sat 5am–12am',region:'South MS'},
+  // ── Alabama ──
+  {id:'s060',num:'60', name:'Store #60', city:'Wilmer, AL',      addr:'13515 Moffett Rd',     phone:'(251) 649-6544',hours:'Mon–Sun 5am–12am',region:'Alabama'},
 ];
 
 // Populate log store filter
@@ -433,16 +455,16 @@ function seedDemo(){
   const dates=['2026-02-15','2026-02-17','2026-02-19','2026-02-21','2026-02-24','2026-02-26','2026-03-01','2026-03-03','2026-03-05'];
   // Deliberate shrinkage patterns per store
   const kShrink={
-    h01:{k9:2,k1:1}, h02:{k9:1,k7:1}, gul:{k9:3,k2:1},
-    bsl1:{k9:1},     pic1:{k6:1,k9:2}, wil:{k7:1,k9:1}
+    s150:{k9:2,k1:1}, s151:{k9:1,k7:1}, s107:{k9:3,k2:1},
+    s184:{k9:1},      s192:{k6:1,k9:2}, s060:{k7:1,k9:1}
   };
   const lShrink={
-    h01:{s29:1,s35:1}, h02:{s36:1},    gul:{s34:2,s29:1},
-    bsl1:{s35:1},      pic1:{s29:1},    wil:{s36:1,s33:1}
+    s150:{s29:1,s35:1}, s151:{s36:1},   s107:{s34:2,s29:1},
+    s184:{s35:1},       s192:{s29:1},    s060:{s36:1,s33:1}
   };
 
-  // Only seed 8 stores to keep data manageable
-  const seedStores=['h01','h02','h03','gul','bsl1','pic1','wil','ell'];
+  // Seed 8 representative stores
+  const seedStores=['s150','s151','s135','s107','s184','s192','s060','s105'];
 
   seedStores.forEach(sid=>{
     const store=STORES.find(s=>s.id===sid);
@@ -1061,7 +1083,9 @@ function renderStores(){
         </div>
         <span class="${badgeCls} text-xs px-2 py-0.5 rounded-full font-bold">${s.level}</span>
       </div>
-      <div class="text-xs text-gray-400 mb-3">Last count: ${s.lastDate||'No data'} &nbsp;·&nbsp; ${s.entries.length} shifts logged</div>
+      <div class="text-xs text-gray-400 mt-0.5 ml-4">${s.phone}</div>
+      ${s.hours?`<div class="text-xs text-gray-400 ml-4 leading-tight">${s.hours}</div>`:''}
+      <div class="text-xs text-gray-400 mt-2 mb-2">Last count: ${s.lastDate||'No data'} &nbsp;·&nbsp; ${s.entries.length} shifts logged</div>
       <div class="grid grid-cols-4 gap-1 text-center">
         <div class="bg-gray-50 rounded p-1.5">
           <div class="text-xs text-gray-400">Flags</div>
