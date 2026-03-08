@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Shrink Guard Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+
+<body class="bg-gray-900 text-white p-6">
+
+<h1 class="text-3xl font-bold mb-6 text-center">
+Shrink Guard Dashboard
+</h1>
+
+<div class="max-w-6xl mx-auto">
+
+<table class="w-full bg-gray-800 rounded-lg overflow-hidden">
+
+<thead class="bg-gray-700">
+
+<tr>
+<th class="p-3">Barcode</th>
+<th class="p-3">Incoming</th>
+<th class="p-3">Count Out</th>
+<th class="p-3">Shrink</th>
+<th class="p-3">Date</th>
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+// SUPABASE CONNECTION
+
+const SUPABASE_URL = "YOUR_SUPABASE_URL"
+const SUPABASE_KEY = "YOUR_ANON_KEY"
+
+const supabase = window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+)
+
+// LOAD DATA
+
+async function loadCounts(){
+
+const { data, error } = await supabase
+.from("counts")
+.select("*")
+.order("created_at", { ascending:false })
+
+const table = document.getElementById("tableBody")
+
+table.innerHTML = ""
+
+data.forEach(row => {
+
+table.innerHTML += `
+
+<tr class="border-b border-gray-700">
+
+<td class="p-3">${row.barcode}</td>
+<td class="p-3">${row.incoming}</td>
+<td class="p-3">${row.count_out || "-"}</td>
+<td class="p-3 text-red-400">${row.shrink || "-"}</td>
+<td class="p-3">${row.created_at}</td>
+
+</tr>
+
+`
+
+})
+
+}
+
+loadCounts()
+
+</script>
+
+</body>
+</html>
