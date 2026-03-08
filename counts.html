@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Shrink Guard Counts</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script src="https://unpkg.com/quagga/dist/quagga.min.js"></script>
+
+</head>
+
+<body class="bg-gray-100 p-6">
+
+<h1 class="text-2xl font-bold mb-4">
+Cycle Counts
+</h1>
+
+<button
+onclick="startScanner()"
+class="bg-purple-600 text-white px-4 py-2 rounded"
+>
+
+Scan Item
+
+</button>
+
+<div id="scanner" class="mt-6"></div>
+
+<div class="mt-6">
+
+<input
+id="incoming"
+placeholder="Incoming Count"
+class="border p-2 mr-2"
+/>
+
+<input
+id="countout"
+placeholder="Count Out"
+class="border p-2 mr-2"
+/>
+
+<button
+onclick="saveCount()"
+class="bg-blue-600 text-white px-4 py-2 rounded"
+>
+
+Save Count
+
+</button>
+
+</div>
+
+<script>
+
+function startScanner(){
+
+Quagga.init({
+
+inputStream:{
+type:"LiveStream",
+target:document.querySelector('#scanner'),
+constraints:{ facingMode:"environment" }
+},
+
+decoder:{
+readers:["upc_reader","ean_reader"]
+}
+
+},
+
+function(err){
+
+if(err){
+console.log(err)
+return
+}
+
+Quagga.start()
+
+})
+
+Quagga.onDetected(function(result){
+
+const code = result.codeResult.code
+
+alert("Scanned barcode: " + code)
+
+Quagga.stop()
+
+})
+
+}
+
+function saveCount(){
+
+const incoming =
+document.getElementById("incoming").value
+
+const countout =
+document.getElementById("countout").value
+
+const shrink =
+incoming - countout
+
+alert("Shrink: " + shrink)
+
+}
+
+</script>
+
+</body>
+
+</html>
