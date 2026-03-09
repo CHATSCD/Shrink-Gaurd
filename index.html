@@ -5,140 +5,438 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Shrink Guard v3</title>
+<title>Shrink Shield — Keith's Superstores</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://unpkg.com/html5-qrcode"></script>
 
 </head>
 
-<body class="bg-gray-900 text-white p-6">
+<body class="bg-gray-100">
 
-<h1 class="text-3xl font-bold mb-6 text-center">
-Shrink Guard
-</h1>
+<div class="max-w-7xl mx-auto p-4">
 
-<div class="max-w-md mx-auto bg-gray-800 p-6 rounded-xl space-y-3">
+<div class="flex justify-between items-center mb-6">
 
-<label>Barcode</label>
-<input id="barcode" class="w-full p-2 text-black"/>
+<h1 class="text-2xl font-bold">Shrink Shield</h1>
 
-<button onclick="startScanner()" class="bg-blue-500 w-full p-2 rounded">
-Scan Barcode
-</button>
+<div id="userBox"></div>
 
-<div id="reader"></div>
+</div>
 
-<label>Previous Shift Sales (PLU)</label>
-<input id="sales" type="number" class="w-full p-2 text-black"/>
 
-<label>Location</label>
-<select id="location" class="w-full p-2 text-black">
-<option>Sales Floor</option>
-<option>Office</option>
-</select>
+<!-- LOGIN -->
 
-<label>Cases</label>
-<input id="cases" type="number" class="w-full p-2 text-black"/>
+<div id="loginScreen" class="max-w-sm mx-auto bg-white p-6 rounded shadow">
 
-<label>Bottles</label>
-<input id="bottles" type="number" class="w-full p-2 text-black"/>
+<h2 class="text-lg font-bold mb-4">Employee Login</h2>
 
-<button onclick="submitCount()" class="bg-green-500 w-full p-2 rounded">
-Submit Count
+<input id="username" placeholder="Email" class="border w-full p-2 mb-2 rounded">
+
+<input id="password" type="password" placeholder="Password" class="border w-full p-2 mb-4 rounded">
+
+<button onclick="login()" class="w-full bg-blue-600 text-white p-2 rounded">
+Login
 </button>
 
 </div>
 
+
+
+<!-- APP -->
+
+<div id="app" class="hidden">
+
+<div class="flex gap-2 mb-6 flex-wrap">
+
+<button onclick="showTab('dashboard')" class="bg-gray-200 px-3 py-1 rounded">
+Dashboard
+</button>
+
+<button onclick="showTab('stores')" class="bg-gray-200 px-3 py-1 rounded">
+Stores
+</button>
+
+<button onclick="showTab('shift')" class="bg-gray-200 px-3 py-1 rounded">
+Log Shift
+</button>
+
+<button onclick="showTab('prices')" class="bg-gray-200 px-3 py-1 rounded">
+Prices
+</button>
+
+<button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded ml-auto">
+Logout
+</button>
+
+</div>
+
+
+
+<!-- DASHBOARD -->
+
+<div id="tab-dashboard">
+
+<div class="bg-white p-4 rounded shadow">
+
+<h2 class="font-bold mb-3">Recent Shifts</h2>
+
+<div id="logList"></div>
+
+</div>
+
+</div>
+
+
+
+<!-- STORES -->
+
+<div id="tab-stores" class="hidden">
+
+<div class="flex justify-between mb-4">
+
+<h2 class="font-bold">Keith's Locations</h2>
+
+<select id="storeRegionFilter" onchange="renderStores()" class="border p-1 rounded text-sm">
+
+<option value="">All Regions</option>
+<option value="Hattiesburg">Hattiesburg</option>
+<option value="Pine Belt">Pine Belt</option>
+<option value="Gulf Coast">Gulf Coast</option>
+<option value="South MS">South MS</option>
+<option value="Alabama">Alabama</option>
+
+</select>
+
+</div>
+
+<div id="storeGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+
+</div>
+
+
+
+<!-- SHIFT -->
+
+<div id="tab-shift" class="hidden">
+
+<div class="bg-white p-4 rounded shadow max-w-lg">
+
+<h2 class="font-bold mb-3">Log Shift</h2>
+
+<select id="storeSelect" class="border p-2 w-full mb-2"></select>
+
+<input id="date" type="date" class="border p-2 w-full mb-2">
+
+<select id="shift" class="border p-2 w-full mb-2">
+
+<option>Morning</option>
+<option>Afternoon</option>
+<option>Evening</option>
+<option>Night</option>
+
+</select>
+
+<input id="outClerk" placeholder="Outgoing Clerk" class="border p-2 w-full mb-2">
+
+<input id="inClerk" placeholder="Incoming Clerk" class="border p-2 w-full mb-4">
+
+<button onclick="saveShift()" class="bg-blue-600 text-white p-2 w-full rounded">
+Save Shift
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- PRICES -->
+
+<div id="tab-prices" class="hidden">
+
+<div class="bg-white p-4 rounded shadow">
+
+<h2 class="font-bold mb-4">Kratom Prices</h2>
+
+<div id="priceTable"></div>
+
+</div>
+
+</div>
+
+
+</div>
+</div>
+
+
+
 <script>
+
+
+// SUPABASE
 
 const SUPABASE_URL = "https://ylfsqjbqhewpfiooytlg.supabase.co"
 
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZnNxamJxaGV3cGZpb295dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzQwODQsImV4cCI6MjA4ODM1MDA4NH0.Ssl5J6ktZIVtLd2cq8vH7PWdR4-yZwI5tt4PtXkVqWk"
 
-const supabase = window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-)
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
-function startScanner(){
 
-const scanner = new Html5Qrcode("reader")
 
-scanner.start(
-{ facingMode:"environment" },
-{ fps:10, qrbox:250 },
-barcode => {
+// PRODUCTS
 
-document.getElementById("barcode").value = barcode
+const KRATOM=[
 
-scanner.stop()
+{id:'k1',name:'Viva Zen Ultimate',price:14.99},
+{id:'k2',name:'Viva Zen Red Top',price:12.99},
+{id:'k3',name:'Viva Zen White Top',price:12.99},
+{id:'k4',name:'Kryptic Kratom Relaxation',price:11.99},
+{id:'k5',name:'Kryptic Kratom Thin',price:11.99},
+{id:'k6',name:'Kratom Extract',price:13.99},
+{id:'k7',name:'K Shot',price:10.99},
+{id:'k8',name:'Kratom Yellow Cap',price:9.99},
+{id:'k9',name:'Feel Free',price:15.99}
 
-})
-}
+]
 
-async function submitCount(){
 
-const barcode = document.getElementById("barcode").value
-const sales = parseInt(document.getElementById("sales").value || 0)
-const location = document.getElementById("location").value
-const cases = parseInt(document.getElementById("cases").value || 0)
-const bottles = parseInt(document.getElementById("bottles").value || 0)
 
-const ending = (cases * 12) + bottles
+// STORES
 
-// GET LAST RECORD
+const STORES=[
 
-const { data } = await supabase
-.from("shift_counts")
-.select("*")
-.eq("barcode", barcode)
-.order("created_at",{ascending:false})
-.limit(1)
+{id:'s135',name:'Store #135',city:'Hattiesburg, MS',region:'Hattiesburg'},
+{id:'s137',name:'Store #137',city:'Hattiesburg, MS',region:'Hattiesburg'},
+{id:'s150',name:'Store #150',city:'Hattiesburg, MS',region:'Hattiesburg'},
+{id:'s151',name:'Store #151',city:'Hattiesburg, MS',region:'Hattiesburg'},
+{id:'s175',name:'Store #175',city:'Petal, MS',region:'Hattiesburg'},
 
-let verified = true
+{id:'s100',name:'Store #100',city:'Ellisville, MS',region:'Pine Belt'},
+{id:'s105',name:'Store #105',city:'Ellisville, MS',region:'Pine Belt'},
 
-if(data.length > 0){
+{id:'s082',name:'Store #82',city:'Moss Point, MS',region:'Gulf Coast'},
+{id:'s089',name:'Store #89',city:'Ocean Springs, MS',region:'Gulf Coast'},
+{id:'s107',name:'Store #107',city:'Saucier, MS',region:'Gulf Coast'},
 
-let previousIncoming = data[0].ending_count
-let expected = previousIncoming - sales
+{id:'s192',name:'Store #192',city:'Picayune, MS',region:'South MS'},
+{id:'s196',name:'Store #196',city:'Poplarville, MS',region:'South MS'},
 
-if(expected !== ending){
+{id:'s060',name:'Store #60',city:'Wilmer, AL',region:'Alabama'}
 
-verified = false
+]
 
-alert("⚠ Previous shift count mismatch")
 
-}
 
-}
+// LOGIN
 
-// SAVE NEW RECORD
+async function login(){
 
-const { error } = await supabase
-.from("shift_counts")
-.insert([{
+const email=document.getElementById("username").value
+const password=document.getElementById("password").value
 
-barcode: barcode,
-location: location,
-ending_count: ending,
-previous_shift_sales: sales,
-verified: verified
-
-}])
+const {error}=await supabase.auth.signInWithPassword({email,password})
 
 if(error){
+alert(error.message)
+return
+}
 
-alert("Error saving")
-
-}else{
-
-alert("Count Saved")
+loadUser()
 
 }
 
+
+
+async function loadUser(){
+
+document.getElementById("loginScreen").classList.add("hidden")
+document.getElementById("app").classList.remove("hidden")
+
+renderStores()
+populateStoreSelect()
+renderPrices()
+loadLogs()
+
 }
+
+
+
+function logout(){
+
+supabase.auth.signOut()
+location.reload()
+
+}
+
+
+
+// STORES
+
+function renderStores(){
+
+const filter=document.getElementById("storeRegionFilter").value
+const grid=document.getElementById("storeGrid")
+
+grid.innerHTML=""
+
+let list=STORES
+
+if(filter)
+list=list.filter(s=>s.region===filter)
+
+list.forEach(store=>{
+
+const card=document.createElement("div")
+
+card.className="bg-white p-3 rounded shadow"
+
+card.innerHTML=`
+
+<div class="font-bold">${store.name}</div>
+<div class="text-sm text-gray-600">${store.city}</div>
+<div class="text-xs text-blue-600">${store.region}</div>
+
+`
+
+grid.appendChild(card)
+
+})
+
+}
+
+
+
+// STORE SELECT
+
+function populateStoreSelect(){
+
+const sel=document.getElementById("storeSelect")
+
+STORES.forEach(s=>{
+
+const o=document.createElement("option")
+
+o.value=s.id
+o.textContent=s.name
+
+sel.appendChild(o)
+
+})
+
+}
+
+
+
+// SAVE SHIFT
+
+async function saveShift(){
+
+const entry={
+
+store:document.getElementById("storeSelect").value,
+date:document.getElementById("date").value,
+shift:document.getElementById("shift").value,
+out_clerk:document.getElementById("outClerk").value,
+in_clerk:document.getElementById("inClerk").value
+
+}
+
+await supabase.from("shifts").insert(entry)
+
+alert("Shift saved")
+
+loadLogs()
+
+}
+
+
+
+// LOAD LOGS
+
+async function loadLogs(){
+
+const {data}=await supabase
+.from("shifts")
+.select("*")
+.order("date",{ascending:false})
+.limit(10)
+
+const box=document.getElementById("logList")
+
+box.innerHTML=""
+
+data.forEach(log=>{
+
+const store=STORES.find(s=>s.id===log.store)
+
+const row=document.createElement("div")
+
+row.className="border-b py-2 text-sm"
+
+row.innerHTML=`
+
+<b>${store?.name || log.store}</b>
+${log.date}
+${log.shift}
+(${log.out_clerk} → ${log.in_clerk})
+
+`
+
+box.appendChild(row)
+
+})
+
+}
+
+
+
+// PRICES
+
+function renderPrices(){
+
+const table=document.getElementById("priceTable")
+
+let html=""
+
+KRATOM.forEach(p=>{
+
+html+=`
+
+<div class="flex justify-between border-b py-2">
+
+<div>${p.name}</div>
+
+<input type="number"
+value="${p.price}"
+class="border w-24 p-1"
+onchange="p.price=parseFloat(this.value)">
+
+</div>
+
+`
+
+})
+
+table.innerHTML=html
+
+}
+
+
+
+// TABS
+
+function showTab(tab){
+
+document.querySelectorAll("[id^=tab-]")
+.forEach(t=>t.classList.add("hidden"))
+
+document
+.getElementById("tab-"+tab)
+.classList.remove("hidden")
+
+}
+
 
 </script>
 
