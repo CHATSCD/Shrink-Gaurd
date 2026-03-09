@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Shrink Guard Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body class="bg-gray-900 text-white p-6">
+
+<h1 class="text-3xl font-bold mb-6 text-center">
+Manager Dashboard
+</h1>
+
+<div class="grid grid-cols-3 gap-4 mb-6">
+
+<div class="bg-gray-800 p-4 rounded text-center">
+<h2 class="text-xl">Total Counts</h2>
+<p id="totalCounts" class="text-3xl font-bold">0</p>
+</div>
+
+<div class="bg-gray-800 p-4 rounded text-center">
+<h2 class="text-xl">Total Variance</h2>
+<p id="totalVariance" class="text-3xl font-bold">0</p>
+</div>
+
+<div class="bg-gray-800 p-4 rounded text-center">
+<h2 class="text-xl">Accuracy Rate</h2>
+<p id="accuracyRate" class="text-3xl font-bold">0%</p>
+</div>
+
+</div>
+
+<div class="bg-gray-800 p-6 rounded mb-6">
+<canvas id="varianceChart"></canvas>
+</div>
+
+<div class="bg-gray-800 p-6 rounded">
+
+<h2 class="text-xl mb-4">Recent Counts</h2>
+
+<table class="w-full text-left">
+
+<thead>
+<tr>
+<th>Barcode</th>
+<th>Incoming</th>
+<th>Sales</th>
+<th>Ending</th>
+<th>Variance</th>
+<th>Verified</th>
+</tr>
+</thead>
+
+<tbody id="table"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+const SUPABASE_URL = "https://ylfsqjbqhewpfiooytlg.supabase.co"
+
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZnNxamJxaGV3cGZpb295dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzQwODQsImV4cCI6MjA4ODM1MDA4NH0.Ssl5J6ktZIVtLd2cq8vH7PWdR4-yZwI5tt4PtXkVqWk"
+
+const supabase = window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+)
+
+async function loadDashboard(){
+
+const { data } = await supabase
+.from("shift_counts")
+.select("*")
+
+let totalVariance = 0
+let verifiedCount = 0
+
+let barcodeTotals = {}
+
+data.forEach(row=>{
+
+totalVariance += row.variance || 0
+
+if(row.verified) verifiedCount++
+
+if(!barcodeTotals[row.barcode]) barcodeTotals[row.barcode] = 0
+
+barcodeTotals[row.barcode] += row.variance || 0
+
+})
+
+document.getElementById("totalCounts").innerText = data.length
+
+document.getElementById("totalVariance").innerText = totalVariance
+
+let accuracy = (verifiedCount / data.length * 100).toFixed(1)
+
+document.getElementById("accuracyRate").innerText = accuracy + "%"
+
+const table = document.getElementById("table")
+
+data.slice(-10).reverse().forEach(row=>{
+
+table.innerHTML += `
+<tr>
+<td>${row.barcode}</td>
+<td>${row.incoming_count}</td>
+<td>${row.previous_shift_sales}</td>
+<td>${row.ending_count}</td>
+<td>${row.variance}</td>
+<td>${row.verified}</td>
+</tr>
+`
+
+})
+
+createChart(barcodeTotals)
+
+}
+
+function createChart(barcodeTotals){
+
+const labels = Object.keys(barcodeTotals)
+const values = Object.values(barcodeTotals)
+
+new Chart(document.getElementById("varianceChart"),{
+
+type:"bar",
+
+data:{
+labels:labels,
+datasets:[{
+label:"Variance by Barcode",
+data:values
+}]
+}
+
+})
+
+}
+
+loadDashboard()
+
+</script>
+
+</body>
+</html>
