@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shrink Guard v3</title>
+
+<title>Shrink Guard</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,131 +17,97 @@
 <body class="bg-gray-900 text-white p-6">
 
 <h1 class="text-3xl font-bold mb-6 text-center">
-Shrink Guard v3
+Shrink Guard
 </h1>
 
-<div class="max-w-md mx-auto bg-gray-800 p-6 rounded-xl">
+<div class="max-w-md mx-auto bg-gray-800 p-6 rounded-xl space-y-3">
 
 <label>Barcode</label>
-<input id="barcode" class="w-full p-2 mb-3 text-black"/>
+<input id="barcode" class="w-full p-2 text-black"/>
 
-<button onclick="startScanner()" class="bg-blue-500 w-full p-2 rounded mb-4">
+<button onclick="startScanner()" class="bg-blue-500 w-full p-2 rounded">
 Scan Barcode
 </button>
 
 <div id="reader"></div>
 
-<label>Incoming Count</label>
-<input id="incoming" type="number" class="w-full p-2 mb-3 text-black"/>
+<label>Previous Shift Sales (PLU)</label>
+<input id="sales" type="number" class="w-full p-2 text-black"/>
 
-<button onclick="saveIncoming()" class="bg-green-500 w-full p-2 rounded mb-4">
-Save Incoming
-</button>
+<label>Location</label>
+<select id="location" class="w-full p-2 text-black">
+<option>Sales Floor</option>
+<option>Office</option>
+</select>
 
-<label>Count Out</label>
-<input id="countOut" type="number" class="w-full p-2 mb-3 text-black"/>
+<label>Cases</label>
+<input id="cases" type="number" class="w-full p-2 text-black"/>
 
-<button onclick="submitCountOut()" class="bg-red-500 w-full p-2 rounded">
-Submit Count Out
+<label>Bottles</label>
+<input id="bottles" type="number" class="w-full p-2 text-black"/>
+
+<button onclick="submitCount()" class="bg-green-500 w-full p-2 rounded">
+Submit Count
 </button>
 
 </div>
 
 <script>
 
-// SUPABASE CONFIG
-const SUPABASE_URL = https://ylfsqjbqhewpfiooytlg.supabase.co
-const SUPABASE_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZnNxamJxaGV3cGZpb295dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzQwODQsImV4cCI6MjA4ODM1MDA4NH0.Ssl5J6ktZIVtLd2cq8vH7PWdR4-yZwI5tt4PtXkVqWk
+const SUPABASE_URL = "https://ylfsqjbqhewpfiooytlg.supabase.co"
+
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZnNxamJxaGV3cGZpb295dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzQwODQsImV4cCI6MjA4ODM1MDA4NH0.Ssl5J6ktZIVtLd2cq8vH7PWdR4-yZwI5tt4PtXkVqWk"
 
 const supabase = window.supabase.createClient(
 SUPABASE_URL,
 SUPABASE_KEY
 )
 
-// BARCODE SCANNER
 function startScanner(){
 
 const scanner = new Html5Qrcode("reader")
 
 scanner.start(
-{ facingMode: "environment" },
-{
-fps: 10,
-qrbox: 250
-},
-(barcode) => {
+{ facingMode:"environment" },
+{ fps:10, qrbox:250 },
+barcode => {
 
 document.getElementById("barcode").value = barcode
 
 scanner.stop()
 
-}
-)
-
-}
-
-// SAVE INCOMING
-async function saveIncoming(){
-
-const barcode = document.getElementById("barcode").value
-const incoming = document.getElementById("incoming").value
-
-const { error } = await supabase
-.from("counts")
-.insert([
-{
-barcode: barcode,
-incoming: incoming
-}
-])
-
-if(error){
-
-alert("Error saving incoming")
-
-}else{
-
-alert("Incoming saved")
-
-}
-
-}
-
-// SUBMIT COUNT OUT
-async function submitCountOut(){
-
-const barcode = document.getElementById("barcode").value
-const countOut = document.getElementById("countOut").value
-
-// GET INCOMING FIRST
-
-const { data } = await supabase
-.from("counts")
-.select("*")
-.eq("barcode", barcode)
-.order("id", { ascending:false })
-.limit(1)
-
-const incoming = data[0].incoming
-const shrink = incoming - countOut
-
-// UPDATE RECORD
-
-const { error } = await supabase
-.from("counts")
-.update({
-count_out: countOut,
-shrink: shrink
 })
-.eq("id", data[0].id)
+
+}
+
+async function submitCount(){
+
+const barcode = document.getElementById("barcode").value
+const sales = parseInt(document.getElementById("sales").value || 0)
+const location = document.getElementById("location").value
+const cases = parseInt(document.getElementById("cases").value || 0)
+const bottles = parseInt(document.getElementById("bottles").value || 0)
+
+const ending = (cases * 12) + bottles
+
+const { error } = await supabase
+.from("shift_counts")
+.insert([{
+
+barcode: barcode,
+location: location,
+ending_count: ending,
+previous_shift_sales: sales
+
+}])
 
 if(error){
 
-alert("Error submitting")
+alert("Error saving")
 
 }else{
 
-alert("Shrink recorded: " + shrink)
+alert("Count Saved")
 
 }
 
