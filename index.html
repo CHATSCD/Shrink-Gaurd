@@ -2,831 +2,1391 @@
 
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shrink Shield — Keith's Superstores</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --blue: #003087; --blue-dark: #001f5c; --blue-light: #1a4ba0;
-      --gold: #FFB81C; --gold-dark: #cc8f00;
-      --gray-50: #f8f9fb; --gray-100: #eef0f5; --gray-200: #d8dce8;
-      --gray-400: #8891a8; --gray-600: #4a5270; --gray-800: #1e2340;
-      --red: #e53e3e; --green: #22863a;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-      --shadow-md: 0 4px 16px rgba(0,48,135,0.12);
-      --shadow-lg: 0 8px 32px rgba(0,48,135,0.18);
-      --radius: 10px; --radius-lg: 16px;
-    }
-    html, body, #root { height: 100%; font-family: 'Barlow', sans-serif; background: var(--gray-50); color: var(--gray-800); }
-
-```
-/* Auth */
-.auth-screen { min-height:100vh; background:var(--blue-dark); display:flex; align-items:center; justify-content:center; background-image: repeating-linear-gradient(45deg,rgba(255,184,28,.03) 0,rgba(255,184,28,.03) 1px,transparent 1px,transparent 60px), repeating-linear-gradient(-45deg,rgba(255,184,28,.03) 0,rgba(255,184,28,.03) 1px,transparent 1px,transparent 60px); }
-.auth-card { background:white; border-radius:var(--radius-lg); padding:48px 40px; width:100%; max-width:420px; box-shadow:var(--shadow-lg); }
-.auth-logo { display:flex; align-items:center; gap:12px; margin-bottom:32px; justify-content:center; }
-.auth-shield { width:52px; height:52px; background:var(--blue); clip-path:polygon(50% 0%,100% 20%,100% 70%,50% 100%,0% 70%,0% 20%); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.auth-shield span { color:var(--gold); font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; }
-.auth-logo-text h1 { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:28px; color:var(--blue); line-height:1; }
-.auth-logo-text p { font-size:12px; color:var(--gray-400); letter-spacing:.05em; text-transform:uppercase; }
-.auth-title { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:22px; color:var(--gray-800); margin-bottom:24px; text-align:center; }
-
-/* Forms */
-.form-group { margin-bottom:16px; }
-.form-label { display:block; font-size:13px; font-weight:600; color:var(--gray-600); margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
-.form-input { width:100%; padding:12px 14px; border:2px solid var(--gray-200); border-radius:var(--radius); font-size:15px; font-family:'Barlow',sans-serif; transition:border-color .2s; outline:none; color:var(--gray-800); background:white; }
-.form-input:focus { border-color:var(--blue); }
-.form-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a5270' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; background-color:white; padding-right:40px; }
-
-/* Buttons */
-.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 20px; border-radius:var(--radius); font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; letter-spacing:.03em; cursor:pointer; border:none; transition:all .2s; text-transform:uppercase; }
-.btn-primary { background:var(--blue); color:white; }
-.btn-primary:hover { background:var(--blue-light); }
-.btn-ghost { background:transparent; color:var(--gray-600); border:2px solid var(--gray-200); }
-.btn-ghost:hover { border-color:var(--blue); color:var(--blue); }
-.btn-full { width:100%; }
-.btn-sm { padding:8px 14px; font-size:13px; }
-.btn:disabled { opacity:.5; cursor:not-allowed; }
-
-/* Messages */
-.error-msg { background:#fff5f5; border:1px solid #fed7d7; color:var(--red); padding:12px; border-radius:var(--radius); font-size:14px; margin-bottom:16px; }
-.success-msg { background:#f0fff4; border:1px solid #9ae6b4; color:var(--green); padding:12px; border-radius:var(--radius); font-size:14px; margin-bottom:16px; }
-
-/* App shell */
-.app { display:flex; flex-direction:column; min-height:100vh; }
-.topbar { background:var(--blue-dark); color:white; padding:0 20px; display:flex; align-items:center; justify-content:space-between; height:60px; position:sticky; top:0; z-index:100; box-shadow:var(--shadow-md); }
-.topbar-logo { display:flex; align-items:center; gap:10px; }
-.topbar-shield { width:34px; height:34px; background:var(--gold); clip-path:polygon(50% 0%,100% 20%,100% 70%,50% 100%,0% 70%,0% 20%); display:flex; align-items:center; justify-content:center; }
-.topbar-shield span { color:var(--blue-dark); font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:14px; }
-.topbar-name { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:22px; letter-spacing:.02em; }
-.topbar-name span { color:var(--gold); }
-.topbar-right { display:flex; align-items:center; gap:12px; }
-.topbar-user { font-size:13px; color:rgba(255,255,255,.7); }
-.nav-tabs { background:white; border-bottom:2px solid var(--gray-100); display:flex; padding:0 20px; overflow-x:auto; }
-.nav-tab { padding:14px 18px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:15px; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; border:none; background:none; color:var(--gray-400); border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:all .2s; }
-.nav-tab:hover { color:var(--blue); }
-.nav-tab.active { color:var(--blue); border-bottom-color:var(--blue); }
-.main { flex:1; padding:24px 20px; max-width:1100px; margin:0 auto; width:100%; }
-
-/* Cards */
-.card { background:white; border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); border:1px solid var(--gray-100); margin-bottom:20px; }
-.card-header { padding:20px 24px 16px; border-bottom:1px solid var(--gray-100); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
-.card-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; color:var(--blue-dark); }
-.card-body { padding:24px; }
-
-/* Entry form */
-.shift-meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:28px; }
-.product-card { border:2px solid var(--gray-100); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:16px; transition:border-color .2s; }
-.product-card:focus-within { border-color:var(--blue); }
-.product-card-header { background:var(--blue-dark); padding:12px 18px; display:flex; align-items:center; justify-content:space-between; }
-.product-card-name { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; color:white; }
-.product-card-variance { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14px; padding:3px 10px; border-radius:20px; background:rgba(255,255,255,.15); color:white; }
-.product-card-variance.neg { background:rgba(229,62,62,.8); }
-.product-card-variance.pos { background:rgba(34,134,58,.7); }
-.product-card-body { padding:16px 18px; }
-.count-sections { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.count-section-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--gray-400); margin-bottom:10px; }
-.count-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
-.count-input-wrap label { font-size:11px; color:var(--gray-400); display:block; margin-bottom:4px; }
-.count-input { width:100%; padding:8px 10px; border:1.5px solid var(--gray-200); border-radius:8px; font-size:14px; font-family:'Barlow',sans-serif; color:var(--gray-800); outline:none; transition:border-color .2s; }
-.count-input:focus { border-color:var(--blue); }
-.opening-display { background:var(--gray-50); border:1.5px solid var(--gray-100); border-radius:8px; padding:8px 10px; font-size:14px; color:var(--gray-600); font-style:italic; }
-.variance-summary { margin-top:12px; padding:10px 14px; background:var(--gray-50); border-radius:8px; display:flex; gap:16px; flex-wrap:wrap; }
-.variance-item { font-size:13px; }
-.variance-item b { font-weight:600; }
-.variance-item.loss b { color:var(--red); }
-.variance-item.gain b { color:var(--green); }
-.alert-banner { background:#fff5f5; border:2px solid #fed7d7; border-radius:10px; padding:12px 16px; display:flex; align-items:center; gap:10px; margin-bottom:20px; }
-.alert-banner span { color:var(--red); font-weight:600; font-size:14px; }
-
-/* Log table */
-.log-filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
-.table-wrap { overflow-x:auto; }
-table { width:100%; border-collapse:collapse; font-size:14px; }
-th { background:var(--gray-50); padding:10px 14px; text-align:left; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--gray-600); border-bottom:2px solid var(--gray-200); white-space:nowrap; }
-td { padding:10px 14px; border-bottom:1px solid var(--gray-100); }
-tr:hover td { background:var(--gray-50); }
-.badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:12px; font-weight:600; font-family:'Barlow Condensed',sans-serif; }
-.badge-loss { background:#fff5f5; color:var(--red); }
-.badge-ok { background:#f0fff4; color:var(--green); }
-.badge-shift { background:var(--gray-100); color:var(--gray-600); }
-
-/* Analytics */
-.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:24px; }
-.stat-card { background:white; border-radius:var(--radius-lg); padding:20px 24px; box-shadow:var(--shadow-sm); border:1px solid var(--gray-100); }
-.stat-label { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--gray-400); margin-bottom:8px; }
-.stat-value { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:36px; color:var(--blue-dark); line-height:1; }
-.stat-value.red { color:var(--red); }
-.stat-value.gold { color:var(--gold-dark); }
-.stat-sub { font-size:13px; color:var(--gray-400); margin-top:4px; }
-.charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-.bar-chart { display:flex; flex-direction:column; gap:10px; }
-.bar-row { display:grid; grid-template-columns:180px 1fr 50px; gap:10px; align-items:center; font-size:12px; }
-.bar-track { background:var(--gray-100); border-radius:4px; height:18px; overflow:hidden; }
-.bar-fill { height:100%; border-radius:4px; background:var(--blue); transition:width .5s; }
-.bar-fill.red { background:var(--red); }
-.bar-val { font-weight:600; color:var(--gray-600); text-align:right; }
-
-/* Multi-store */
-.store-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
-.store-card { background:white; border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-sm); border:2px solid var(--gray-100); transition:all .2s; }
-.store-card:hover { border-color:var(--blue); transform:translateY(-2px); }
-.store-card-name { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; color:var(--blue-dark); margin-bottom:12px; }
-.store-stat { display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid var(--gray-100); }
-.store-stat:last-child { border:none; }
-.store-stat-val { font-weight:600; }
-.store-stat-val.red { color:var(--red); }
-
-/* PIN Modal */
-.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
-.modal { background:white; border-radius:var(--radius-lg); padding:32px; width:100%; max-width:360px; box-shadow:var(--shadow-lg); }
-.modal-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:22px; color:var(--blue-dark); margin-bottom:6px; }
-.modal-sub { font-size:14px; color:var(--gray-400); margin-bottom:20px; }
-.pin-dots { display:flex; gap:12px; justify-content:center; margin-bottom:20px; }
-.pin-dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--gray-200); transition:all .2s; }
-.pin-dot.filled { background:var(--blue); border-color:var(--blue); }
-.pin-pad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-.pin-btn { padding:16px; border-radius:var(--radius); border:2px solid var(--gray-200); font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px; cursor:pointer; background:white; transition:all .15s; color:var(--gray-800); }
-.pin-btn:hover { background:var(--blue); color:white; border-color:var(--blue); }
-.pin-btn:active { transform:scale(.95); }
-
-/* Misc */
-.page-header { margin-bottom:24px; display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; }
-.page-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:28px; color:var(--blue-dark); }
-.page-sub { font-size:14px; color:var(--gray-400); margin-top:4px; }
-.empty-state { text-align:center; padding:60px 20px; color:var(--gray-400); }
-.empty-icon { font-size:48px; margin-bottom:12px; }
-.loading { text-align:center; padding:40px; color:var(--gray-400); }
-.ml-auto { margin-left:auto; }
-.submit-row { display:flex; justify-content:flex-end; margin-top:24px; }
-
-@media(max-width:600px) {
-  .main { padding:16px; }
-  .count-sections { grid-template-columns:1fr; }
-  .charts-grid { grid-template-columns:1fr; }
-  .bar-row { grid-template-columns:110px 1fr 40px; }
-  .auth-card { padding:32px 20px; }
-}
-```
-
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shrink Shield — Keith's Superstores</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<style>
+:root{--kb:#003087;--kr:#C8102E;}
+body{font-family:'Segoe UI',sans-serif;background:#f1f5f9;}
+.tab-btn{transition:all .2s;}
+.tab-btn.active{background:#003087;color:#fff;border-bottom:3px solid #C8102E;}
+.tab-btn:not(.active):hover{background:#e2e8f0;}
+.sub-btn{transition:all .15s;border-bottom:2px solid transparent;}
+.sub-btn.active{color:#003087;border-bottom:2px solid #003087;font-weight:700;}
+.badge-g{background:#dcfce7;color:#166534;}
+.badge-y{background:#fef9c3;color:#854d0e;}
+.badge-r{background:#fee2e2;color:#991b1b;}
+.badge-b{background:#dbeafe;color:#1e40af;}
+.flag-row{background:#fff1f2!important;}
+.open-cell{background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:3px 6px;font-size:11px;color:#1d4ed8;font-weight:700;display:inline-block;min-width:40px;text-align:center;}
+input[type=number]{-moz-appearance:textfield;}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.chart-wrap{position:relative;height:250px;}
+table{border-collapse:collapse;}
+thead tr{border-bottom:2px solid #003087;}
+tbody tr{border-bottom:1px solid #e5e7eb;}
+tbody tr:hover{background:#f8fafc;}
+select{background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right .5rem center;background-size:12px;padding-right:2rem!important;appearance:none;}
+.lbl{display:block;font-size:10px;font-weight:700;color:#6b7280;letter-spacing:.05em;margin-bottom:2px;}
+.inp{display:block;border:1px solid #d1d5db;border-radius:6px;padding:5px 8px;font-size:13px;outline:none;}
+.inp:focus{border-color:#003087;}
+.num-inp{width:46px;border:1px solid #d1d5db;border-radius:5px;padding:3px 4px;font-size:12px;text-align:center;outline:none;}
+.num-inp:focus{border-color:#003087;}
+</style>
 </head>
 <body>
-<div id="root"></div>
+<!-- LOGIN -->
+<div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center" style="background:#003087;">
+  <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4">
+    <div class="text-center mb-6">
+      <img src="logo.png" onerror="this.style.display='none'" class="h-20 mx-auto mb-2 rounded">
+      <div class="mb-2">
+        <div style="color:#003087;font-weight:900;font-size:22px;letter-spacing:2px;">KEITH'S</div>
+        <div style="color:#C8102E;font-weight:900;font-size:14px;letter-spacing:1px;">SUPERSTORES</div>
+      </div>
+      <div class="text-xl font-black tracking-widest text-gray-800">SHRINK SHIELD</div>
+      <div class="text-xs text-gray-400 mt-0.5">Loss Prevention System</div>
+    </div>
+    <form onsubmit="doLogin(event)" class="space-y-3">
+      <div><label class="lbl">USERNAME</label><input id="loginUser" type="text" autocomplete="username" placeholder="Enter username" class="inp w-full" autofocus></div>
+      <div><label class="lbl">PASSWORD</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="Enter password" class="inp w-full"></div>
+      <div id="loginError" class="hidden text-red-600 text-sm text-center bg-red-50 rounded p-2"></div>
+      <button type="submit" style="background:#003087;" class="w-full py-2.5 rounded-lg text-white font-bold text-sm hover:opacity-90 transition">Sign In</button>
+    </form>
+    <div class="text-center text-xs text-gray-400 mt-4">v6.0 · Keith's Superstores</div>
+  </div>
+</div>
 
-<script type="text/babel">
-const { useState, useEffect, useCallback } = React;
+<!-- APP -->
 
-// ── Config ───────────────────────────────────────────────────────
-const SB_URL = "https://vyfitlqyligxvzlojqvm.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Zml0bHF5bGlneHZ6bG9qcXZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3NjM5NTksImV4cCI6MjA2MzMzOTk1OX0.7mOHFALmFBs0l76B7oztDMrT3EEJQJ9P_pmdCaWhAHo";
+<div id="appScreen" class="hidden">
+<header style="background:#003087;" class="shadow-lg sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-3 py-2 flex flex-wrap items-center gap-2">
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <img src="logo.png" onerror="this.style.display='none';document.getElementById('logoText').classList.remove('hidden');" class="h-10 rounded">
+      <div id="logoText" class="hidden bg-white rounded px-1.5 py-0.5 text-center leading-tight">
+        <div style="color:#003087;font-weight:900;font-size:10px;">KEITH'S</div>
+        <div style="color:#C8102E;font-weight:900;font-size:8px;">SUPERSTORES</div>
+      </div>
+      <div>
+        <div class="text-lg font-black tracking-widest text-white">SHRINK SHIELD</div>
+        <div class="text-xs text-blue-200 leading-tight">Loss Prevention System</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 ml-auto flex-wrap">
+      <div id="userChip" class="hidden flex items-center gap-1.5 bg-blue-800 rounded-full px-3 py-1"></div>
+      <select id="storeSelect" onchange="onStoreChange()" class="text-xs bg-blue-900 text-white border border-blue-700 rounded px-2 py-1.5 w-64">
+        <optgroup label="── Hattiesburg Area ──">
+          <option value="s135">#135 — 5331 Old Hwy 11, Hattiesburg</option>
+          <option value="s137">#137 — 5170 W. 4th St., Hattiesburg</option>
+          <option value="s150">#150 — 6750 Hwy 49, Hattiesburg</option>
+          <option value="s151">#151 — 7276 Hwy 49, Hattiesburg</option>
+          <option value="s157">#157 — 2462 US Hwy 49, Hattiesburg</option>
+          <option value="s173">#173 — 1858 Evelyn Gandy Pkwy, Hattiesburg</option>
+          <option value="s175">#175 — 101 Carterville Rd, Petal</option>
+        </optgroup>
+        <optgroup label="── Pine Belt ──">
+          <option value="s100">#100 — 304 Hill St., Ellisville</option>
+          <option value="s105">#105 — 5213 Hwy 11 N., Ellisville</option>
+          <option value="sMos">Moselle — 59 Moselle Seminary Rd.</option>
+          <option value="s117">#117 — 2675 Hwy 15, Bay Springs</option>
+          <option value="s125">#125 — 2078 US Hwy 49, Seminary</option>
+          <option value="s127">#127 — 3030 Hwy 49, Collins</option>
+          <option value="s130">#130 — 1475 Hwy 98 E., Columbia</option>
+          <option value="s140">#140 — 1196 Rock Hill Rd., Mount Olive</option>
+          <option value="s155">#155 — 8431 Hwy 98, Sumrall</option>
+          <option value="s185">#185 — 918 E. Main Ave, Lumberton</option>
+        </optgroup>
+        <optgroup label="── Gulf Coast ──">
+          <option value="s082">#82 — 21000 Hwy 613, Moss Point</option>
+          <option value="s085">#85 — 6820 Hwy 613, Moss Point</option>
+          <option value="s086">#86 — 6718 Hwy 63, Moss Point</option>
+          <option value="s088">#88 — 10909 Hwy 57, Vancleave</option>
+          <option value="s089">#89 — 7501 Washington Ave, Ocean Springs</option>
+          <option value="s090">#90 — Ocean Springs</option>
+          <option value="s107">#107 — 26181 Hwy 49 S., Saucier</option>
+          <option value="s108">#108 — 19000 28th St., Long Beach</option>
+          <option value="s109">#109 — 102 E Beach Blvd, Pass Christian</option>
+          <option value="s112">#112 — 819 Hwy 90, Gautier</option>
+          <option value="s182">#182 — 10513 Hwy 603, Waveland</option>
+          <option value="s183">#183 — 701 Hwy 90, Bay St. Louis</option>
+          <option value="s184">#184 — 4955 Hwy 90, Bay St. Louis</option>
+        </optgroup>
+        <optgroup label="── South MS ──">
+          <option value="s080">#80 — 6239 Hwy 98, Lucedale</option>
+          <option value="s081">#81 — 7292 Hwy 63 S., Lucedale</option>
+          <option value="s091">#91 — 1220 W. Central Ave., Wiggins</option>
+          <option value="s120">#120 — 5812 Hwy 11, Purvis</option>
+          <option value="s122">#122 — 5791 Hwy 11, Purvis</option>
+          <option value="s123">#123 — 361 Hwy 589, Purvis</option>
+          <option value="s160">#160 — 114 Magnolia Dr., Wiggins</option>
+          <option value="s161">#161 — 3333 Hwy 49, Wiggins</option>
+          <option value="s192">#192 — 1405 Hwy 43 N., Picayune</option>
+          <option value="s194">#194 — 498 W. Union Rd., Carriere</option>
+          <option value="s196">#196 — 4670 Hwy 53, Poplarville</option>
+        </optgroup>
+        <optgroup label="── Alabama ──">
+          <option value="s060">#60 — 13515 Moffett Rd, Wilmer, AL</option>
+        </optgroup>
+      </select>
+      <div id="hdrClock" class="text-xs text-blue-200 hidden sm:block text-right"></div>
+    </div>
+  </div>
+</header>
+<div class="max-w-7xl mx-auto px-3 pt-3 pb-10">
+  <div class="flex gap-1 bg-white rounded-t-xl shadow px-1 pt-1 overflow-x-auto">
+    <button class="tab-btn active flex-1 py-2 px-1 rounded-t-lg text-xs font-bold whitespace-nowrap" onclick="showTab('count')">COUNT</button>
+    <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold whitespace-nowrap" onclick="showTab('review')">REVIEW</button>
+    <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold whitespace-nowrap" onclick="showTab('log')">LOG</button>
+    <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold whitespace-nowrap" onclick="showTab('analytics')">ANALYTICS</button>
+    <button class="tab-btn flex-1 py-2 px-1 rounded-t-lg text-xs font-bold whitespace-nowrap" onclick="showTab('stores')">STORES</button>
+    <button id="itemsTabBtn" class="tab-btn hidden flex-1 py-2 px-1 rounded-t-lg text-xs font-bold whitespace-nowrap" onclick="showTab('items')">ITEMS</button>
+    <button id="adminTabBtn" class="tab-btn hidden flex-1 py-2 px-1 rounded-t-lg text-xs font-bold whitespace-nowrap" onclick="showTab('admin')">ADMIN</button>
+  </div>
+  <div class="bg-white rounded-b-xl shadow-lg p-4">
 
-const sbHeaders = (token) => ({
-  "Content-Type": "application/json",
-  apikey: SB_KEY,
-  Authorization: `Bearer ${token || SB_KEY}`
-});
+  <!-- COUNT TAB -->
 
-const sbFetch = async (token, path, opts = {}) => {
-  const r = await fetch(`${SB_URL}${path}`, { headers: sbHeaders(token), ...opts });
-  try { return await r.json(); } catch { return null; }
-};
+  <div id="tab-count">
+    <div id="handoffBanner" class="hidden mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3">
+      <div class="font-bold text-sm text-blue-700 mb-1">📋 Last Shift Closing Counts Loaded as Opening</div>
+      <div id="handoffMeta" class="text-xs text-blue-500 mb-1"></div>
+      <div class="text-xs text-blue-600">Blue cells = previous shift's closing (read-only). Enter this shift's <strong>Sales</strong> and <strong>Closing Counts</strong> to verify.</div>
+    </div>
+    <div id="noHandoffBanner" class="hidden mb-4 bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-xs text-yellow-700">
+      <strong>First count entry for this store.</strong> No previous shift found — enter counts manually. They will auto-populate as the opening for the next shift.
+    </div>
+    <div class="flex flex-wrap gap-2 mb-4 items-end">
+      <div><label class="lbl">SHIFT</label><select id="shiftSel" class="inp w-32"><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Night</option></select></div>
+      <div><label class="lbl">DATE</label><input id="shiftDate" type="date" class="inp w-36"></div>
+      <div><label class="lbl">OUTGOING CLERK</label><input id="outClerk" type="text" placeholder="Name" class="inp w-36"></div>
+      <div><label class="lbl">INCOMING CLERK</label><input id="inClerk" type="text" placeholder="Name" class="inp w-36"></div>
+      <div class="ml-auto flex gap-2 items-end">
+        <button onclick="clearCount()" class="px-3 py-1.5 border rounded text-sm text-gray-600 hover:bg-gray-100">Clear</button>
+        <button onclick="submitCount()" style="background:#003087;" class="px-4 py-1.5 rounded text-sm font-bold text-white hover:opacity-90">Submit Shift Count</button>
+      </div>
+    </div>
+    <div class="flex gap-4 border-b mb-4">
+      <button class="sub-btn active pb-2 text-sm" id="countTabKratom" onclick="showCountSub('kratom')">KRATOM</button>
+      <button class="sub-btn pb-2 text-sm text-gray-500" id="countTabLottery" onclick="showCountSub('lottery')">SCRATCH-OFFS</button>
+    </div>
 
-const sbQuery  = (token, table, qs = "") => sbFetch(token, `/rest/v1/${table}${qs}`);
-const sbInsert = (token, table, data)     => sbFetch(token, `/rest/v1/${table}`, {
-  method: "POST",
-  headers: { ...sbHeaders(token), Prefer: "return=representation" },
-  body: JSON.stringify(data)
-});
-const sbSignIn = (email, pw) => sbFetch(null, `/auth/v1/token?grant_type=password`, {
-  method: "POST", body: JSON.stringify({ email, password: pw })
-});
-const sbSignOut = (token) => fetch(`${SB_URL}/auth/v1/logout`, { method: "POST", headers: sbHeaders(token) });
+```
+<!-- KRATOM COUNT TABLE -->
+<div id="sub-kratom">
+  <div class="text-xs bg-gray-50 rounded p-2 mb-3 flex flex-wrap gap-4 text-gray-500">
+    <span><span class="open-cell">12</span> = opening from last shift (read-only, blue)</span>
+    <span>□ = enter this shift's closing count</span>
+    <span class="text-gray-400 text-xs">(Open Btl + Open Cs×12) − Sales = Expected &nbsp;|&nbsp; Expected − (Close Btl + Close Cs×12) = Variance</span>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full" style="font-size:11px;">
+      <thead>
+        <tr class="text-center text-gray-400" style="font-size:10px;">
+          <th class="pb-1 text-left pr-2" rowspan="2">PRODUCT</th>
+          <th class="pb-1 text-blue-500 bg-blue-50" colspan="2">📦 OFFICE OPEN</th>
+          <th class="pb-1" colspan="2">📦 OFFICE CLOSE</th>
+          <th class="pb-1 text-blue-500 bg-blue-50" colspan="2">🏪 FLOOR OPEN</th>
+          <th class="pb-1" colspan="2">🏪 FLOOR CLOSE</th>
+          <th class="pb-1" rowspan="2">SALES</th>
+          <th class="pb-1" rowspan="2">EXPECTED</th>
+          <th class="pb-1" rowspan="2">VARIANCE</th>
+          <th class="pb-1" rowspan="2">STATUS</th>
+        </tr>
+        <tr class="text-center text-gray-400 border-b-2 border-blue-900" style="font-size:10px;">
+          <th class="pb-1 px-1 text-blue-500 bg-blue-50">Btl</th>
+          <th class="pb-1 px-1 text-blue-500 bg-blue-50">Cs</th>
+          <th class="pb-1 px-1">Btl</th>
+          <th class="pb-1 px-1">Cs</th>
+          <th class="pb-1 px-1 text-blue-500 bg-blue-50">Btl</th>
+          <th class="pb-1 px-1 text-blue-500 bg-blue-50">Cs</th>
+          <th class="pb-1 px-1">Btl</th>
+          <th class="pb-1 px-1">Cs</th>
+        </tr>
+      </thead>
+      <tbody id="kratomBody"></tbody>
+    </table>
+  </div>
+  <div id="kratomSummary" class="hidden mt-3"></div>
+</div>
 
-// ── Constants ────────────────────────────────────────────────────
-const PRODUCTS = [
-  { id:"viva_ultimate",      name:"Viva Zen Ultimate",            case_qty:12 },
-  { id:"viva_red",           name:"Viva Zen Red Top",             case_qty:12 },
-  { id:"viva_white",         name:"Viva Zen White Top",           case_qty:12 },
-  { id:"kryptic_relaxation", name:"Kryptic Kratom Relaxation",    case_qty:12 },
-  { id:"kryptic_thin",       name:"Kryptic Kratom Thin",          case_qty:12 },
-  { id:"kratom_extract",     name:"Kratom Extract",               case_qty:12 },
-  { id:"k_shot",             name:"K Shot",                       case_qty:12 },
-  { id:"hurry_relax",        name:"Hurry Relax Kratom Yellow Cap",case_qty:12 },
-  { id:"feel_free",          name:"Feel Free",                    case_qty:12 },
+<!-- LOTTERY COUNT TABLE -->
+<div id="sub-lottery" class="hidden">
+  <div class="text-xs bg-yellow-50 border border-yellow-200 rounded p-2.5 mb-3 text-gray-600">
+    <strong>Scratch-offs:</strong> Opening (blue) = last shift's close. Enter register Sales and physical Close count. Variance = (Open − Close) − Sales.
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead><tr class="text-xs text-gray-500 text-left">
+        <th class="pb-2 pr-3 w-52">GAME</th>
+        <th class="pb-2 px-2 text-center">PRICE</th>
+        <th class="pb-2 px-2 text-center text-blue-600">OPEN<br><span class="font-normal text-gray-400">Last Close</span></th>
+        <th class="pb-2 px-2 text-center">SALES</th>
+        <th class="pb-2 px-2 text-center">CLOSE</th>
+        <th class="pb-2 px-2 text-center">COUNTED<br><span class="font-normal">Sold</span></th>
+        <th class="pb-2 px-2 text-center">VARIANCE</th>
+        <th class="pb-2 text-center">STATUS</th>
+      </tr></thead>
+      <tbody id="lotteryBody"></tbody>
+    </table>
+  </div>
+  <div id="lotterySummary" class="hidden mt-3"></div>
+</div>
+```
+
+  </div><!-- /tab-count -->
+
+  <!-- REVIEW TAB -->
+
+  <div id="tab-review" class="hidden">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-bold text-gray-700">Last Shift Review</h2>
+      <div class="flex gap-3">
+        <button class="sub-btn active text-sm pb-1" id="revTabK" onclick="showRevSub('kratom')">Kratom</button>
+        <button class="sub-btn text-sm pb-1 text-gray-500" id="revTabL" onclick="showRevSub('lottery')">Scratch-Offs</button>
+      </div>
+    </div>
+    <div id="reviewContent"></div>
+  </div>
+
+  <!-- LOG TAB -->
+
+  <div id="tab-log" class="hidden">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <h2 class="font-bold text-gray-700">Shift History</h2>
+      <div class="flex gap-2">
+        <select id="logStore" class="border rounded px-2 py-1 text-xs" onchange="renderLog()"><option value="">All Stores</option></select>
+        <select id="logType" class="border rounded px-2 py-1 text-xs" onchange="renderLog()">
+          <option value="">All Types</option><option value="kratom">Kratom Only</option><option value="lottery">Scratch-Off Only</option>
+        </select>
+      </div>
+    </div>
+    <div id="logContent"></div>
+  </div>
+
+  <!-- ANALYTICS TAB -->
+
+  <div id="tab-analytics" class="hidden">
+    <div class="flex gap-4 border-b mb-5">
+      <button class="sub-btn active pb-2 text-sm" id="anTabK" onclick="showAnSub('kratom')">KRATOM ANALYTICS</button>
+      <button class="sub-btn pb-2 text-sm text-gray-500" id="anTabL" onclick="showAnSub('lottery')">SCRATCH-OFF ANALYTICS</button>
+    </div>
+    <div id="an-kratom">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5" id="kCards"></div>
+      <div class="grid md:grid-cols-2 gap-4 mb-5">
+        <div class="bg-gray-50 rounded-lg p-4"><div class="text-xs font-semibold text-gray-500 mb-2">Variance by Product</div><div class="chart-wrap"><canvas id="kChartBar"></canvas></div></div>
+        <div class="bg-gray-50 rounded-lg p-4"><div class="text-xs font-semibold text-gray-500 mb-2">Shrinkage Trend</div><div class="chart-wrap"><canvas id="kChartLine"></canvas></div></div>
+      </div>
+      <div class="overflow-x-auto" id="kProdTable"></div>
+    </div>
+    <div id="an-lottery" class="hidden">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5" id="lCards"></div>
+      <div class="grid md:grid-cols-2 gap-4 mb-5">
+        <div class="bg-gray-50 rounded-lg p-4"><div class="text-xs font-semibold text-gray-500 mb-2">Variance by Game</div><div class="chart-wrap"><canvas id="lChartBar"></canvas></div></div>
+        <div class="bg-gray-50 rounded-lg p-4"><div class="text-xs font-semibold text-gray-500 mb-2">Lottery Shrinkage Trend</div><div class="chart-wrap"><canvas id="lChartLine"></canvas></div></div>
+      </div>
+      <div class="overflow-x-auto" id="lProdTable"></div>
+    </div>
+  </div>
+
+  <!-- STORES TAB -->
+
+  <div id="tab-stores" class="hidden">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <h2 class="font-bold text-gray-700">All Keith's Locations</h2>
+      <div class="flex gap-2">
+        <select id="storeRegionFilter" class="border rounded px-2 py-1 text-xs" onchange="renderStores()">
+          <option value="">All Regions</option><option value="Hattiesburg">Hattiesburg</option><option value="Pine Belt">Pine Belt</option>
+          <option value="Gulf Coast">Gulf Coast</option><option value="South MS">South MS</option><option value="Alabama">Alabama</option>
+        </select>
+        <select id="storeStatusFilter" class="border rounded px-2 py-1 text-xs" onchange="renderStores()">
+          <option value="">All Status</option><option value="ALERT">Alert</option><option value="WATCH">Watch</option><option value="CLEAN">Clean</option>
+        </select>
+      </div>
+    </div>
+    <div id="storeGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+  </div>
+
+  <!-- ITEMS TAB -->
+
+  <div id="tab-items" class="hidden">
+    <div class="flex gap-4 border-b mb-5">
+      <button class="sub-btn active pb-2 text-sm" id="itmTabK" onclick="showItemsSub('kratom')">KRATOM ITEMS</button>
+      <button class="sub-btn pb-2 text-sm text-gray-500" id="itmTabS" onclick="showItemsSub('scratchers')">SCRATCH-OFF GAMES</button>
+    </div>
+    <div id="itemForm" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+      <div class="font-bold text-sm text-gray-700 mb-3" id="itemFormTitle">Add Item</div>
+      <input type="hidden" id="ifCategory"><input type="hidden" id="ifId">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+        <div class="md:col-span-2"><label class="lbl">ITEM NAME</label><input id="ifName" class="inp w-full" placeholder="Item name"></div>
+        <div><label class="lbl">PRICE ($)</label><input id="ifPrice" type="number" step="0.01" min="0" class="inp w-full" placeholder="0.00"></div>
+      </div>
+      <div id="ifError" class="hidden text-red-600 text-xs mb-2"></div>
+      <div class="flex gap-2">
+        <button onclick="saveItem()" style="background:#003087;" class="px-4 py-1.5 rounded text-xs text-white font-bold">Save</button>
+        <button onclick="hideItemForm()" class="px-4 py-1.5 border rounded text-xs text-gray-600">Cancel</button>
+      </div>
+    </div>
+    <div id="itm-kratom">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-700">Kratom Items <span class="text-gray-400 font-normal text-sm" id="kratomCountBadge"></span></h3>
+        <button onclick="showItemForm('kratom')" style="background:#003087;" class="px-3 py-1.5 rounded text-xs text-white font-bold">+ Add Item</button>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead><tr class="text-xs text-gray-500 text-left"><th class="pb-2 pr-4">Name</th><th class="pb-2 pr-4">Price</th><th class="pb-2">Actions</th></tr></thead>
+        <tbody id="itemsKratomBody"></tbody>
+      </table></div>
+    </div>
+    <div id="itm-scratchers" class="hidden mt-4">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-700">Scratch-Off Games <span class="text-gray-400 font-normal text-sm" id="scratchCountBadge"></span></h3>
+        <button onclick="showItemForm('scratchers')" style="background:#003087;" class="px-3 py-1.5 rounded text-xs text-white font-bold">+ Add Game</button>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead><tr class="text-xs text-gray-500 text-left"><th class="pb-2 pr-4">Name</th><th class="pb-2 pr-4">Price</th><th class="pb-2">Actions</th></tr></thead>
+        <tbody id="itemsScratchersBody"></tbody>
+      </table></div>
+    </div>
+    <div class="mt-6 pt-4 border-t">
+      <button onclick="resetItemsToDefaults()" class="px-4 py-1.5 border border-red-300 text-red-600 rounded text-xs hover:bg-red-50">Reset All Items to Defaults</button>
+    </div>
+  </div>
+
+  <!-- ADMIN TAB -->
+
+  <div id="tab-admin" class="hidden">
+    <div class="flex gap-4 border-b mb-5">
+      <button class="sub-btn active pb-2 text-sm" id="adTabU" onclick="showAdSub('users')">USERS</button>
+      <button class="sub-btn pb-2 text-sm text-gray-500" id="adTabD" onclick="showAdSub('districts')">DISTRICTS</button>
+    </div>
+    <div id="ad-users">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-700">User Accounts</h3>
+        <button onclick="showUserForm()" style="background:#003087;" class="px-3 py-1.5 rounded text-xs text-white font-bold">+ Add User</button>
+      </div>
+      <div id="userForm" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+        <div class="font-bold text-sm text-gray-700 mb-3" id="userFormTitle">Add User</div>
+        <input type="hidden" id="ufId">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+          <div><label class="lbl">FULL NAME</label><input id="ufName" class="inp w-full" placeholder="Jane Smith"></div>
+          <div><label class="lbl">USERNAME</label><input id="ufUser" class="inp w-full" placeholder="jane.smith"></div>
+          <div><label class="lbl">PASSWORD</label><input id="ufPass" type="password" class="inp w-full" placeholder="••••••••"></div>
+          <div><label class="lbl">ROLE</label>
+            <select id="ufRole" class="inp w-full" onchange="ufRoleChange()">
+              <option value="employee">Employee</option><option value="store_leader">Store Leader</option><option value="dm">District Manager</option>
+            </select>
+          </div>
+          <div id="ufDistrictWrap" class="hidden"><label class="lbl">DISTRICT</label><select id="ufDistrict" class="inp w-full"><option value="">— Unassigned —</option></select></div>
+          <div id="ufStoreWrap"><label class="lbl">STORE</label><select id="ufStore" class="inp w-full"><option value="">— Select Store —</option></select></div>
+        </div>
+        <div id="ufError" class="hidden text-red-600 text-xs mb-2"></div>
+        <div class="flex gap-2">
+          <button onclick="saveUser()" style="background:#003087;" class="px-4 py-1.5 rounded text-xs text-white font-bold">Save</button>
+          <button onclick="hideUserForm()" class="px-4 py-1.5 border rounded text-xs text-gray-600">Cancel</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead><tr class="text-xs text-gray-500 text-left">
+          <th class="pb-2 pr-4">Name</th><th class="pb-2 pr-4">Username</th><th class="pb-2 pr-4">Role</th><th class="pb-2 pr-4">Assigned To</th><th class="pb-2">Actions</th>
+        </tr></thead>
+        <tbody id="usersBody"></tbody>
+      </table></div>
+    </div>
+    <div id="ad-districts" class="hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-700">Districts</h3>
+        <button onclick="showDistrictForm()" style="background:#003087;" class="px-3 py-1.5 rounded text-xs text-white font-bold">+ Add District</button>
+      </div>
+      <div id="districtForm" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+        <div class="font-bold text-sm text-gray-700 mb-3" id="districtFormTitle">Add District</div>
+        <input type="hidden" id="dfId">
+        <div class="grid md:grid-cols-2 gap-3 mb-3">
+          <div><label class="lbl">DISTRICT NAME</label><input id="dfName" class="inp w-full" placeholder="e.g. Hattiesburg District"></div>
+          <div><label class="lbl">DISTRICT MANAGER</label><select id="dfDm" class="inp w-full"><option value="">— Unassigned —</option></select></div>
+        </div>
+        <div class="mb-3">
+          <label class="lbl">STORES IN THIS DISTRICT</label>
+          <div id="dfStores" class="border rounded-lg bg-white p-3 max-h-48 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-1"></div>
+        </div>
+        <div id="dfError" class="hidden text-red-600 text-xs mb-2"></div>
+        <div class="flex gap-2">
+          <button onclick="saveDistrict()" style="background:#003087;" class="px-4 py-1.5 rounded text-xs text-white font-bold">Save</button>
+          <button onclick="hideDistrictForm()" class="px-4 py-1.5 border rounded text-xs text-gray-600">Cancel</button>
+        </div>
+      </div>
+      <div id="districtsGrid" class="grid md:grid-cols-2 gap-3"></div>
+    </div>
+  </div>
+
+  </div><!-- /card -->
+</div><!-- /main -->
+
+<footer style="background:#003087;" class="text-center text-white text-xs py-3">
+  <span class="opacity-60">Keith's Superstores · </span><em>"The Fastest And Friendliest"</em><span class="opacity-60"> · Shrink Shield v6.0</span>
+</footer>
+</div><!-- /appScreen -->
+<script>
+// ═══════════════════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════════════════
+const SUPABASE_URL='https://ylfsqjbqhewpfiooytlg.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZnNxamJxaGV3cGZpb295dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzQwODQsImV4cCI6MjA4ODM1MDA4NH0.Ssl5J6ktZIVtLd2cq8vH7PWdR4-yZwI5tt4PtXkVqWk';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const CASE_QTY=12;
+
+// ═══════════════════════════════════════════════════
+// ITEM LISTS
+// ═══════════════════════════════════════════════════
+const KRATOM_DEFAULTS=[
+{id:‘k1’,name:‘Viva Zen Ultimate’,price:14.99},{id:‘k2’,name:‘Viva Zen Red Top’,price:12.99},
+{id:‘k3’,name:‘Viva Zen White Top’,price:12.99},{id:‘k4’,name:‘Kryptic Kratom Relaxation’,price:11.99},
+{id:‘k5’,name:‘Kryptic Kratom Thin’,price:11.99},{id:‘k6’,name:‘Kratom Extract’,price:13.99},
+{id:‘k7’,name:‘K Shot’,price:10.99},{id:‘k8’,name:‘Kratom Yellow Cap’,price:9.99},{id:‘k9’,name:‘Feel Free’,price:15.99},
 ];
-const SHIFTS = ["Morning","Evening","Overnight"];
-const STORES = ["Store #107","Store #108","Store #109","Store #110"];
-const CORRECT_PIN = "1107";
+let KRATOM=KRATOM_DEFAULTS.map(x=>({…x}));
 
-const toNum   = v => parseInt(v) || 0;
-const today   = () => new Date().toISOString().split("T")[0];
-const fmtDate = d => new Date(d + "T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
-const blankCounts = () => Object.fromEntries(PRODUCTS.map(p => [p.id,{office_btl:"",office_cs:"",floor_btl:"",floor_cs:"",sales:""}]));
+const SCRATCHERS_DEFAULTS=[
+{id:‘s01’,name:‘Cash on the Spot’,price:1},{id:‘s02’,name:’$1 Lottery Ticket’,price:1},
+{id:‘s03’,name:‘Piggy Bank Buck’,price:1},{id:‘s04’,name:‘3 X Lucky’,price:2},
+{id:‘s05’,name:‘Wonder Bucks’,price:2},{id:‘s06’,name:‘Cruisin the Coast’,price:3},
+{id:‘s07’,name:‘Jumbo Bucks’,price:2},{id:‘s08’,name:‘Lucky Doubler’,price:2},
+{id:‘s09’,name:‘Cash Grab’,price:2},{id:‘s10’,name:‘Emerald Green’,price:3},
+{id:‘s11’,name:‘25,000 Mad Money’,price:5},{id:‘s12’,name:‘Bring the Heat’,price:3},
+{id:‘s13’,name:‘Home Run’,price:3},{id:‘s14’,name:‘Crossword’,price:3},
+{id:‘s15’,name:‘Bingo’,price:2},{id:‘s16’,name:‘5X the Bank’,price:5},
+{id:‘s17’,name:‘Lucky Dog’,price:2},{id:‘s18’,name:‘Blazin Hot BK’,price:3},
+{id:‘s19’,name:‘Break the Bank’,price:3},{id:‘s20’,name:‘Stacks of Cash’,price:2},
+{id:‘s21’,name:‘Fun 5s’,price:5},{id:‘s22’,name:‘20X the Money’,price:5},
+{id:‘s23’,name:‘Cashtastic’,price:2},{id:‘s24’,name:‘Wild Money’,price:2},
+{id:‘s25’,name:‘Gold Bar Bingo’,price:3},{id:‘s26’,name:‘Super Cashword’,price:3},
+{id:‘s27’,name:‘Red Hot Cash’,price:3},{id:‘s28’,name:“Triple Red 7’s”,price:3},
+{id:‘s29’,name:‘50X the Money’,price:10},{id:‘s30’,name:‘100,000 Payout’,price:10},
+{id:‘s31’,name:“Gold 7’s”,price:2},{id:‘s32’,name:‘Diamond White’,price:2},
+{id:‘s33’,name:‘Spectacular Riches’,price:10},{id:‘s34’,name:‘Colossal Cash’,price:10},
+{id:‘s35’,name:‘Extravaganza’,price:20},{id:‘s36’,name:‘200X Cash Blitz’,price:20},{id:‘s37’,name:‘500,000 Extreme’,price:20},
+];
+let SCRATCHERS=SCRATCHERS_DEFAULTS.map(x=>({…x}));
 
-// ── Root ─────────────────────────────────────────────────────────
-function App() {
-  const [session, setSession]   = useState(null);
-  const [tab, setTab]           = useState("entry");
-  const [store, setStore]       = useState(STORES[0]);
-  const [loginData, setLogin]   = useState({ email:"", password:"" });
-  const [loginErr, setLoginErr] = useState("");
-  const [loginLoad, setLoginLoad] = useState(false);
+// ═══════════════════════════════════════════════════
+// STORES
+// ═══════════════════════════════════════════════════
+const STORES=[
+{id:‘s135’,num:‘135’,name:‘Store #135’,city:‘Hattiesburg, MS’,addr:‘5331 Old Hwy 11’,phone:’(601) 271-8711’,hours:‘Mon–Sun 5am–12am’,region:‘Hattiesburg’},
+{id:‘s137’,num:‘137’,name:‘Store #137’,city:‘Hattiesburg, MS’,addr:‘5170 W. 4th St.’,phone:’(601) 296-6008’,hours:‘Sun–Thurs 5am–11pm · Fri–Sat 5am–12am’,region:‘Hattiesburg’},
+{id:‘s150’,num:‘150’,name:‘Store #150’,city:‘Hattiesburg, MS’,addr:‘6750 Hwy 49’,phone:’(601) 271-8400’,hours:‘Mon–Sun 5am–12am’,region:‘Hattiesburg’},
+{id:‘s151’,num:‘151’,name:‘Store #151’,city:‘Hattiesburg, MS’,addr:‘7276 Hwy 49’,phone:’(601) 296-6761’,hours:‘Sun–Thurs 5am–11pm · Fri–Sat 5am–12am’,region:‘Hattiesburg’},
+{id:‘s157’,num:‘157’,name:‘Store #157’,city:‘Hattiesburg, MS’,addr:‘2462 US Hwy 49’,phone:’(601) 336-1340’,hours:‘Mon–Sun 5am–12am’,region:‘Hattiesburg’},
+{id:‘s173’,num:‘173’,name:‘Store #173’,city:‘Hattiesburg, MS’,addr:‘1858 Evelyn Gandy Pkwy’,phone:’(601) 583-4485’,hours:‘Mon–Sun 5am–11pm’,region:‘Hattiesburg’},
+{id:‘s175’,num:‘175’,name:‘Store #175’,city:‘Petal, MS’,addr:‘101 Carterville Rd’,phone:’(601) 584-8665’,hours:‘Mon–Thurs 5am–11pm · Fri–Sat 5am–12am’,region:‘Hattiesburg’},
+{id:‘s100’,num:‘100’,name:‘Store #100’,city:‘Ellisville, MS’,addr:‘304 Hill St.’,phone:’(601) 477-9990’,hours:‘Mon–Sun 5am–12am’,region:‘Pine Belt’},
+{id:‘s105’,num:‘105’,name:‘Store #105’,city:‘Ellisville, MS’,addr:‘5213 Hwy 11 N.’,phone:’(601) 425-3085’,hours:‘Mon–Sun 5am–12am’,region:‘Pine Belt’},
+{id:‘sMos’,num:’—’,name:‘Moselle’,city:‘Moselle, MS’,addr:‘59 Moselle Seminary Rd’,phone:’(601) 582-8330’,hours:‘Mon–Sun 4am–11pm’,region:‘Pine Belt’},
+{id:‘s117’,num:‘117’,name:‘Store #117’,city:‘Bay Springs, MS’,addr:‘2675 Hwy 15’,phone:’(601) 764-4580’,hours:’’,region:‘Pine Belt’},
+{id:‘s125’,num:‘125’,name:‘Store #125’,city:‘Seminary, MS’,addr:‘2078 US Hwy 49’,phone:’(601) 722-4323’,hours:‘Mon–Sun 5am–10pm’,region:‘Pine Belt’},
+{id:‘s127’,num:‘127’,name:‘Store #127’,city:‘Collins, MS’,addr:‘3030 Hwy 49’,phone:’(601) 909-9133’,hours:‘Sun–Thurs 5am–11pm · Fri–Sat 5am–12am’,region:‘Pine Belt’},
+{id:‘s130’,num:‘130’,name:‘Store #130’,city:‘Columbia, MS’,addr:‘1475 Hwy 98 E.’,phone:’(601) 736-6662’,hours:‘Sun–Thurs 5am–11pm · Fri–Sat 5am–12am’,region:‘Pine Belt’},
+{id:‘s140’,num:‘140’,name:‘Store #140’,city:‘Mount Olive, MS’,addr:‘1196 Rock Hill Rd.’,phone:’(601) 797-4545’,hours:‘Mon–Sun 5am–11pm’,region:‘Pine Belt’},
+{id:‘s155’,num:‘155’,name:‘Store #155’,city:‘Sumrall, MS’,addr:‘8431 Hwy 98’,phone:’(601) 296-4721’,hours:‘Sun–Thurs 5am–9pm · Fri–Sat 5am–10pm’,region:‘Pine Belt’},
+{id:‘s185’,num:‘185’,name:‘Store #185’,city:‘Lumberton, MS’,addr:‘918 E. Main Ave’,phone:’(601) 796-2780’,hours:‘Mon–Sun 5am–11pm’,region:‘Pine Belt’},
+{id:‘s082’,num:‘82’,name:‘Store #82’,city:‘Moss Point, MS’,addr:‘21000 Hwy 613’,phone:’(228) 588-2134’,hours:‘Mon–Sun 4am–12am’,region:‘Gulf Coast’},
+{id:‘s085’,num:‘85’,name:‘Store #85’,city:‘Moss Point, MS’,addr:‘6820 Hwy 613’,phone:’(228) 474-2556’,hours:‘Mon–Thurs 3am–11pm · Fri–Sat 5am–12am’,region:‘Gulf Coast’},
+{id:‘s086’,num:‘86’,name:‘Store #86’,city:‘Moss Point, MS’,addr:‘6718 Hwy 63’,phone:’(228) 474-0004’,hours:‘Mon–Sun 4am–12am’,region:‘Gulf Coast’},
+{id:‘s088’,num:‘88’,name:‘Store #88’,city:‘Vancleave, MS’,addr:‘10909 Hwy 57’,phone:’(228) 826-9115’,hours:‘Mon–Sun 4am–12am’,region:‘Gulf Coast’},
+{id:‘s089’,num:‘89’,name:‘Store #89’,city:‘Ocean Springs, MS’,addr:‘7501 Washington Ave’,phone:’(228) 872-1955’,hours:‘Open 24/7’,region:‘Gulf Coast’},
+{id:‘s090’,num:‘90’,name:‘Store #90’,city:‘Ocean Springs, MS’,addr:’’,phone:’(228) 392-9084’,hours:‘Open 24/7’,region:‘Gulf Coast’},
+{id:‘s107’,num:‘107’,name:‘Store #107’,city:‘Saucier, MS’,addr:‘26181 Hwy 49 S.’,phone:’(228) 832-0298’,hours:‘Sun–Thurs 5am–11pm · Fri–Sat 5am–12am’,region:‘Gulf Coast’},
+{id:‘s108’,num:‘108’,name:‘Store #108’,city:‘Long Beach, MS’,addr:‘19000 28th St.’,phone:’(228) 575-6822’,hours:‘Mon–Sun 5am–12am’,region:‘Gulf Coast’},
+{id:‘s109’,num:‘109’,name:‘Store #109’,city:‘Pass Christian, MS’,addr:‘102 E Beach Blvd’,phone:’(228) 452-5651’,hours:‘Mon–Sun 5am–12am’,region:‘Gulf Coast’},
+{id:‘s112’,num:‘112’,name:‘Store #112’,city:‘Gautier, MS’,addr:‘819 Hwy 90’,phone:’(228) 497-9687’,hours:‘Mon–Fri 3am–11pm · Sat 4am–12am · Sun 5am–12am’,region:‘Gulf Coast’},
+{id:‘s182’,num:‘182’,name:‘Store #182’,city:‘Waveland, MS’,addr:‘10513 Hwy 603’,phone:’(228) 466-4494’,hours:‘Mon–Sun 5am–11pm’,region:‘Gulf Coast’},
+{id:‘s183’,num:‘183’,name:‘Store #183’,city:‘Bay St. Louis, MS’,addr:‘701 Hwy 90’,phone:’(251) 649-6544’,hours:‘Mon–Sun 5am–11pm’,region:‘Gulf Coast’},
+{id:‘s184’,num:‘184’,name:‘Store #184’,city:‘Bay St. Louis, MS’,addr:‘4955 Hwy 90’,phone:’(228) 466-4336’,hours:‘Mon–Sun 5am–11pm’,region:‘Gulf Coast’},
+{id:‘s080’,num:‘80’,name:‘Store #80’,city:‘Lucedale, MS’,addr:‘6239 Hwy 98’,phone:’(601) 947-7520’,hours:‘Mon–Sun 5am–12am’,region:‘South MS’},
+{id:‘s081’,num:‘81’,name:‘Store #81’,city:‘Lucedale, MS’,addr:‘7292 Hwy 63 S.’,phone:’(601) 947-8120’,hours:‘Mon–Sun 5am–12am’,region:‘South MS’},
+{id:‘s091’,num:‘91’,name:‘Store #91’,city:‘Wiggins, MS’,addr:‘1220 W. Central Ave.’,phone:’(601) 928-9403’,hours:‘Sun–Thurs 5am–11pm · Fri–Sat 5am–12am’,region:‘South MS’},
+{id:‘s120’,num:‘120’,name:‘Store #120’,city:‘Purvis, MS’,addr:‘5812 Hwy 11’,phone:’(601) 794-2249’,hours:‘Mon–Sun 5am–10pm’,region:‘South MS’},
+{id:‘s122’,num:‘122’,name:‘Store #122’,city:‘Purvis, MS’,addr:‘5791 Hwy 11’,phone:’(601) 794-0422’,hours:‘Mon–Sun 5am–10pm’,region:‘South MS’},
+{id:‘s123’,num:‘123’,name:‘Store #123’,city:‘Purvis, MS’,addr:‘361 Hwy 589’,phone:’(601) 744-0660’,hours:‘Sun–Thurs 5am–11pm · Fri–Sat 5am–12am’,region:‘South MS’},
+{id:‘s160’,num:‘160’,name:‘Store #160’,city:‘Wiggins, MS’,addr:‘114 Magnolia Dr.’,phone:’(601) 528-9002’,hours:‘Mon–Sun 5am–11pm’,region:‘South MS’},
+{id:‘s161’,num:‘161’,name:‘Store #161’,city:‘Wiggins, MS’,addr:‘3333 Hwy 49’,phone:’(601) 928-7826’,hours:‘Mon–Sun 5am–10pm’,region:‘South MS’},
+{id:‘s192’,num:‘192’,name:‘Store #192’,city:‘Picayune, MS’,addr:‘1405 Hwy 43 N.’,phone:’(601) 798-9554’,hours:‘Sun–Thurs 5am–11pm · Fri–Sat 5am–12am’,region:‘South MS’},
+{id:‘s194’,num:‘194’,name:‘Store #194’,city:‘Carriere, MS’,addr:‘498 W. Union Rd.’,phone:’(601) 889-0394’,hours:‘Open 24/7’,region:‘South MS’},
+{id:‘s196’,num:‘196’,name:‘Store #196’,city:‘Poplarville, MS’,addr:‘4670 Hwy 53’,phone:’(601) 403-8290’,hours:‘Sun–Thurs 5am–11pm · Fri–Sat 5am–12am’,region:‘South MS’},
+{id:‘s060’,num:‘60’,name:‘Store #60’,city:‘Wilmer, AL’,addr:‘13515 Moffett Rd’,phone:’(251) 649-6544’,hours:‘Mon–Sun 5am–12am’,region:‘Alabama’},
+];
 
-  const handleLogin = async () => {
-    setLoginLoad(true); setLoginErr("");
-    const res = await sbSignIn(loginData.email, loginData.password);
-    if (res?.access_token) setSession({ token: res.access_token, email: loginData.email });
-    else setLoginErr(res?.error_description || "Invalid credentials");
-    setLoginLoad(false);
-  };
+// ═══════════════════════════════════════════════════
+// DB MAPPERS
+// ═══════════════════════════════════════════════════
+const toSR=e=>({id:e.id,store:e.store,store_name:e.storeName,store_city:e.storeCity,date:e.date,shift:e.shift,out_clerk:e.outClerk,in_clerk:e.inClerk,kratom:e.kratom,lottery:e.lottery,ts:e.ts});
+const frSR=r=>({id:r.id,store:r.store,storeName:r.store_name,storeCity:r.store_city,date:r.date,shift:r.shift,outClerk:r.out_clerk,inClerk:r.in_clerk,kratom:r.kratom||{},lottery:r.lottery||{},ts:r.ts});
+const toUR=u=>({id:u.id,name:u.name,username:u.username,password:u.password,role:u.role,district_id:u.districtId||null,store_id:u.storeId||null});
+const frUR=r=>({id:r.id,name:r.name,username:r.username,password:r.password,role:r.role,districtId:r.district_id||null,storeId:r.store_id||null});
+const toDR=d=>({id:d.id,name:d.name,dm_id:d.dmId||null,store_ids:d.storeIds});
+const frDR=r=>({id:r.id,name:r.name,dmId:r.dm_id||null,storeIds:r.store_ids||[]});
+function sfe(el,msg,err){el.textContent=msg+(err?’: ‘+(err instanceof TypeError?‘Network error.’:err.message):’’);el.classList.remove(‘hidden’);}
+function uChart(inst,cid,cfg){if(inst)inst.destroy();return new Chart(document.getElementById(cid),cfg);}
 
-  const handleLogout = () => { sbSignOut(session.token); setSession(null); };
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let shiftLog=[],session=null,users=[],districts=[];
+let openingCounts={};  // pid->{off_btl,off_cs,floor_btl,floor_cs}
+let openingLottery={}; // pid->{open}
 
-  if (!session) return (
-    <div className="auth-screen">
-      <div className="auth-card">
-        <div className="auth-logo">
-          <div className="auth-shield"><span>SS</span></div>
-          <div className="auth-logo-text">
-            <h1>Shrink Shield</h1>
-            <p>Keith's Superstores</p>
-          </div>
-        </div>
-        <p className="auth-title">Sign In</p>
-        {loginErr && <div className="error-msg">{loginErr}</div>}
-        <div className="form-group">
-          <label className="form-label">Email</label>
-          <input className="form-input" type="email" value={loginData.email} placeholder="you@keiths.com"
-            onChange={e => setLogin(p=>({...p,email:e.target.value}))}
-            onKeyDown={e => e.key==="Enter" && handleLogin()} />
-        </div>
-        <div className="form-group">
-          <label className="form-label">Password</label>
-          <input className="form-input" type="password" value={loginData.password} placeholder="••••••••"
-            onChange={e => setLogin(p=>({...p,password:e.target.value}))}
-            onKeyDown={e => e.key==="Enter" && handleLogin()} />
-        </div>
-        <button className="btn btn-primary btn-full" onClick={handleLogin} disabled={loginLoad}>
-          {loginLoad ? "Signing in…" : "Sign In"}
-        </button>
-      </div>
-    </div>
-  );
-
-  const TABS = [
-    {id:"entry",      label:"New Count Entry"},
-    {id:"log",        label:"Count Log"},
-    {id:"analytics",  label:"Analytics"},
-    {id:"multistore", label:"Multi-Store"},
-  ];
-
-  return (
-    <div className="app">
-      <header className="topbar">
-        <div className="topbar-logo">
-          <div className="topbar-shield"><span>SS</span></div>
-          <span className="topbar-name">Shrink<span> Shield</span></span>
-        </div>
-        <div className="topbar-right">
-          <span className="topbar-user">{session.email}</span>
-          <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Sign Out</button>
-        </div>
-      </header>
-      <nav className="nav-tabs">
-        {TABS.map(t => (
-          <button key={t.id} className={`nav-tab ${tab===t.id?"active":""}`} onClick={()=>setTab(t.id)}>
-            {t.label}
-          </button>
-        ))}
-      </nav>
-      <main className="main">
-        {tab==="entry"      && <EntryTab      session={session} store={store} setStore={setStore} />}
-        {tab==="log"        && <LogTab        session={session} store={store} setStore={setStore} />}
-        {tab==="analytics"  && <AnalyticsTab  session={session} store={store} setStore={setStore} />}
-        {tab==="multistore" && <MultiStoreTab session={session} />}
-      </main>
-    </div>
-  );
+async function loadState(){
+const{data,error}=await sb.from(‘shift_logs’).select(’*’).order(‘ts’,{ascending:false});
+if(error){console.error(error);return;}
+shiftLog=(data||[]).map(frSR);
+}
+async function db_insert(entry){
+const{error}=await sb.from(‘shift_logs’).insert([toSR(entry)]);
+if(error)throw error;
 }
 
-// ── Entry Tab ────────────────────────────────────────────────────
-function EntryTab({ session, store, setStore }) {
-  const [shift,    setShift]    = useState("Morning");
-  const [date,     setDate]     = useState(today());
-  const [employee, setEmployee] = useState("");
-  const [counts,   setCounts]   = useState(blankCounts());
-  const [prev,     setPrev]     = useState({});
-  const [saving,   setSaving]   = useState(false);
-  const [saved,    setSaved]    = useState(false);
-  const [error,    setError]    = useState("");
-  const [showPin,  setShowPin]  = useState(false);
-  const [pin,      setPin]      = useState("");
-  const [pinErr,   setPinErr]   = useState("");
+function loadOpeningCounts(sid){
+openingCounts={};openingLottery={};
+const prev=[…shiftLog].filter(e=>e.store===sid).sort((a,b)=>b.ts-a.ts)[0];
+KRATOM.forEach(p=>{
+const d=prev?.kratom?.[p.id];
+openingCounts[p.id]=d?{off_btl:d.close_off_btl??0,off_cs:d.close_off_cs??0,floor_btl:d.close_floor_btl??0,floor_cs:d.close_floor_cs??0}:{off_btl:0,off_cs:0,floor_btl:0,floor_cs:0};
+});
+SCRATCHERS.forEach(p=>{
+const d=prev?.lottery?.[p.id];
+openingLottery[p.id]={open:d?d.close??0:0};
+});
+if(!prev){
+document.getElementById(‘handoffBanner’).classList.add(‘hidden’);
+document.getElementById(‘noHandoffBanner’).classList.remove(‘hidden’);
+} else {
+document.getElementById(‘noHandoffBanner’).classList.add(‘hidden’);
+document.getElementById(‘handoffBanner’).classList.remove(‘hidden’);
+document.getElementById(‘handoffMeta’).textContent=`Previous: ${prev.shift} shift · ${prev.date} · Closing clerk: ${prev.outClerk}`;
+}
+}
+</script>
 
-  // Load previous shift's closing counts
-  useEffect(() => {
-    (async () => {
-      const data = await sbQuery(session.token, "shrink_counts",
-        `?store=eq.${encodeURIComponent(store)}&order=created_at.desc&limit=100`);
-      if (!Array.isArray(data)) return;
-      const p = {};
-      for (const prod of PRODUCTS) {
-        const last = data.find(r => r.product_id === prod.id);
-        if (last) p[prod.id] = {
-          office_btl: last.close_office_btl,
-          office_cs:  last.close_office_cs,
-          floor_btl:  last.close_floor_btl,
-          floor_cs:   last.close_floor_cs,
-        };
-      }
-      setPrev(p);
-    })();
-  }, [store]);
+<script>
+// ═══════════════════════════════════════════════════
+// BUILD COUNT TABLES
+// ═══════════════════════════════════════════════════
+function buildCountTables(){
+  document.getElementById('countTabKratom').textContent='KRATOM ('+KRATOM.length+')';
+  document.getElementById('countTabLottery').textContent='SCRATCH-OFFS ('+SCRATCHERS.length+')';
+  buildKTable();buildLTable();
+}
+function buildKTable(){
+  const kb=document.getElementById('kratomBody');kb.innerHTML='';
+  KRATOM.forEach(p=>{
+    const oc=openingCounts[p.id]||{off_btl:0,off_cs:0,floor_btl:0,floor_cs:0};
+    const tr=document.createElement('tr');tr.id='krow-'+p.id;
+    tr.innerHTML=
+      '<td class="py-1 pr-2 font-medium text-gray-800 leading-tight" style="font-size:11px;">'+p.name+'<br><span class="text-gray-400" style="font-size:10px;">$'+p.price.toFixed(2)+'</span></td>'+
+      '<td class="py-1 px-1 text-center bg-blue-50"><span class="open-cell">'+oc.off_btl+'</span></td>'+
+      '<td class="py-1 px-1 text-center bg-blue-50"><span class="open-cell">'+oc.off_cs+'</span></td>'+
+      '<td class="py-1 px-1"><input type="number" min="0" id="kob-'+p.id+'" placeholder="0" class="num-inp" oninput="calcK(\''+p.id+'\')"></td>'+
+      '<td class="py-1 px-1"><input type="number" min="0" id="koc-'+p.id+'" placeholder="0" class="num-inp" oninput="calcK(\''+p.id+'\')"></td>'+
+      '<td class="py-1 px-1 text-center bg-blue-50"><span class="open-cell">'+oc.floor_btl+'</span></td>'+
+      '<td class="py-1 px-1 text-center bg-blue-50"><span class="open-cell">'+oc.floor_cs+'</span></td>'+
+      '<td class="py-1 px-1"><input type="number" min="0" id="kfb-'+p.id+'" placeholder="0" class="num-inp" oninput="calcK(\''+p.id+'\')"></td>'+
+      '<td class="py-1 px-1"><input type="number" min="0" id="kfc-'+p.id+'" placeholder="0" class="num-inp" oninput="calcK(\''+p.id+'\')"></td>'+
+      '<td class="py-1 px-1"><input type="number" min="0" id="ks-'+p.id+'" placeholder="0" class="num-inp" oninput="calcK(\''+p.id+'\')"></td>'+
+      '<td class="py-1 px-2 text-center font-mono text-gray-500" style="font-size:11px;" id="kexp-'+p.id+'">—</td>'+
+      '<td class="py-1 px-2 text-center font-bold" style="font-size:11px;" id="kvar-'+p.id+'">—</td>'+
+      '<td class="py-1 text-center" id="kstat-'+p.id+'">—</td>';
+    kb.appendChild(tr);
+  });
+}
+function buildLTable(){
+  const lb=document.getElementById('lotteryBody');lb.innerHTML='';
+  SCRATCHERS.forEach(p=>{
+    const ol=openingLottery[p.id]||{open:0};
+    const tr=document.createElement('tr');tr.id='lrow-'+p.id;
+    tr.innerHTML=
+      '<td class="py-1.5 pr-3 font-medium text-gray-800 text-xs">'+p.name+'</td>'+
+      '<td class="py-1.5 px-2 text-center text-gray-400 text-xs">$'+p.price+'</td>'+
+      '<td class="py-1.5 px-1 text-center"><span class="open-cell">'+ol.open+'</span></td>'+
+      '<td class="py-1.5 px-1"><input type="number" min="0" id="ls-'+p.id+'" placeholder="0" class="num-inp" oninput="calcL(\''+p.id+'\')"></td>'+
+      '<td class="py-1.5 px-1"><input type="number" min="0" id="lc-'+p.id+'" placeholder="0" class="num-inp" oninput="calcL(\''+p.id+'\')"></td>'+
+      '<td class="py-1.5 px-2 text-center text-xs font-mono" id="lcnt-'+p.id+'">—</td>'+
+      '<td class="py-1.5 px-2 text-center font-bold text-xs" id="lvar-'+p.id+'">—</td>'+
+      '<td class="py-1.5 text-center" id="lstat-'+p.id+'">—</td>';
+    lb.appendChild(tr);
+  });
+}
 
-  const upd = (pid, field, val) => setCounts(c => ({...c, [pid]:{...c[pid],[field]:val}}));
+// ═══════════════════════════════════════════════════
+// LIVE CALC
+// ═══════════════════════════════════════════════════
+function calcK(id){
+  const oc=openingCounts[id]||{off_btl:0,off_cs:0,floor_btl:0,floor_cs:0};
+  const openT=oc.off_btl+oc.off_cs*CASE_QTY+oc.floor_btl+oc.floor_cs*CASE_QTY;
+  const cob=+document.getElementById('kob-'+id)?.value||0;
+  const coc=+document.getElementById('koc-'+id)?.value||0;
+  const cfb=+document.getElementById('kfb-'+id)?.value||0;
+  const cfc=+document.getElementById('kfc-'+id)?.value||0;
+  const closeT=cob+coc*CASE_QTY+cfb+cfc*CASE_QTY;
+  const sales=+document.getElementById('ks-'+id)?.value||0;
+  const exp=openT-sales,vari=exp-closeT;
+  setV('kexp-'+id,'kvar-'+id,'kstat-'+id,'krow-'+id,exp,vari);
+  updateKSum();
+}
+function calcL(id){
+  const ol=openingLottery[id]||{open:0};
+  const sales=+document.getElementById('ls-'+id)?.value||0;
+  const close=+document.getElementById('lc-'+id)?.value||0;
+  const counted=ol.open-close;
+  document.getElementById('lcnt-'+id).textContent=counted>=0?counted:'('+Math.abs(counted)+')';
+  setV(null,'lvar-'+id,'lstat-'+id,'lrow-'+id,ol.open-sales,counted-sales);
+  updateLSum();
+}
+function setV(eid,vid,sid,rid,exp,vari){
+  if(eid)document.getElementById(eid).textContent=exp>=0?exp:'('+Math.abs(exp)+')';
+  const ve=document.getElementById(vid),se=document.getElementById(sid),re=document.getElementById(rid);
+  if(vari>0){ve.textContent='-'+vari;ve.className='py-1 px-2 text-center font-bold text-xs text-red-600';se.innerHTML='<span class="badge-r text-xs px-2 py-0.5 rounded-full font-semibold">FLAGGED</span>';re.classList.add('flag-row');}
+  else if(vari<0){ve.textContent='+'+Math.abs(vari);ve.className='py-1 px-2 text-center font-bold text-xs text-yellow-600';se.innerHTML='<span class="badge-y text-xs px-2 py-0.5 rounded-full font-semibold">OVER</span>';re.classList.remove('flag-row');}
+  else{ve.textContent='✓ 0';ve.className='py-1 px-2 text-center font-bold text-xs text-green-600';se.innerHTML='<span class="badge-g text-xs px-2 py-0.5 rounded-full font-semibold">OK</span>';re.classList.remove('flag-row');}
+}
+function updateKSum(){
+  let tv=0,td=0,fl=0;
+  KRATOM.forEach(p=>{
+    const oc=openingCounts[p.id]||{off_btl:0,off_cs:0,floor_btl:0,floor_cs:0};
+    const openT=oc.off_btl+oc.off_cs*CASE_QTY+oc.floor_btl+oc.floor_cs*CASE_QTY;
+    const cob=+document.getElementById('kob-'+p.id)?.value||0,coc=+document.getElementById('koc-'+p.id)?.value||0;
+    const cfb=+document.getElementById('kfb-'+p.id)?.value||0,cfc=+document.getElementById('kfc-'+p.id)?.value||0;
+    const closeT=cob+coc*CASE_QTY+cfb+cfc*CASE_QTY;
+    const s=+document.getElementById('ks-'+p.id)?.value||0;
+    const v=(openT-s)-closeT;if(v>0){tv+=v;td+=v*p.price;fl++;}
+  });
+  const el=document.getElementById('kratomSummary');el.classList.remove('hidden');el.innerHTML=sumHTML(tv,td,fl);
+}
+function updateLSum(){
+  let tv=0,td=0,fl=0;
+  SCRATCHERS.forEach(p=>{
+    const ol=openingLottery[p.id]||{open:0};
+    const s=+document.getElementById('ls-'+p.id)?.value||0,c=+document.getElementById('lc-'+p.id)?.value||0;
+    const v=(ol.open-c)-s;if(v>0){tv+=v;td+=v*p.price;fl++;}
+  });
+  const el=document.getElementById('lotterySummary');el.classList.remove('hidden');el.innerHTML=sumHTML(tv,td,fl);
+}
+function sumHTML(tv,td,fl){
+  return '<div class="grid grid-cols-3 gap-3">'+
+    '<div class="bg-gray-50 rounded p-3 text-center"><div class="text-xs text-gray-400">Variance Units</div><div class="text-2xl font-black '+(tv>0?'text-red-600':'text-green-600')+'">'+tv+'</div></div>'+
+    '<div class="bg-gray-50 rounded p-3 text-center"><div class="text-xs text-gray-400">Est. $ Loss</div><div class="text-2xl font-black '+(td>0?'text-red-600':'text-green-600')+'">$'+td.toFixed(2)+'</div></div>'+
+    '<div class="bg-gray-50 rounded p-3 text-center"><div class="text-xs text-gray-400">Flagged Items</div><div class="text-2xl font-black '+(fl>0?'text-orange-500':'text-green-600')+'">'+fl+'</div></div>'+
+  '</div>';
+}
 
-  const calcVar = (pid) => {
-    const prod  = PRODUCTS.find(x => x.id === pid);
-    const p     = prev[pid] || {};
-    const openTotal  = toNum(p.office_btl) + toNum(p.office_cs)*prod.case_qty
-                     + toNum(p.floor_btl)  + toNum(p.floor_cs)*prod.case_qty;
-    const closeTotal = toNum(counts[pid].office_btl) + toNum(counts[pid].office_cs)*prod.case_qty
-                     + toNum(counts[pid].floor_btl)  + toNum(counts[pid].floor_cs)*prod.case_qty;
-    const sales    = toNum(counts[pid].sales);
-    const expected = openTotal - sales;
-    const variance = expected - closeTotal;
-    return { openTotal, closeTotal, sales, expected, variance };
-  };
-
-  const totalLoss = PRODUCTS.reduce((s,p) => { const v=calcVar(p.id); return v.variance>0?s+v.variance:s; }, 0);
-
-  const handleSubmit = () => {
-    if (!employee.trim()) { setError("Enter employee name."); return; }
-    setError(""); setShowPin(true); setPin(""); setPinErr("");
-  };
-
-  const handlePinDigit = async (d) => {
-    const np = pin + d;
-    setPin(np);
-    if (np.length === 4) {
-      if (np !== CORRECT_PIN) { setPinErr("Incorrect PIN. Try again."); setPin(""); return; }
-      setShowPin(false);
-      await doSave();
+// ═══════════════════════════════════════════════════
+// CLEAR & SUBMIT
+// ═══════════════════════════════════════════════════
+function clearCount(){
+  KRATOM.forEach(p=>{['kob','koc','kfb','kfc','ks'].forEach(f=>{const el=document.getElementById(f+'-'+p.id);if(el)el.value='';});calcK(p.id);});
+  SCRATCHERS.forEach(p=>{['ls','lc'].forEach(f=>{const el=document.getElementById(f+'-'+p.id);if(el)el.value='';});calcL(p.id);});
+  document.getElementById('kratomSummary').classList.add('hidden');
+  document.getElementById('lotterySummary').classList.add('hidden');
+}
+async function submitCount(){
+  const sid=document.getElementById('storeSelect').value;
+  const store=STORES.find(s=>s.id===sid)||{name:sid,city:''};
+  const shift=document.getElementById('shiftSel').value;
+  const date=document.getElementById('shiftDate').value||new Date().toISOString().split('T')[0];
+  const outC=document.getElementById('outClerk').value.trim();
+  const inC=document.getElementById('inClerk').value.trim();
+  if(!outC||!inC){alert('Please enter both clerk names.');return;}
+  const kratom={},lottery={};let kAny=false,lAny=false;
+  KRATOM.forEach(p=>{
+    const cob=document.getElementById('kob-'+p.id).value;
+    const coc=document.getElementById('koc-'+p.id).value;
+    const cfb=document.getElementById('kfb-'+p.id).value;
+    const cfc=document.getElementById('kfc-'+p.id).value;
+    const ks=document.getElementById('ks-'+p.id).value;
+    if(cob!==''||coc!==''||cfb!==''||cfc!==''||ks!==''){
+      kAny=true;
+      const oc=openingCounts[p.id]||{off_btl:0,off_cs:0,floor_btl:0,floor_cs:0};
+      const openT=oc.off_btl+oc.off_cs*CASE_QTY+oc.floor_btl+oc.floor_cs*CASE_QTY;
+      const cobN=parseInt(cob)||0,cocN=parseInt(coc)||0,cfbN=parseInt(cfb)||0,cfcN=parseInt(cfc)||0;
+      const closeT=cobN+cocN*CASE_QTY+cfbN+cfcN*CASE_QTY;
+      const salesN=parseInt(ks)||0;
+      kratom[p.id]={open_off_btl:oc.off_btl,open_off_cs:oc.off_cs,open_floor_btl:oc.floor_btl,open_floor_cs:oc.floor_cs,open_total:openT,sales:salesN,close_off_btl:cobN,close_off_cs:cocN,close_floor_btl:cfbN,close_floor_cs:cfcN,close_total:closeT,expected:openT-salesN,variance:(openT-salesN)-closeT};
     }
-  };
+  });
+  SCRATCHERS.forEach(p=>{
+    const ls=document.getElementById('ls-'+p.id).value;
+    const lc=document.getElementById('lc-'+p.id).value;
+    if(ls!==''||lc!==''){
+      lAny=true;
+      const ol=openingLottery[p.id]||{open:0};
+      const sN=parseInt(ls)||0,cN=parseInt(lc)||0;
+      lottery[p.id]={open:ol.open,sales:sN,close:cN,variance:(ol.open-cN)-sN};
+    }
+  });
+  if(!kAny&&!lAny){alert('Please enter at least one count.');return;}
+  const entry={id:sid+'_'+Date.now(),store:sid,storeName:store.name,storeCity:store.city,date,shift,outClerk:outC,inClerk:inC,kratom,lottery,ts:Date.now()};
+  try{await db_insert(entry);}catch(e){alert(e instanceof TypeError?'Network error.':'Error: '+e.message);return;}
+  shiftLog.unshift(entry);
+  clearCount();
+  loadOpeningCounts(sid);buildKTable();buildLTable();
+  alert('✓ Submitted for '+store.name+' — '+shift+' shift!\nNext shift opening counts are now pre-loaded.');
+  showTab('review');
+}
+</script>
 
-  const doSave = async () => {
-    setSaving(true);
-    const rows = PRODUCTS.map(prod => {
-      const v = calcVar(prod.id);
-      return {
-        store, shift, date, employee,
-        product_id:      prod.id,
-        open_total:      v.openTotal,
-        sales:           v.sales,
-        expected:        v.expected,
-        close_office_btl: toNum(counts[prod.id].office_btl),
-        close_office_cs:  toNum(counts[prod.id].office_cs),
-        close_floor_btl:  toNum(counts[prod.id].floor_btl),
-        close_floor_cs:   toNum(counts[prod.id].floor_cs),
-        close_total:     v.closeTotal,
-        variance:        v.variance,
-        created_at:      new Date().toISOString(),
-      };
+<script>
+// ═══════════════════════════════════════════════════
+// REVIEW
+// ═══════════════════════════════════════════════════
+let revSub='kratom';
+function showRevSub(t){
+  revSub=t;
+  document.getElementById('revTabK').classList.toggle('active',t==='kratom');
+  document.getElementById('revTabL').classList.toggle('active',t==='lottery');
+  document.getElementById('revTabK').classList.toggle('text-gray-500',t!=='kratom');
+  document.getElementById('revTabL').classList.toggle('text-gray-500',t!=='lottery');
+  renderReview(t);
+}
+function renderReview(type){
+  const sid=document.getElementById('storeSelect').value;
+  const entry=[...shiftLog].find(e=>e.store===sid);
+  const el=document.getElementById('reviewContent');
+  if(!entry){el.innerHTML='<p class="text-gray-400 italic text-sm">No counts for this store yet.</p>';return;}
+  const meta='<div class="flex flex-wrap gap-3 text-xs text-gray-600 bg-gray-50 rounded p-2.5 mb-4"><span><strong>Store:</strong> '+entry.storeName+'</span><span><strong>Date:</strong> '+entry.date+'</span><span><strong>Shift:</strong> '+entry.shift+'</span><span><strong>Out:</strong> '+entry.outClerk+'</span><span><strong>In:</strong> '+entry.inClerk+'</span></div>';
+  el.innerHTML=meta+(type==='kratom'?buildKRev(entry):buildLRev(entry));
+}
+function buildKRev(entry){
+  let tv=0,td=0,fl=0,rows='';
+  KRATOM.forEach(p=>{
+    const d=entry.kratom?.[p.id];if(!d)return;
+    const v=d.variance??0;if(v>0){tv+=v;td+=v*p.price;fl++;}
+    const vc=v>0?'text-red-600':v<0?'text-yellow-600':'text-green-600';
+    const badge=v>0?'<span class="badge-r text-xs px-2 py-0.5 rounded-full">FLAGGED</span>':v<0?'<span class="badge-y text-xs px-2 py-0.5 rounded-full">OVER</span>':'<span class="badge-g text-xs px-2 py-0.5 rounded-full">OK</span>';
+    rows+='<tr class="'+(v>0?'flag-row':'')+'"><td class="py-2 pr-3 text-sm font-medium">'+p.name+'</td>'+
+      '<td class="py-2 px-2 text-center text-xs">'+(d.open_off_btl??0)+'b/'+(d.open_off_cs??0)+'cs</td>'+
+      '<td class="py-2 px-2 text-center text-xs">'+(d.open_floor_btl??0)+'b/'+(d.open_floor_cs??0)+'cs</td>'+
+      '<td class="py-2 px-2 text-center text-sm">'+(d.open_total??0)+'</td>'+
+      '<td class="py-2 px-2 text-center text-sm">'+(d.sales??0)+'</td>'+
+      '<td class="py-2 px-2 text-center text-sm">'+(d.expected??0)+'</td>'+
+      '<td class="py-2 px-2 text-center text-xs">'+(d.close_off_btl??0)+'b/'+(d.close_off_cs??0)+'cs</td>'+
+      '<td class="py-2 px-2 text-center text-xs">'+(d.close_floor_btl??0)+'b/'+(d.close_floor_cs??0)+'cs</td>'+
+      '<td class="py-2 px-2 text-center text-sm">'+(d.close_total??0)+'</td>'+
+      '<td class="py-2 px-2 text-center font-bold text-sm '+vc+'">'+(v>0?'-'+v:v<0?'+'+Math.abs(v):'✓ 0')+'</td>'+
+      '<td class="py-2 text-center">'+badge+'</td></tr>';
+  });
+  return cCards(tv,td,fl)+
+    '<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-xs text-gray-500 text-left">'+
+    '<th class="pb-2 pr-3">PRODUCT</th><th class="pb-2 px-2 text-center">OPEN OFFICE</th><th class="pb-2 px-2 text-center">OPEN FLOOR</th>'+
+    '<th class="pb-2 px-2 text-center">OPEN TOTAL</th><th class="pb-2 px-2 text-center">SALES</th><th class="pb-2 px-2 text-center">EXPECTED</th>'+
+    '<th class="pb-2 px-2 text-center">CLOSE OFFICE</th><th class="pb-2 px-2 text-center">CLOSE FLOOR</th><th class="pb-2 px-2 text-center">CLOSE TOTAL</th>'+
+    '<th class="pb-2 px-2 text-center">VARIANCE</th><th class="pb-2 text-center">STATUS</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function buildLRev(entry){
+  let tv=0,td=0,fl=0,rows='';
+  SCRATCHERS.forEach(p=>{
+    const d=entry.lottery?.[p.id];if(!d)return;
+    const v=d.variance??0;if(v>0){tv+=v;td+=v*p.price;fl++;}
+    const vc=v>0?'text-red-600':v<0?'text-yellow-600':'text-green-600';
+    const badge=v>0?'<span class="badge-r text-xs px-2 py-0.5 rounded-full">FLAGGED</span>':v<0?'<span class="badge-y text-xs px-2 py-0.5 rounded-full">OVER</span>':'<span class="badge-g text-xs px-2 py-0.5 rounded-full">OK</span>';
+    rows+='<tr class="'+(v>0?'flag-row':'')+'"><td class="py-2 pr-3 text-sm font-medium">'+p.name+'</td>'+
+      '<td class="py-2 px-2 text-center text-sm">'+(d.open??0)+'</td><td class="py-2 px-2 text-center text-sm">'+(d.sales??0)+'</td>'+
+      '<td class="py-2 px-2 text-center text-sm">'+(d.close??0)+'</td><td class="py-2 px-2 text-center text-sm">'+((d.open??0)-(d.close??0))+'</td>'+
+      '<td class="py-2 px-2 text-center font-bold text-sm '+vc+'">'+(v>0?'-'+v:v<0?'+'+Math.abs(v):'✓ 0')+'</td>'+
+      '<td class="py-2 text-center">'+badge+'</td></tr>';
+  });
+  return cCards(tv,td,fl)+
+    '<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-xs text-gray-500 text-left">'+
+    '<th class="pb-2 pr-3">GAME</th><th class="pb-2 px-2 text-center">OPEN</th><th class="pb-2 px-2 text-center">SALES</th>'+
+    '<th class="pb-2 px-2 text-center">CLOSE</th><th class="pb-2 px-2 text-center">COUNTED SOLD</th>'+
+    '<th class="pb-2 px-2 text-center">VARIANCE</th><th class="pb-2 text-center">STATUS</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function cCards(tv,td,fl){
+  return '<div class="grid grid-cols-3 gap-3 mb-4">'+
+    '<div class="bg-gray-50 rounded p-3 text-center"><div class="text-xs text-gray-400">Variance Units</div><div class="text-xl font-black mt-1 '+(tv>0?'text-red-600':'text-green-600')+'">'+tv+'</div></div>'+
+    '<div class="bg-gray-50 rounded p-3 text-center"><div class="text-xs text-gray-400">Est. $ Loss</div><div class="text-xl font-black mt-1 '+(td>0?'text-red-600':'text-green-600')+'">$'+td.toFixed(2)+'</div></div>'+
+    '<div class="bg-gray-50 rounded p-3 text-center"><div class="text-xs text-gray-400">Flagged Items</div><div class="text-xl font-black mt-1 '+(fl>0?'text-orange-500':'text-green-600')+'">'+fl+'</div></div>'+
+  '</div>';
+}
+
+// ═══════════════════════════════════════════════════
+// LOG
+// ═══════════════════════════════════════════════════
+function renderLog(){
+  const sf=document.getElementById('logStore').value,tf=document.getElementById('logType').value;
+  const entries=[...shiftLog].filter(e=>!sf||e.store===sf).sort((a,b)=>b.ts-a.ts).slice(0,60);
+  const el=document.getElementById('logContent');
+  if(!entries.length){el.innerHTML='<p class="text-gray-400 italic text-sm">No logs found.</p>';return;}
+  el.innerHTML=entries.map(e=>{
+    const kF=[],lF=[];let kD=0,lD=0;
+    if(tf!=='lottery')KRATOM.forEach(p=>{const d=e.kratom?.[p.id];if(!d)return;const v=d.variance??0;if(v>0){kF.push(p.name+'(−'+v+')');kD+=v*p.price;}});
+    if(tf!=='kratom')SCRATCHERS.forEach(p=>{const d=e.lottery?.[p.id];if(!d)return;const v=d.variance??0;if(v>0){lF.push(p.name+'(−'+v+')');lD+=v*p.price;}});
+    const tot=kF.length+lF.length,hasShrink=tot>0;
+    return '<div class="border rounded-lg p-3 mb-2 '+(hasShrink?'border-red-200 bg-red-50':'border-gray-200')+'">'+
+      '<div class="flex flex-wrap items-start justify-between gap-1">'+
+        '<div><div class="font-semibold text-sm text-gray-800">'+e.storeName+' — '+e.shift+' Shift</div>'+
+        '<div class="text-xs text-gray-400">'+e.date+' · Out: '+e.outClerk+' · In: '+e.inClerk+'</div></div>'+
+        '<div class="flex items-center gap-2">'+
+          (hasShrink?'<span class="badge-r text-xs px-2 py-0.5 rounded-full">'+tot+' FLAG'+(tot>1?'S':'')+'</span><span class="text-xs text-red-600 font-bold">$'+(kD+lD).toFixed(2)+'</span>':'<span class="badge-g text-xs px-2 py-0.5 rounded-full">CLEAN</span>')+
+        '</div>'+
+      '</div>'+
+      (kF.length?'<div class="mt-2 text-xs bg-red-100 rounded px-2 py-1 text-red-700">Kratom: '+kF.join(' · ')+'</div>':'')+
+      (lF.length?'<div class="mt-1 text-xs bg-orange-50 border border-orange-200 rounded px-2 py-1 text-orange-700">Scratch-Offs: '+lF.join(' · ')+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// ANALYTICS
+// ═══════════════════════════════════════════════════
+let kBar=null,kLine=null,lBar=null,lLine=null;
+function showAnSub(t){
+  document.getElementById('an-kratom').classList.toggle('hidden',t!=='kratom');
+  document.getElementById('an-lottery').classList.toggle('hidden',t!=='lottery');
+  document.getElementById('anTabK').classList.toggle('active',t==='kratom');
+  document.getElementById('anTabL').classList.toggle('active',t==='lottery');
+  document.getElementById('anTabK').classList.toggle('text-gray-500',t!=='kratom');
+  document.getElementById('anTabL').classList.toggle('text-gray-500',t!=='lottery');
+  renderAnalytics(t);
+}
+function renderAnalytics(t){if(t==='kratom')renderKA();else renderLA();}
+function renderKA(){
+  let tv=0,td=0,fl=0;const vbp={},dm={};KRATOM.forEach(p=>{vbp[p.id]=0;});
+  shiftLog.forEach(e=>{let f=false;KRATOM.forEach(p=>{const d=e.kratom?.[p.id];if(!d)return;const v=d.variance??0;if(v>0){tv+=v;td+=v*p.price;vbp[p.id]+=v;f=true;dm[e.date]=(dm[e.date]||0)+v;}});if(f)fl++;});
+  document.getElementById('kCards').innerHTML=aCards(tv,td,fl,shiftLog.length);
+  const pd=KRATOM.map(p=>vbp[p.id]);
+  kBar=uChart(kBar,'kChartBar',{type:'bar',data:{labels:KRATOM.map(p=>p.name.substring(0,14)),datasets:[{label:'Variance',data:pd,backgroundColor:pd.map(v=>v>3?'#dc2626':v>1?'#f97316':'#16a34a'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
+  const tD=Object.keys(dm).sort().slice(-14);
+  kLine=uChart(kLine,'kChartLine',{type:'line',data:{labels:tD,datasets:[{label:'Daily Variance',data:tD.map(d=>dm[d]||0),borderColor:'#003087',backgroundColor:'rgba(0,48,135,.1)',fill:true,tension:.3,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
+  document.getElementById('kProdTable').innerHTML=pTable(KRATOM,vbp);
+}
+function renderLA(){
+  let tv=0,td=0,fl=0;const vbp={},dm={};SCRATCHERS.forEach(p=>{vbp[p.id]=0;});
+  shiftLog.forEach(e=>{let f=false;SCRATCHERS.forEach(p=>{const d=e.lottery?.[p.id];if(!d)return;const v=d.variance??0;if(v>0){tv+=v;td+=v*p.price;vbp[p.id]+=v;f=true;dm[e.date]=(dm[e.date]||0)+v;}});if(f)fl++;});
+  document.getElementById('lCards').innerHTML=aCards(tv,td,fl,shiftLog.length);
+  const top=SCRATCHERS.map(p=>({p,v:vbp[p.id]})).sort((a,b)=>b.v-a.v).slice(0,12);const td2=top.map(x=>x.v);
+  lBar=uChart(lBar,'lChartBar',{type:'bar',data:{labels:top.map(x=>x.p.name.substring(0,16)),datasets:[{label:'Variance',data:td2,backgroundColor:td2.map(v=>v>3?'#dc2626':v>1?'#f97316':'#16a34a'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
+  const dD=Object.keys(dm).sort().slice(-14);
+  lLine=uChart(lLine,'lChartLine',{type:'line',data:{labels:dD,datasets:[{label:'Daily Variance',data:dD.map(d=>dm[d]||0),borderColor:'#C8102E',backgroundColor:'rgba(200,16,46,.1)',fill:true,tension:.3,pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:9}}},y:{beginAtZero:true}}}});
+  document.getElementById('lProdTable').innerHTML=pTable(SCRATCHERS,vbp);
+}
+function aCards(tv,td,fl,tot){
+  const c=(v,cl,l)=>'<div class="rounded-lg p-3 border bg-white"><div class="text-xs font-semibold '+cl+' uppercase tracking-wide opacity-70">'+l+'</div><div class="text-2xl font-black '+cl+' mt-1">'+v+'</div></div>';
+  return c(tv,'text-red-600','Total Variance')+c('$'+td.toFixed(0),'text-red-600','Est. $ Loss')+c(fl,'text-orange-500','Flagged Shifts')+c(tot,'text-blue-700','Total Shifts');
+}
+function pTable(products,vbp){
+  const rows=products.map(p=>{const tv=vbp[p.id]||0,td=(tv*p.price).toFixed(2);const lv=tv>=6?'HIGH':tv>=2?'MEDIUM':'LOW';const B={HIGH:'badge-r',MEDIUM:'badge-y',LOW:'badge-g'};
+    return '<tr><td class="py-1.5 pr-4 text-sm font-medium">'+p.name+'</td><td class="py-1.5 px-3 text-center text-sm font-bold '+(tv>0?'text-red-600':'text-green-600')+'">'+tv+'</td><td class="py-1.5 px-3 text-center text-sm text-red-600">$'+td+'</td><td class="py-1.5 text-center"><span class="'+B[lv]+' text-xs px-2 py-0.5 rounded-full">'+lv+'</span></td></tr>';
+  }).join('');
+  return '<table class="w-full text-sm mt-2"><thead><tr class="text-xs text-gray-500 text-left"><th class="pb-2 pr-4">Product/Game</th><th class="pb-2 px-3 text-center">Variance</th><th class="pb-2 px-3 text-center">Est. $ Loss</th><th class="pb-2 text-center">Alert</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// ═══════════════════════════════════════════════════
+// STORES
+// ═══════════════════════════════════════════════════
+function onStoreChange(){
+  const sid=document.getElementById('storeSelect').value;
+  loadOpeningCounts(sid);buildKTable();buildLTable();
+  if(!document.getElementById('tab-review').classList.contains('hidden'))renderReview(revSub);
+}
+function renderStores(){
+  const rF=document.getElementById('storeRegionFilter').value,sF=document.getElementById('storeStatusFilter').value;
+  const sm={};STORES.forEach(s=>{sm[s.id]={entries:[],kVar:0,lVar:0,kDollar:0,lDollar:0,flaggedShifts:0,lastTs:0,lastDate:null};});
+  shiftLog.forEach(e=>{const st=sm[e.store];if(!st)return;st.entries.push(e);if(e.ts>st.lastTs){st.lastTs=e.ts;st.lastDate=e.date;}let f=false;
+    KRATOM.forEach(p=>{const d=e.kratom?.[p.id];if(!d)return;const v=d.variance??0;if(v>0){st.kVar+=v;st.kDollar+=v*p.price;f=true;}});
+    SCRATCHERS.forEach(p=>{const d=e.lottery?.[p.id];if(!d)return;const v=d.variance??0;if(v>0){st.lVar+=v;st.lDollar+=v*p.price;f=true;}});
+    if(f)st.flaggedShifts++;
+  });
+  const data=STORES.map(s=>{const st=sm[s.id];const tD=st.kDollar+st.lDollar,tV=st.kVar+st.lVar;const lv=tV>=10?'ALERT':tV>=3?'WATCH':'CLEAN';return{...s,...st,totalDollar:tD,totalVar:tV,level:lv};})
+    .filter(s=>(!rF||s.region===rF)&&(!sF||s.level===sF));
+  const BR={ALERT:'border-red-400',WATCH:'border-yellow-400',CLEAN:'border-green-300'};
+  const BB={ALERT:'badge-r',WATCH:'badge-y',CLEAN:'badge-g'};
+  const BD={ALERT:'bg-red-500',WATCH:'bg-yellow-500',CLEAN:'bg-green-500'};
+  document.getElementById('storeGrid').innerHTML=data.map(s=>'<div class="border-2 '+BR[s.level]+' rounded-xl p-4 bg-white hover:shadow-md transition">'+
+    '<div class="flex items-start justify-between mb-1">'+
+      '<div><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full '+BD[s.level]+' inline-block"></span><span class="font-bold text-gray-800">'+s.name+'</span></div>'+
+      '<div class="text-xs text-gray-400 ml-4">'+s.city+(s.addr?' · '+s.addr:'')+'</div></div>'+
+      '<span class="'+BB[s.level]+' text-xs px-2 py-0.5 rounded-full font-bold">'+s.level+'</span>'+
+    '</div>'+
+    '<div class="text-xs text-gray-400 mt-0.5 ml-4">'+s.phone+'</div>'+
+    (s.hours?'<div class="text-xs text-gray-400 ml-4">'+s.hours+'</div>':'')+
+    '<div class="text-xs text-gray-400 mt-2 mb-2">Last: '+(s.lastDate||'No data')+' · '+s.entries.length+' shifts</div>'+
+    '<div class="grid grid-cols-4 gap-1 text-center">'+
+      '<div class="bg-gray-50 rounded p-1.5"><div class="text-xs text-gray-400">Flags</div><div class="font-bold '+(s.flaggedShifts>0?'text-orange-500':'text-green-600')+' text-sm">'+s.flaggedShifts+'</div></div>'+
+      '<div class="bg-gray-50 rounded p-1.5"><div class="text-xs text-gray-400">K Loss</div><div class="font-bold '+(s.kDollar>0?'text-red-600':'text-green-600')+' text-sm">$'+s.kDollar.toFixed(0)+'</div></div>'+
+      '<div class="bg-gray-50 rounded p-1.5"><div class="text-xs text-gray-400">Lotto</div><div class="font-bold '+(s.lDollar>0?'text-red-600':'text-green-600')+' text-sm">$'+s.lDollar.toFixed(0)+'</div></div>'+
+      '<div class="bg-gray-50 rounded p-1.5"><div class="text-xs text-gray-400">Total</div><div class="font-bold '+(s.totalDollar>0?'text-red-700':'text-green-600')+' text-sm">$'+s.totalDollar.toFixed(0)+'</div></div>'+
+    '</div>'+
+  '</div>').join('')||'<p class="text-gray-400 italic text-sm col-span-3">No stores match filters.</p>';
+}
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════
+// ITEMS TAB
+// ═══════════════════════════════════════════════════
+let _itemsSub='kratom';
+function showItemsSub(t){
+  _itemsSub=t;
+  document.getElementById('itm-kratom').classList.toggle('hidden',t!=='kratom');
+  document.getElementById('itm-scratchers').classList.toggle('hidden',t!=='scratchers');
+  document.getElementById('itmTabK').classList.toggle('active',t==='kratom');
+  document.getElementById('itmTabS').classList.toggle('active',t==='scratchers');
+  document.getElementById('itmTabK').classList.toggle('text-gray-500',t!=='kratom');
+  document.getElementById('itmTabS').classList.toggle('text-gray-500',t!=='scratchers');
+  renderItemsTables();
+}
+function renderItemsTables(){
+  document.getElementById('kratomCountBadge').textContent='('+KRATOM.length+' items)';
+  const kb=document.getElementById('itemsKratomBody');kb.innerHTML='';
+  KRATOM.forEach(item=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td class="py-2 pr-4 text-gray-800">'+item.name+'</td>'+
+      '<td class="py-2 pr-4 text-gray-600">$'+item.price.toFixed(2)+'</td>'+
+      '<td class="py-2 flex gap-2">'+
+        '<button onclick="showItemForm(\'kratom\',\''+item.id+'\')" class="text-xs px-2 py-1 border rounded text-blue-700 hover:bg-blue-50">Edit</button>'+
+        '<button onclick="deleteItem(\'kratom\',\''+item.id+'\')" class="text-xs px-2 py-1 border rounded text-red-600 hover:bg-red-50">Delete</button>'+
+      '</td>';
+    kb.appendChild(tr);
+  });
+  document.getElementById('scratchCountBadge').textContent='('+SCRATCHERS.length+' games)';
+  const sb2=document.getElementById('itemsScratchersBody');sb2.innerHTML='';
+  SCRATCHERS.forEach(item=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td class="py-2 pr-4 text-gray-800">'+item.name+'</td>'+
+      '<td class="py-2 pr-4 text-gray-600">$'+item.price+'</td>'+
+      '<td class="py-2 flex gap-2">'+
+        '<button onclick="showItemForm(\'scratchers\',\''+item.id+'\')" class="text-xs px-2 py-1 border rounded text-blue-700 hover:bg-blue-50">Edit</button>'+
+        '<button onclick="deleteItem(\'scratchers\',\''+item.id+'\')" class="text-xs px-2 py-1 border rounded text-red-600 hover:bg-red-50">Delete</button>'+
+      '</td>';
+    sb2.appendChild(tr);
+  });
+}
+function showItemForm(cat,id=null){
+  document.getElementById('ifCategory').value=cat;
+  document.getElementById('ifId').value=id||'';
+  document.getElementById('ifError').classList.add('hidden');
+  const list=cat==='kratom'?KRATOM:SCRATCHERS;
+  if(id){
+    const item=list.find(x=>x.id===id);
+    document.getElementById('itemFormTitle').textContent='Edit Item';
+    document.getElementById('ifName').value=item.name;
+    document.getElementById('ifPrice').value=item.price;
+  } else {
+    document.getElementById('itemFormTitle').textContent=cat==='kratom'?'Add Kratom Item':'Add Scratch-Off Game';
+    document.getElementById('ifName').value='';
+    document.getElementById('ifPrice').value='';
+  }
+  document.getElementById('itemForm').classList.remove('hidden');
+  document.getElementById('ifName').focus();
+}
+function hideItemForm(){document.getElementById('itemForm').classList.add('hidden');}
+async function saveItem(){
+  const cat=document.getElementById('ifCategory').value;
+  const id=document.getElementById('ifId').value;
+  const name=document.getElementById('ifName').value.trim();
+  const price=parseFloat(document.getElementById('ifPrice').value);
+  const errEl=document.getElementById('ifError');
+  if(!name){errEl.textContent='Name required.';errEl.classList.remove('hidden');return;}
+  if(isNaN(price)||price<0){errEl.textContent='Enter a valid price.';errEl.classList.remove('hidden');return;}
+  const list=cat==='kratom'?KRATOM:SCRATCHERS;
+  if(id){
+    const item=list.find(x=>x.id===id);item.name=name;item.price=price;
+    const{error}=await sb.from('items').update({name,price,sort_order:list.indexOf(item)}).eq('id',id);
+    if(error){sfe(errEl,'Error saving',error);return;}
+  } else {
+    const newId=(cat==='kratom'?'k':'s')+Date.now();
+    const{error}=await sb.from('items').insert([{id:newId,category:cat,name,price,sort_order:list.length}]);
+    if(error){sfe(errEl,'Error saving',error);return;}
+    list.push({id:newId,name,price});
+  }
+  buildCountTables();renderItemsTables();hideItemForm();
+}
+async function deleteItem(cat,id){
+  if(!confirm('Delete this item?'))return;
+  const{error}=await sb.from('items').delete().eq('id',id);
+  if(error){alert('Error: '+error.message);return;}
+  if(cat==='kratom')KRATOM.splice(KRATOM.findIndex(x=>x.id===id),1);
+  else SCRATCHERS.splice(SCRATCHERS.findIndex(x=>x.id===id),1);
+  buildCountTables();renderItemsTables();
+}
+async function resetItemsToDefaults(){
+  if(!confirm('Reset all items to factory defaults? Custom items will be lost.'))return;
+  KRATOM.length=0;KRATOM_DEFAULTS.forEach(x=>KRATOM.push({...x}));
+  SCRATCHERS.length=0;SCRATCHERS_DEFAULTS.forEach(x=>SCRATCHERS.push({...x}));
+  await sb.from('items').delete().neq('id','');
+  const rows=[...KRATOM.map((it,i)=>({id:it.id,category:'kratom',name:it.name,price:it.price,sort_order:i})),
+    ...SCRATCHERS.map((it,i)=>({id:it.id,category:'scratchers',name:it.name,price:it.price,sort_order:i}))];
+  if(rows.length)await sb.from('items').insert(rows);
+  buildCountTables();renderItemsTables();
+}
+async function loadItems(){
+  const{data,error}=await sb.from('items').select('*').order('sort_order');
+  if(error||!data||!data.length)return;
+  KRATOM.length=0;SCRATCHERS.length=0;
+  data.forEach(r=>{
+    const item={id:r.id,name:r.name,price:parseFloat(r.price)};
+    if(r.category==='kratom')KRATOM.push(item);else SCRATCHERS.push(item);
+  });
+}
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════
+// ADMIN — USERS
+// ═══════════════════════════════════════════════════
+let editUserId=null;
+function showAdSub(t){
+  ['users','districts'].forEach(x=>document.getElementById('ad-'+x).classList.toggle('hidden',x!==t));
+  document.getElementById('adTabU').classList.toggle('active',t==='users');
+  document.getElementById('adTabD').classList.toggle('active',t==='districts');
+  document.getElementById('adTabU').classList.toggle('text-gray-500',t!=='users');
+  document.getElementById('adTabD').classList.toggle('text-gray-500',t!=='districts');
+  if(t==='users')renderUsersTable();
+  if(t==='districts')renderDistrictsGrid();
+}
+function showUserForm(id=null){
+  editUserId=id;
+  document.getElementById('userFormTitle').textContent=id?'Edit User':'Add User';
+  document.getElementById('ufError').classList.add('hidden');
+  if(id){
+    const u=users.find(x=>x.id===id);
+    document.getElementById('ufId').value=u.id;
+    document.getElementById('ufName').value=u.name;
+    document.getElementById('ufUser').value=u.username;
+    document.getElementById('ufPass').value=u.password;
+    document.getElementById('ufRole').value=u.role;
+    document.getElementById('ufDistrict').value=u.districtId||'';
+    document.getElementById('ufStore').value=u.storeId||'';
+  } else {
+    ['ufId','ufName','ufUser','ufPass'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('ufRole').value='employee';
+  }
+  populateUfSelects();ufRoleChange();
+  document.getElementById('userForm').classList.remove('hidden');
+}
+function hideUserForm(){document.getElementById('userForm').classList.add('hidden');}
+function populateUfSelects(){
+  const ds=document.getElementById('ufDistrict');
+  ds.innerHTML='<option value="">— Unassigned —</option>';
+  districts.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.name;ds.appendChild(o);});
+  const ss=document.getElementById('ufStore');
+  ss.innerHTML='<option value="">— Select Store —</option>';
+  STORES.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent='#'+s.num+' '+s.city;ss.appendChild(o);});
+}
+function ufRoleChange(){
+  const role=document.getElementById('ufRole').value;
+  document.getElementById('ufDistrictWrap').classList.toggle('hidden',role!=='dm');
+  document.getElementById('ufStoreWrap').classList.toggle('hidden',role==='dm');
+}
+async function saveUser(){
+  const name=document.getElementById('ufName').value.trim();
+  const uname=document.getElementById('ufUser').value.trim();
+  const pass=document.getElementById('ufPass').value;
+  const role=document.getElementById('ufRole').value;
+  const districtId=document.getElementById('ufDistrict').value||null;
+  const storeId=document.getElementById('ufStore').value||null;
+  const errEl=document.getElementById('ufError');
+  if(!name||!uname||(!pass&&!editUserId)){errEl.textContent='Name, username and password required.';errEl.classList.remove('hidden');return;}
+  if(!editUserId&&users.find(x=>x.username===uname)){errEl.textContent='Username already exists.';errEl.classList.remove('hidden');return;}
+  if(editUserId){
+    const u=users.find(x=>x.id===editUserId);
+    u.name=name;u.username=uname;if(pass)u.password=pass;u.role=role;
+    u.districtId=role==='dm'?districtId:null;u.storeId=role!=='dm'?storeId:null;
+    const{error}=await sb.from('app_users').update(toUR(u)).eq('id',editUserId);
+    if(error){sfe(errEl,'Error saving user',error);return;}
+  } else {
+    const newUser={id:'u'+Date.now(),name,username:uname,password:pass,role,
+      districtId:role==='dm'?districtId:null,storeId:role!=='dm'?storeId:null};
+    const{error}=await sb.from('app_users').insert([toUR(newUser)]);
+    if(error){sfe(errEl,'Error saving user',error);return;}
+    users.push(newUser);
+  }
+  hideUserForm();renderUsersTable();
+}
+async function deleteUser(id){
+  if(!confirm('Delete this user?'))return;
+  const{error}=await sb.from('app_users').delete().eq('id',id);
+  if(error){alert('Error: '+error.message);return;}
+  users=users.filter(x=>x.id!==id);renderUsersTable();
+}
+function renderUsersTable(){
+  const tbody=document.getElementById('usersBody');
+  if(!users.length){tbody.innerHTML='<tr><td colspan="5" class="py-4 text-gray-400 italic text-sm">No users yet.</td></tr>';return;}
+  const RBADGE={dm:'badge-y',store_leader:'badge-g',employee:'badge-b'};
+  const RLABEL={dm:'District Manager',store_leader:'Store Leader',employee:'Employee'};
+  tbody.innerHTML=users.map(u=>{
+    const store=STORES.find(s=>s.id===u.storeId);
+    const dist=districts.find(d=>d.id===u.districtId);
+    const loc=u.role==='dm'?(dist?dist.name:'Unassigned'):(store?'#'+store.num+' '+store.city:'Unassigned');
+    return '<tr>'+
+      '<td class="py-2 pr-4 font-medium text-sm">'+u.name+'</td>'+
+      '<td class="py-2 pr-4 text-sm font-mono text-gray-600">'+u.username+'</td>'+
+      '<td class="py-2 pr-4"><span class="'+(RBADGE[u.role]||'badge-b')+' text-xs px-2 py-0.5 rounded-full">'+(RLABEL[u.role]||u.role)+'</span></td>'+
+      '<td class="py-2 pr-4 text-sm text-gray-600">'+loc+'</td>'+
+      '<td class="py-2 flex gap-2">'+
+        '<button onclick="showUserForm(\''+u.id+'\')" class="text-xs text-blue-600 hover:underline">Edit</button>'+
+        '<button onclick="deleteUser(\''+u.id+'\')" class="text-xs text-red-500 hover:underline">Delete</button>'+
+      '</td></tr>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN — DISTRICTS
+// ═══════════════════════════════════════════════════
+let editDistrictId=null;
+function showDistrictForm(id=null){
+  editDistrictId=id;
+  document.getElementById('districtFormTitle').textContent=id?'Edit District':'Add District';
+  document.getElementById('dfError').classList.add('hidden');
+  const dmSel=document.getElementById('dfDm');
+  dmSel.innerHTML='<option value="">— Unassigned —</option>';
+  users.filter(u=>u.role==='dm').forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name;dmSel.appendChild(o);});
+  const storesDiv=document.getElementById('dfStores');
+  storesDiv.innerHTML=STORES.map(s=>'<label class="flex items-center gap-1.5 text-xs cursor-pointer py-0.5"><input type="checkbox" class="dfStoreChk" value="'+s.id+'"><span>#'+s.num+' '+s.city+'</span></label>').join('');
+  if(id){
+    const d=districts.find(x=>x.id===id);
+    document.getElementById('dfId').value=d.id;
+    document.getElementById('dfName').value=d.name;
+    dmSel.value=d.dmId||'';
+    document.querySelectorAll('.dfStoreChk').forEach(cb=>{cb.checked=d.storeIds.includes(cb.value);});
+  } else {
+    document.getElementById('dfId').value='';
+    document.getElementById('dfName').value='';
+  }
+  document.getElementById('districtForm').classList.remove('hidden');
+}
+function hideDistrictForm(){document.getElementById('districtForm').classList.add('hidden');}
+async function saveDistrict(){
+  const name=document.getElementById('dfName').value.trim();
+  const dmId=document.getElementById('dfDm').value||null;
+  const storeIds=[...document.querySelectorAll('.dfStoreChk:checked')].map(x=>x.value);
+  const errEl=document.getElementById('dfError');
+  if(!name){errEl.textContent='District name required.';errEl.classList.remove('hidden');return;}
+  if(editDistrictId){
+    const d=districts.find(x=>x.id===editDistrictId);
+    d.name=name;d.dmId=dmId;d.storeIds=storeIds;
+    if(dmId){const u=users.find(x=>x.id===dmId);if(u){u.districtId=editDistrictId;await sb.from('app_users').update({district_id:editDistrictId}).eq('id',dmId);}}
+    const{error}=await sb.from('districts').update(toDR(d)).eq('id',editDistrictId);
+    if(error){sfe(errEl,'Error saving',error);return;}
+  } else {
+    const did='d'+Date.now();
+    const newDist={id:did,name,dmId,storeIds};
+    districts.push(newDist);
+    if(dmId){const u=users.find(x=>x.id===dmId);if(u){u.districtId=did;await sb.from('app_users').update({district_id:did}).eq('id',dmId);}}
+    const{error}=await sb.from('districts').insert([toDR(newDist)]);
+    if(error){sfe(errEl,'Error saving',error);return;}
+  }
+  hideDistrictForm();renderDistrictsGrid();
+}
+async function deleteDistrict(id){
+  if(!confirm('Delete this district?'))return;
+  const{error}=await sb.from('districts').delete().eq('id',id);
+  if(error){alert('Error.');return;}
+  districts=districts.filter(x=>x.id!==id);
+  const aff=users.filter(u=>u.districtId===id);aff.forEach(u=>u.districtId=null);
+  if(aff.length)await sb.from('app_users').update({district_id:null}).in('id',aff.map(u=>u.id));
+  renderDistrictsGrid();
+}
+function renderDistrictsGrid(){
+  const el=document.getElementById('districtsGrid');
+  if(!districts.length){el.innerHTML='<div class="col-span-2 text-gray-400 italic text-sm py-4">No districts yet.</div>';return;}
+  el.innerHTML=districts.map(d=>{
+    const dm=users.find(u=>u.id===d.dmId);
+    const sNames=d.storeIds.slice(0,4).map(id=>{const s=STORES.find(x=>x.id===id);return s?'#'+s.num+' '+s.city:'';}).filter(Boolean);
+    const more=d.storeIds.length-4;
+    return '<div class="border rounded-xl p-4 bg-white hover:shadow-md transition">'+
+      '<div class="flex items-start justify-between mb-1">'+
+        '<div class="font-bold text-gray-800">'+d.name+'</div>'+
+        '<div class="flex gap-2">'+
+          '<button onclick="showDistrictForm(\''+d.id+'\')" class="text-xs text-blue-600 hover:underline">Edit</button>'+
+          '<button onclick="deleteDistrict(\''+d.id+'\')" class="text-xs text-red-500 hover:underline">Delete</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="text-xs text-gray-500 mb-2">DM: <span class="font-medium">'+(dm?dm.name:'Unassigned')+'</span></div>'+
+      '<div class="text-xs text-gray-400">'+sNames.join(' · ')+(more>0?' · +'+more+' more':'')+'</div>'+
+    '</div>';
+  }).join('');
+}
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════
+const ADMIN_CRED={username:'admin',password:'Keith2024!',name:'Administrator',role:'admin'};
+
+async function loadAuth(){
+  const[{data:ud,error:ue},{data:dd,error:de}]=await Promise.all([
+    sb.from('app_users').select('*'),sb.from('districts').select('*')
+  ]);
+  if(ue)console.error('loadAuth users',ue);
+  if(de)console.error('loadAuth districts',de);
+  users=(ud||[]).map(frUR);
+  districts=(dd||[]).map(frDR);
+}
+function saveSession(){if(session)sessionStorage.setItem('ss_sess',JSON.stringify(session));else sessionStorage.removeItem('ss_sess');}
+function loadSession(){const d=sessionStorage.getItem('ss_sess');if(d)try{session=JSON.parse(d);}catch(e){}}
+
+function doLogin(e){
+  e.preventDefault();
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const errEl=document.getElementById('loginError');
+  errEl.classList.add('hidden');
+  if(u===ADMIN_CRED.username&&p===ADMIN_CRED.password){
+    session={userId:'__admin__',username:'admin',name:'Administrator',role:'admin',districtId:null,storeId:null};
+    saveSession();onLoginSuccess();return;
+  }
+  const user=users.find(x=>x.username===u&&x.password===p);
+  if(user){
+    session={userId:user.id,username:user.username,name:user.name,role:user.role,districtId:user.districtId||null,storeId:user.storeId||null};
+    saveSession();onLoginSuccess();return;
+  }
+  errEl.textContent='Invalid username or password.';errEl.classList.remove('hidden');
+}
+function doLogout(){
+  session=null;saveSession();
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+
+function canAccess(tab){
+  if(!session)return false;
+  const r=session.role;
+  if(tab==='count')return true;
+  if(tab==='review')return['store_leader','dm','admin'].includes(r);
+  if(tab==='log')return['store_leader','dm','admin'].includes(r);
+  if(tab==='analytics')return['dm','admin'].includes(r);
+  if(tab==='stores')return['dm','admin'].includes(r);
+  if(tab==='items')return['store_leader','dm','admin'].includes(r);
+  if(tab==='admin')return r==='admin';
+  return false;
+}
+function visibleStoreIds(){
+  if(!session)return[];
+  if(session.role==='admin')return STORES.map(s=>s.id);
+  if(session.role==='dm'){const d=districts.find(x=>x.id===session.districtId);return d?d.storeIds:[];}
+  return session.storeId?[session.storeId]:[];
+}
+function applyRoleUI(){
+  if(!session)return;
+  const tabs=['count','review','log','analytics','stores'];
+  document.querySelectorAll('.tab-btn').forEach((btn,i)=>{
+    if(tabs[i])btn.classList.toggle('hidden',!canAccess(tabs[i]));
+  });
+  document.getElementById('itemsTabBtn').classList.toggle('hidden',!canAccess('items'));
+  document.getElementById('adminTabBtn').classList.toggle('hidden',!canAccess('admin'));
+
+  const chip=document.getElementById('userChip');chip.classList.remove('hidden');
+  const colors={admin:'bg-red-500',dm:'bg-yellow-500',store_leader:'bg-green-600',employee:'bg-blue-500'};
+  const labels={admin:'Admin',dm:'DM',store_leader:'Store Leader',employee:'Employee'};
+  chip.innerHTML='<span class="text-white text-xs font-semibold">'+session.name+'</span>'+
+    '<span class="'+(colors[session.role]||'bg-gray-500')+' text-white text-xs px-1.5 py-0.5 rounded-full">'+(labels[session.role]||session.role)+'</span>'+
+    '<button onclick="doLogout()" class="text-white opacity-60 hover:opacity-100 text-xs ml-1 font-bold">✕</button>';
+
+  const visible=visibleStoreIds();
+  const visStores=STORES.filter(s=>visible.includes(s.id));
+  const sel=document.getElementById('storeSelect');
+  sel.innerHTML='';
+  const regions=[...new Set(visStores.map(s=>s.region))];
+  regions.forEach(r=>{
+    const og=document.createElement('optgroup');og.label='── '+r+' ──';
+    visStores.filter(s=>s.region===r).forEach(s=>{
+      const o=document.createElement('option');o.value=s.id;o.textContent='#'+s.num+' — '+s.addr;og.appendChild(o);
     });
-    const res = await sbInsert(session.token, "shrink_counts", rows);
-    setSaving(false);
-    if (Array.isArray(res) || !res?.message) {
-      setSaved(true); setTimeout(()=>setSaved(false), 3000);
-      setCounts(blankCounts()); setEmployee("");
-      // Reload prev
-      const data = await sbQuery(session.token, "shrink_counts",
-        `?store=eq.${encodeURIComponent(store)}&order=created_at.desc&limit=100`);
-      if (Array.isArray(data)) {
-        const p = {};
-        for (const prod of PRODUCTS) {
-          const last = data.find(r => r.product_id === prod.id);
-          if (last) p[prod.id] = { office_btl:last.close_office_btl, office_cs:last.close_office_cs, floor_btl:last.close_floor_btl, floor_cs:last.close_floor_cs };
-        }
-        setPrev(p);
-      }
-    } else {
-      setError("Save failed: " + (res.message || "Unknown error"));
-    }
-  };
+    sel.appendChild(og);
+  });
+  sel.disabled=(session.role==='employee');
 
-  return (
-    <div>
-      {/* PIN Modal */}
-      {showPin && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-title">Manager Approval</div>
-            <div className="modal-sub">Enter 4-digit PIN to submit count</div>
-            {pinErr && <div className="error-msg">{pinErr}</div>}
-            <div className="pin-dots">
-              {[0,1,2,3].map(i => <div key={i} className={`pin-dot ${i<pin.length?"filled":""}`} />)}
-            </div>
-            <div className="pin-pad">
-              {[1,2,3,4,5,6,7,8,9,"",0,"⌫"].map((d,i) => (
-                <button key={i} className="pin-btn"
-                  style={d===""?{visibility:"hidden"}:{}}
-                  onClick={() => {
-                    if (d==="⌫") setPin(p=>p.slice(0,-1));
-                    else if (d!=="") handlePinDigit(String(d));
-                  }}>
-                  {d}
-                </button>
-              ))}
-            </div>
-            <div style={{marginTop:16}}>
-              <button className="btn btn-ghost btn-full" onClick={()=>setShowPin(false)}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="page-header">
-        <div>
-          <div className="page-title">New Count Entry</div>
-          <div className="page-sub">Previous closing count auto-loads as opening</div>
-        </div>
-      </div>
-
-      {error && <div className="error-msg">{error}</div>}
-      {saved && <div className="success-msg">✓ Count saved successfully!</div>}
-
-      {/* Shift meta */}
-      <div className="card">
-        <div className="card-body">
-          <div className="shift-meta">
-            <div className="form-group" style={{margin:0}}>
-              <label className="form-label">Store</label>
-              <select className="form-input form-select" value={store} onChange={e=>setStore(e.target.value)}>
-                {STORES.map(s=><option key={s}>{s}</option>)}
-              </select>
-            </div>
-            <div className="form-group" style={{margin:0}}>
-              <label className="form-label">Date</label>
-              <input className="form-input" type="date" value={date} onChange={e=>setDate(e.target.value)} />
-            </div>
-            <div className="form-group" style={{margin:0}}>
-              <label className="form-label">Shift</label>
-              <select className="form-input form-select" value={shift} onChange={e=>setShift(e.target.value)}>
-                {SHIFTS.map(s=><option key={s}>{s}</option>)}
-              </select>
-            </div>
-            <div className="form-group" style={{margin:0}}>
-              <label className="form-label">Employee</label>
-              <input className="form-input" type="text" value={employee} placeholder="Full name"
-                onChange={e=>setEmployee(e.target.value)} />
-            </div>
-          </div>
-          {totalLoss > 0 && (
-            <div className="alert-banner">
-              <span style={{fontSize:20}}>⚠️</span>
-              <span>Total shrink this entry: <strong>{totalLoss} bottles</strong> across all products</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Product cards */}
-      {PRODUCTS.map(prod => {
-        const p = prev[prod.id] || {};
-        const v = calcVar(prod.id);
-        const hasCounts = counts[prod.id].office_btl !== "" || counts[prod.id].floor_btl !== "";
-        return (
-          <div key={prod.id} className="product-card">
-            <div className="product-card-header">
-              <span className="product-card-name">{prod.name}</span>
-              {hasCounts && (
-                <span className={`product-card-variance ${v.variance>0?"neg":v.variance<0?"pos":""}`}>
-                  {v.variance===0 ? "✓ No Variance" : v.variance>0 ? `−${v.variance} btl` : `+${Math.abs(v.variance)} btl`}
-                </span>
-              )}
-            </div>
-            <div className="product-card-body">
-              <div className="count-sections">
-                {/* Office */}
-                <div>
-                  <div className="count-section-title">📦 Office / Backroom</div>
-                  <div className="count-row">
-                    <div className="count-input-wrap"><label>Opening Btl</label><div className="opening-display">{p.office_btl ?? "—"}</div></div>
-                    <div className="count-input-wrap"><label>Closing Btl</label>
-                      <input className="count-input" type="number" min="0" value={counts[prod.id].office_btl} placeholder="0"
-                        onChange={e=>upd(prod.id,"office_btl",e.target.value)} />
-                    </div>
-                  </div>
-                  <div className="count-row">
-                    <div className="count-input-wrap"><label>Opening Cs</label><div className="opening-display">{p.office_cs ?? "—"}</div></div>
-                    <div className="count-input-wrap"><label>Closing Cs</label>
-                      <input className="count-input" type="number" min="0" value={counts[prod.id].office_cs} placeholder="0"
-                        onChange={e=>upd(prod.id,"office_cs",e.target.value)} />
-                    </div>
-                  </div>
-                </div>
-                {/* Floor */}
-                <div>
-                  <div className="count-section-title">🏪 Sales Floor</div>
-                  <div className="count-row">
-                    <div className="count-input-wrap"><label>Opening Btl</label><div className="opening-display">{p.floor_btl ?? "—"}</div></div>
-                    <div className="count-input-wrap"><label>Closing Btl</label>
-                      <input className="count-input" type="number" min="0" value={counts[prod.id].floor_btl} placeholder="0"
-                        onChange={e=>upd(prod.id,"floor_btl",e.target.value)} />
-                    </div>
-                  </div>
-                  <div className="count-row">
-                    <div className="count-input-wrap"><label>Opening Cs</label><div className="opening-display">{p.floor_cs ?? "—"}</div></div>
-                    <div className="count-input-wrap"><label>Closing Cs</label>
-                      <input className="count-input" type="number" min="0" value={counts[prod.id].floor_cs} placeholder="0"
-                        onChange={e=>upd(prod.id,"floor_cs",e.target.value)} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* Sales + Variance */}
-              <div style={{marginTop:14,display:"flex",alignItems:"flex-start",gap:14,flexWrap:"wrap"}}>
-                <div style={{minWidth:160}}>
-                  <div className="count-section-title">Register Sales</div>
-                  <input className="count-input" type="number" min="0" value={counts[prod.id].sales} placeholder="Units sold"
-                    onChange={e=>upd(prod.id,"sales",e.target.value)} />
-                </div>
-                {hasCounts && (
-                  <div className="variance-summary" style={{flex:1,minWidth:200}}>
-                    <div className="variance-item">Open: <b>{v.openTotal}</b></div>
-                    <div className="variance-item">Sales: <b>{v.sales}</b></div>
-                    <div className="variance-item">Expected: <b>{v.expected}</b></div>
-                    <div className={`variance-item ${v.variance>0?"loss":v.variance<0?"gain":""}`}>
-                      Variance: <b>{v.variance>0?`−${v.variance}`:v.variance<0?`+${Math.abs(v.variance)}`:"0"}</b>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-
-      <div className="submit-row">
-        <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}
-          style={{padding:"14px 32px",fontSize:17}}>
-          {saving ? "Saving…" : "Submit Count — Requires PIN"}
-        </button>
-      </div>
-    </div>
-  );
+  const logSel=document.getElementById('logStore');
+  logSel.innerHTML='<option value="">All Stores</option>';
+  visStores.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent='#'+s.num+' '+s.city;logSel.appendChild(o);});
+}
+function onLoginSuccess(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  applyRoleUI();
+  document.getElementById('shiftDate').value=new Date().toISOString().split('T')[0];
+  if(session.storeId){
+    const sel=document.getElementById('storeSelect');
+    if([...sel.options].some(o=>o.value===session.storeId))sel.value=session.storeId;
+  }
+  const sid=document.getElementById('storeSelect').value;
+  loadOpeningCounts(sid);
+  buildCountTables();
+  showTab('count');
+  tick();
 }
 
-// ── Log Tab ──────────────────────────────────────────────────────
-function LogTab({ session, store, setStore }) {
-  const [logs,    setLogs]    = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [shiftF,  setShiftF]  = useState("All");
-  const [prodF,   setProdF]   = useState("All");
-  const [dateF,   setDateF]   = useState("");
+// ═══════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════
+function showCountSub(t){
+  document.getElementById('sub-kratom').classList.toggle('hidden',t!=='kratom');
+  document.getElementById('sub-lottery').classList.toggle('hidden',t!=='lottery');
+  document.getElementById('countTabKratom').classList.toggle('active',t==='kratom');
+  document.getElementById('countTabLottery').classList.toggle('active',t==='lottery');
+  document.getElementById('countTabKratom').classList.toggle('text-gray-500',t!=='kratom');
+  document.getElementById('countTabLottery').classList.toggle('text-gray-500',t!=='lottery');
+}
+function showTab(name){
+  if(!canAccess(name))return;
+  ['count','review','log','analytics','stores','items','admin'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);if(el)el.classList.toggle('hidden',t!==name);
+  });
+  document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.remove('active'));
+  const order=['count','review','log','analytics','stores'];
+  order.forEach((t,i)=>{const btn=document.querySelectorAll('.tab-btn')[i];if(btn)btn.classList.toggle('active',t===name);});
+  document.getElementById('itemsTabBtn').classList.toggle('active',name==='items');
+  document.getElementById('adminTabBtn').classList.toggle('active',name==='admin');
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const data = await sbQuery(session.token, "shrink_counts",
-        `?store=eq.${encodeURIComponent(store)}&order=created_at.desc&limit=300`);
-      setLogs(Array.isArray(data) ? data : []);
-      setLoading(false);
-    })();
-  }, [store]);
-
-  const filtered = logs.filter(r =>
-    (shiftF==="All" || r.shift===shiftF) &&
-    (prodF==="All"  || r.product_id===prodF) &&
-    (!dateF || r.date===dateF)
-  );
-
-  return (
-    <div>
-      <div className="page-header">
-        <div>
-          <div className="page-title">Count Log</div>
-          <div className="page-sub">{filtered.length} entries · {store}</div>
-        </div>
-        <select className="form-input form-select" style={{width:160}} value={store} onChange={e=>setStore(e.target.value)}>
-          {STORES.map(s=><option key={s}>{s}</option>)}
-        </select>
-      </div>
-      <div className="card">
-        <div className="card-body">
-          <div className="log-filters">
-            <select className="form-input form-select" style={{width:140}} value={shiftF} onChange={e=>setShiftF(e.target.value)}>
-              <option value="All">All Shifts</option>
-              {SHIFTS.map(s=><option key={s}>{s}</option>)}
-            </select>
-            <select className="form-input form-select" style={{width:220}} value={prodF} onChange={e=>setProdF(e.target.value)}>
-              <option value="All">All Products</option>
-              {PRODUCTS.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-            <input className="form-input" type="date" value={dateF} onChange={e=>setDateF(e.target.value)} style={{width:160}} />
-            {(shiftF!=="All"||prodF!=="All"||dateF) && (
-              <button className="btn btn-ghost btn-sm" onClick={()=>{setShiftF("All");setProdF("All");setDateF("");}}>Clear</button>
-            )}
-          </div>
-          {loading ? <div className="loading">Loading…</div> : filtered.length===0 ? (
-            <div className="empty-state"><div className="empty-icon">📋</div><p>No records found</p></div>
-          ) : (
-            <div className="table-wrap">
-              <table>
-                <thead><tr>
-                  <th>Date</th><th>Shift</th><th>Product</th><th>Employee</th>
-                  <th>Open</th><th>Sales</th><th>Expected</th><th>Actual</th><th>Variance</th>
-                </tr></thead>
-                <tbody>
-                  {filtered.map((r,i) => (
-                    <tr key={i}>
-                      <td>{fmtDate(r.date)}</td>
-                      <td><span className="badge badge-shift">{r.shift}</span></td>
-                      <td style={{fontWeight:500}}>{PRODUCTS.find(p=>p.id===r.product_id)?.name || r.product_id}</td>
-                      <td>{r.employee}</td>
-                      <td>{r.open_total}</td>
-                      <td>{r.sales}</td>
-                      <td>{r.expected}</td>
-                      <td>{r.close_total}</td>
-                      <td>
-                        {r.variance===0
-                          ? <span className="badge badge-ok">✓ 0</span>
-                          : r.variance>0
-                            ? <span className="badge badge-loss">−{r.variance}</span>
-                            : <span className="badge badge-ok">+{Math.abs(r.variance)}</span>}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  if(name==='review')renderReview(revSub);
+  if(name==='log'||name==='analytics'||name==='stores'){
+    loadState().then(()=>{
+      if(name==='log')renderLog();
+      if(name==='analytics')renderAnalytics('kratom');
+      if(name==='stores')renderStores();
+    });
+  }
+  if(name==='items')showItemsSub(_itemsSub);
+  if(name==='admin')showAdSub('users');
 }
 
-// ── Analytics Tab ────────────────────────────────────────────────
-function AnalyticsTab({ session, store, setStore }) {
-  const [logs,    setLogs]    = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const data = await sbQuery(session.token, "shrink_counts",
-        `?store=eq.${encodeURIComponent(store)}&order=created_at.desc&limit=1000`);
-      setLogs(Array.isArray(data) ? data : []);
-      setLoading(false);
-    })();
-  }, [store]);
-
-  const totalLoss   = logs.reduce((s,r) => r.variance>0 ? s+r.variance : s, 0);
-  const days        = new Set(logs.map(r=>r.date)).size;
-  const avgDaily    = days > 0 ? (totalLoss/days).toFixed(1) : 0;
-  const estDollar   = (totalLoss * 12).toFixed(2);
-
-  const byProduct = PRODUCTS.map(p => ({
-    ...p,
-    loss: logs.filter(r=>r.product_id===p.id&&r.variance>0).reduce((s,r)=>s+r.variance,0)
-  })).sort((a,b)=>b.loss-a.loss);
-  const maxProd = Math.max(...byProduct.map(p=>p.loss), 1);
-
-  const byShift = SHIFTS.map(s => ({
-    shift:s,
-    loss: logs.filter(r=>r.shift===s&&r.variance>0).reduce((s2,r)=>s2+r.variance,0)
-  }));
-  const maxShift = Math.max(...byShift.map(s=>s.loss), 1);
-
-  return (
-    <div>
-      <div className="page-header">
-        <div>
-          <div className="page-title">Analytics</div>
-          <div className="page-sub">Shrink trends · {store}</div>
-        </div>
-        <select className="form-input form-select" style={{width:160}} value={store} onChange={e=>setStore(e.target.value)}>
-          {STORES.map(s=><option key={s}>{s}</option>)}
-        </select>
-      </div>
-
-      {loading ? <div className="loading">Loading analytics…</div> : (<>
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-label">Total Bottles Lost</div>
-            <div className={`stat-value ${totalLoss>0?"red":""}`}>{totalLoss}</div>
-            <div className="stat-sub">All time</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">Est. Dollar Loss</div>
-            <div className="stat-value red">${estDollar}</div>
-            <div className="stat-sub">@ $12/bottle avg</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">Avg Daily Loss</div>
-            <div className="stat-value gold">{avgDaily}</div>
-            <div className="stat-sub">Bottles/day</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">Days Tracked</div>
-            <div className="stat-value">{days}</div>
-            <div className="stat-sub">With count records</div>
-          </div>
-        </div>
-
-        <div className="charts-grid">
-          <div className="card">
-            <div className="card-header"><div className="card-title">Loss by Product</div></div>
-            <div className="card-body">
-              <div className="bar-chart">
-                {byProduct.map(p=>(
-                  <div key={p.id} className="bar-row">
-                    <div style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:"var(--gray-600)"}}>{p.name}</div>
-                    <div className="bar-track"><div className="bar-fill red" style={{width:`${(p.loss/maxProd)*100}%`}} /></div>
-                    <div className="bar-val">{p.loss}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="card">
-            <div className="card-header"><div className="card-title">Loss by Shift</div></div>
-            <div className="card-body">
-              <div className="bar-chart">
-                {byShift.map(s=>(
-                  <div key={s.shift} className="bar-row">
-                    <div style={{color:"var(--gray-600)"}}>{s.shift}</div>
-                    <div className="bar-track"><div className="bar-fill" style={{width:`${(s.loss/maxShift)*100}%`}} /></div>
-                    <div className="bar-val">{s.loss}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </>)}
-    </div>
-  );
+// ═══════════════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════════════
+function tick(){
+  const el=document.getElementById('hdrClock');if(!el)return;
+  const n=new Date();
+  el.textContent=n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' · '+n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
 }
 
-// ── Multi-Store Tab ──────────────────────────────────────────────
-function MultiStoreTab({ session }) {
-  const [data,    setData]    = useState({});
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const all = await sbQuery(session.token, "shrink_counts", `?order=created_at.desc&limit=2000`);
-      if (!Array.isArray(all)) { setLoading(false); return; }
-      const grouped = {};
-      for (const s of STORES) {
-        const rows = all.filter(r=>r.store===s);
-        const loss = rows.reduce((t,r)=>r.variance>0?t+r.variance:t, 0);
-        const days = new Set(rows.map(r=>r.date)).size;
-        grouped[s] = { loss, entries:rows.length, days, avg: days>0?(loss/days).toFixed(1):0 };
-      }
-      setData(grouped);
-      setLoading(false);
-    })();
-  }, []);
-
-  const sorted = STORES.map(s=>({store:s,...(data[s]||{})})).sort((a,b)=>(b.loss||0)-(a.loss||0));
-
-  return (
-    <div>
-      <div className="page-header">
-        <div>
-          <div className="page-title">Multi-Store Overview</div>
-          <div className="page-sub">Compare shrink across all locations</div>
-        </div>
-      </div>
-      {loading ? <div className="loading">Loading store data…</div> : (
-        <div className="store-grid">
-          {sorted.map(s=>(
-            <div key={s.store} className="store-card">
-              <div className="store-card-name">{s.store}</div>
-              <div className="store-stat"><span>Total Bottles Lost</span><span className={`store-stat-val ${s.loss>0?"red":""}`}>{s.loss||0}</span></div>
-              <div className="store-stat"><span>Avg Daily Loss</span><span className="store-stat-val">{s.avg||"0"}</span></div>
-              <div className="store-stat"><span>Est. $ Loss</span><span className="store-stat-val red">${((s.loss||0)*12).toFixed(0)}</span></div>
-              <div className="store-stat"><span>Count Entries</span><span className="store-stat-val">{s.entries||0}</span></div>
-              <div className="store-stat"><span>Days Tracked</span><span className="store-stat-val">{s.days||0}</span></div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+async function init(){
+  loadSession();
+  const loginBtn=document.querySelector('#loginScreen button[type=submit]');
+  const loginErr=document.getElementById('loginError');
+  if(loginBtn){loginBtn.disabled=true;loginBtn.textContent='Connecting…';}
+  try{await Promise.all([loadAuth(),loadState(),loadItems()]);}
+  catch(e){
+    console.error('Init failed:',e);
+    if(loginErr){loginErr.textContent='Could not connect to database. Check network.';loginErr.classList.remove('hidden');}
+    if(loginBtn){loginBtn.disabled=false;loginBtn.textContent='Sign In';}
+    return;
+  }
+  if(loginBtn){loginBtn.disabled=false;loginBtn.textContent='Sign In';}
+  if(session)onLoginSuccess();
 }
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+tick();
+setInterval(tick,30000);
+init();
 </script>
 
 </body>
