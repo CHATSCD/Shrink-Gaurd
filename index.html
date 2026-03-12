@@ -1,608 +1,833 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shrink Shield — Keith's Superstores</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #003087; --blue-dark: #001f5c; --blue-light: #1a4ba0;
+      --gold: #FFB81C; --gold-dark: #cc8f00;
+      --gray-50: #f8f9fb; --gray-100: #eef0f5; --gray-200: #d8dce8;
+      --gray-400: #8891a8; --gray-600: #4a5270; --gray-800: #1e2340;
+      --red: #e53e3e; --green: #22863a;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 16px rgba(0,48,135,0.12);
+      --shadow-lg: 0 8px 32px rgba(0,48,135,0.18);
+      --radius: 10px; --radius-lg: 16px;
+    }
+    html, body, #root { height: 100%; font-family: 'Barlow', sans-serif; background: var(--gray-50); color: var(--gray-800); }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+```
+/* Auth */
+.auth-screen { min-height:100vh; background:var(--blue-dark); display:flex; align-items:center; justify-content:center; background-image: repeating-linear-gradient(45deg,rgba(255,184,28,.03) 0,rgba(255,184,28,.03) 1px,transparent 1px,transparent 60px), repeating-linear-gradient(-45deg,rgba(255,184,28,.03) 0,rgba(255,184,28,.03) 1px,transparent 1px,transparent 60px); }
+.auth-card { background:white; border-radius:var(--radius-lg); padding:48px 40px; width:100%; max-width:420px; box-shadow:var(--shadow-lg); }
+.auth-logo { display:flex; align-items:center; gap:12px; margin-bottom:32px; justify-content:center; }
+.auth-shield { width:52px; height:52px; background:var(--blue); clip-path:polygon(50% 0%,100% 20%,100% 70%,50% 100%,0% 70%,0% 20%); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.auth-shield span { color:var(--gold); font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; }
+.auth-logo-text h1 { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:28px; color:var(--blue); line-height:1; }
+.auth-logo-text p { font-size:12px; color:var(--gray-400); letter-spacing:.05em; text-transform:uppercase; }
+.auth-title { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:22px; color:var(--gray-800); margin-bottom:24px; text-align:center; }
 
-<title>Store Inventory Count System</title>
+/* Forms */
+.form-group { margin-bottom:16px; }
+.form-label { display:block; font-size:13px; font-weight:600; color:var(--gray-600); margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
+.form-input { width:100%; padding:12px 14px; border:2px solid var(--gray-200); border-radius:var(--radius); font-size:15px; font-family:'Barlow',sans-serif; transition:border-color .2s; outline:none; color:var(--gray-800); background:white; }
+.form-input:focus { border-color:var(--blue); }
+.form-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a5270' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; background-color:white; padding-right:40px; }
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+/* Buttons */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 20px; border-radius:var(--radius); font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; letter-spacing:.03em; cursor:pointer; border:none; transition:all .2s; text-transform:uppercase; }
+.btn-primary { background:var(--blue); color:white; }
+.btn-primary:hover { background:var(--blue-light); }
+.btn-ghost { background:transparent; color:var(--gray-600); border:2px solid var(--gray-200); }
+.btn-ghost:hover { border-color:var(--blue); color:var(--blue); }
+.btn-full { width:100%; }
+.btn-sm { padding:8px 14px; font-size:13px; }
+.btn:disabled { opacity:.5; cursor:not-allowed; }
 
-<style>
+/* Messages */
+.error-msg { background:#fff5f5; border:1px solid #fed7d7; color:var(--red); padding:12px; border-radius:var(--radius); font-size:14px; margin-bottom:16px; }
+.success-msg { background:#f0fff4; border:1px solid #9ae6b4; color:var(--green); padding:12px; border-radius:var(--radius); font-size:14px; margin-bottom:16px; }
 
-body{
-font-family:Arial;
-background:#f2f4f7;
-margin:0;
-padding:20px;
+/* App shell */
+.app { display:flex; flex-direction:column; min-height:100vh; }
+.topbar { background:var(--blue-dark); color:white; padding:0 20px; display:flex; align-items:center; justify-content:space-between; height:60px; position:sticky; top:0; z-index:100; box-shadow:var(--shadow-md); }
+.topbar-logo { display:flex; align-items:center; gap:10px; }
+.topbar-shield { width:34px; height:34px; background:var(--gold); clip-path:polygon(50% 0%,100% 20%,100% 70%,50% 100%,0% 70%,0% 20%); display:flex; align-items:center; justify-content:center; }
+.topbar-shield span { color:var(--blue-dark); font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:14px; }
+.topbar-name { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:22px; letter-spacing:.02em; }
+.topbar-name span { color:var(--gold); }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.topbar-user { font-size:13px; color:rgba(255,255,255,.7); }
+.nav-tabs { background:white; border-bottom:2px solid var(--gray-100); display:flex; padding:0 20px; overflow-x:auto; }
+.nav-tab { padding:14px 18px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:15px; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; border:none; background:none; color:var(--gray-400); border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:all .2s; }
+.nav-tab:hover { color:var(--blue); }
+.nav-tab.active { color:var(--blue); border-bottom-color:var(--blue); }
+.main { flex:1; padding:24px 20px; max-width:1100px; margin:0 auto; width:100%; }
+
+/* Cards */
+.card { background:white; border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); border:1px solid var(--gray-100); margin-bottom:20px; }
+.card-header { padding:20px 24px 16px; border-bottom:1px solid var(--gray-100); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.card-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; color:var(--blue-dark); }
+.card-body { padding:24px; }
+
+/* Entry form */
+.shift-meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:28px; }
+.product-card { border:2px solid var(--gray-100); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:16px; transition:border-color .2s; }
+.product-card:focus-within { border-color:var(--blue); }
+.product-card-header { background:var(--blue-dark); padding:12px 18px; display:flex; align-items:center; justify-content:space-between; }
+.product-card-name { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; color:white; }
+.product-card-variance { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14px; padding:3px 10px; border-radius:20px; background:rgba(255,255,255,.15); color:white; }
+.product-card-variance.neg { background:rgba(229,62,62,.8); }
+.product-card-variance.pos { background:rgba(34,134,58,.7); }
+.product-card-body { padding:16px 18px; }
+.count-sections { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.count-section-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:var(--gray-400); margin-bottom:10px; }
+.count-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+.count-input-wrap label { font-size:11px; color:var(--gray-400); display:block; margin-bottom:4px; }
+.count-input { width:100%; padding:8px 10px; border:1.5px solid var(--gray-200); border-radius:8px; font-size:14px; font-family:'Barlow',sans-serif; color:var(--gray-800); outline:none; transition:border-color .2s; }
+.count-input:focus { border-color:var(--blue); }
+.opening-display { background:var(--gray-50); border:1.5px solid var(--gray-100); border-radius:8px; padding:8px 10px; font-size:14px; color:var(--gray-600); font-style:italic; }
+.variance-summary { margin-top:12px; padding:10px 14px; background:var(--gray-50); border-radius:8px; display:flex; gap:16px; flex-wrap:wrap; }
+.variance-item { font-size:13px; }
+.variance-item b { font-weight:600; }
+.variance-item.loss b { color:var(--red); }
+.variance-item.gain b { color:var(--green); }
+.alert-banner { background:#fff5f5; border:2px solid #fed7d7; border-radius:10px; padding:12px 16px; display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+.alert-banner span { color:var(--red); font-weight:600; font-size:14px; }
+
+/* Log table */
+.log-filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:14px; }
+th { background:var(--gray-50); padding:10px 14px; text-align:left; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--gray-600); border-bottom:2px solid var(--gray-200); white-space:nowrap; }
+td { padding:10px 14px; border-bottom:1px solid var(--gray-100); }
+tr:hover td { background:var(--gray-50); }
+.badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:12px; font-weight:600; font-family:'Barlow Condensed',sans-serif; }
+.badge-loss { background:#fff5f5; color:var(--red); }
+.badge-ok { background:#f0fff4; color:var(--green); }
+.badge-shift { background:var(--gray-100); color:var(--gray-600); }
+
+/* Analytics */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:24px; }
+.stat-card { background:white; border-radius:var(--radius-lg); padding:20px 24px; box-shadow:var(--shadow-sm); border:1px solid var(--gray-100); }
+.stat-label { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--gray-400); margin-bottom:8px; }
+.stat-value { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:36px; color:var(--blue-dark); line-height:1; }
+.stat-value.red { color:var(--red); }
+.stat-value.gold { color:var(--gold-dark); }
+.stat-sub { font-size:13px; color:var(--gray-400); margin-top:4px; }
+.charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.bar-chart { display:flex; flex-direction:column; gap:10px; }
+.bar-row { display:grid; grid-template-columns:180px 1fr 50px; gap:10px; align-items:center; font-size:12px; }
+.bar-track { background:var(--gray-100); border-radius:4px; height:18px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:4px; background:var(--blue); transition:width .5s; }
+.bar-fill.red { background:var(--red); }
+.bar-val { font-weight:600; color:var(--gray-600); text-align:right; }
+
+/* Multi-store */
+.store-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+.store-card { background:white; border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-sm); border:2px solid var(--gray-100); transition:all .2s; }
+.store-card:hover { border-color:var(--blue); transform:translateY(-2px); }
+.store-card-name { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:20px; color:var(--blue-dark); margin-bottom:12px; }
+.store-stat { display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid var(--gray-100); }
+.store-stat:last-child { border:none; }
+.store-stat-val { font-weight:600; }
+.store-stat-val.red { color:var(--red); }
+
+/* PIN Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
+.modal { background:white; border-radius:var(--radius-lg); padding:32px; width:100%; max-width:360px; box-shadow:var(--shadow-lg); }
+.modal-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:22px; color:var(--blue-dark); margin-bottom:6px; }
+.modal-sub { font-size:14px; color:var(--gray-400); margin-bottom:20px; }
+.pin-dots { display:flex; gap:12px; justify-content:center; margin-bottom:20px; }
+.pin-dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--gray-200); transition:all .2s; }
+.pin-dot.filled { background:var(--blue); border-color:var(--blue); }
+.pin-pad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.pin-btn { padding:16px; border-radius:var(--radius); border:2px solid var(--gray-200); font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px; cursor:pointer; background:white; transition:all .15s; color:var(--gray-800); }
+.pin-btn:hover { background:var(--blue); color:white; border-color:var(--blue); }
+.pin-btn:active { transform:scale(.95); }
+
+/* Misc */
+.page-header { margin-bottom:24px; display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.page-title { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:28px; color:var(--blue-dark); }
+.page-sub { font-size:14px; color:var(--gray-400); margin-top:4px; }
+.empty-state { text-align:center; padding:60px 20px; color:var(--gray-400); }
+.empty-icon { font-size:48px; margin-bottom:12px; }
+.loading { text-align:center; padding:40px; color:var(--gray-400); }
+.ml-auto { margin-left:auto; }
+.submit-row { display:flex; justify-content:flex-end; margin-top:24px; }
+
+@media(max-width:600px) {
+  .main { padding:16px; }
+  .count-sections { grid-template-columns:1fr; }
+  .charts-grid { grid-template-columns:1fr; }
+  .bar-row { grid-template-columns:110px 1fr 40px; }
+  .auth-card { padding:32px 20px; }
 }
+```
 
-.container{
-max-width:900px;
-margin:auto;
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 4px 12px rgba(0,0,0,0.15);
-}
-
-h1,h2{
-text-align:center;
-}
-
-label{
-font-weight:bold;
-margin-top:10px;
-display:block;
-}
-
-input,select{
-width:100%;
-padding:10px;
-margin-top:5px;
-font-size:16px;
-}
-
-button{
-margin-top:15px;
-padding:12px;
-font-size:16px;
-border:none;
-background:#1976d2;
-color:white;
-border-radius:6px;
-cursor:pointer;
-}
-
-button:hover{
-background:#125ca1;
-}
-
-.alert{
-color:red;
-font-weight:bold;
-text-align:center;
-margin-top:10px;
-}
-
-table{
-width:100%;
-margin-top:20px;
-border-collapse:collapse;
-}
-
-th,td{
-border:1px solid #ddd;
-padding:8px;
-text-align:center;
-}
-
-th{
-background:#1976d2;
-color:white;
-}
-
-.hidden{
-display:none;
-}
-
-</style>
-
+  </style>
 </head>
-
 <body>
+<div id="root"></div>
 
-<div class="container">
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
 
-<h1>Shift Inventory Count</h1>
+// ── Config ───────────────────────────────────────────────────────
+const SB_URL = "https://vyfitlqyligxvzlojqvm.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5Zml0bHF5bGlneHZ6bG9qcXZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3NjM5NTksImV4cCI6MjA2MzMzOTk1OX0.7mOHFALmFBs0l76B7oztDMrT3EEJQJ9P_pmdCaWhAHo";
 
-<div id="employeeSection">
+const sbHeaders = (token) => ({
+  "Content-Type": "application/json",
+  apikey: SB_KEY,
+  Authorization: `Bearer ${token || SB_KEY}`
+});
 
-<label>Store</label>
-<input id="store">
+const sbFetch = async (token, path, opts = {}) => {
+  const r = await fetch(`${SB_URL}${path}`, { headers: sbHeaders(token), ...opts });
+  try { return await r.json(); } catch { return null; }
+};
 
-<label>Location</label>
-<input id="location">
+const sbQuery  = (token, table, qs = "") => sbFetch(token, `/rest/v1/${table}${qs}`);
+const sbInsert = (token, table, data)     => sbFetch(token, `/rest/v1/${table}`, {
+  method: "POST",
+  headers: { ...sbHeaders(token), Prefer: "return=representation" },
+  body: JSON.stringify(data)
+});
+const sbSignIn = (email, pw) => sbFetch(null, `/auth/v1/token?grant_type=password`, {
+  method: "POST", body: JSON.stringify({ email, password: pw })
+});
+const sbSignOut = (token) => fetch(`${SB_URL}/auth/v1/logout`, { method: "POST", headers: sbHeaders(token) });
 
-<label>Product</label>
-<input id="product">
+// ── Constants ────────────────────────────────────────────────────
+const PRODUCTS = [
+  { id:"viva_ultimate",      name:"Viva Zen Ultimate",            case_qty:12 },
+  { id:"viva_red",           name:"Viva Zen Red Top",             case_qty:12 },
+  { id:"viva_white",         name:"Viva Zen White Top",           case_qty:12 },
+  { id:"kryptic_relaxation", name:"Kryptic Kratom Relaxation",    case_qty:12 },
+  { id:"kryptic_thin",       name:"Kryptic Kratom Thin",          case_qty:12 },
+  { id:"kratom_extract",     name:"Kratom Extract",               case_qty:12 },
+  { id:"k_shot",             name:"K Shot",                       case_qty:12 },
+  { id:"hurry_relax",        name:"Hurry Relax Kratom Yellow Cap",case_qty:12 },
+  { id:"feel_free",          name:"Feel Free",                    case_qty:12 },
+];
+const SHIFTS = ["Morning","Evening","Overnight"];
+const STORES = ["Store #107","Store #108","Store #109","Store #110"];
+const CORRECT_PIN = "1107";
 
-<label>User</label>
-<input id="user">
+const toNum   = v => parseInt(v) || 0;
+const today   = () => new Date().toISOString().split("T")[0];
+const fmtDate = d => new Date(d + "T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+const blankCounts = () => Object.fromEntries(PRODUCTS.map(p => [p.id,{office_btl:"",office_cs:"",floor_btl:"",floor_cs:"",sales:""}]));
 
-<label>Shift</label>
-<select id="shift">
-<option>Morning</option>
-<option>Evening</option>
-<option>Night</option>
-</select>
+// ── Root ─────────────────────────────────────────────────────────
+function App() {
+  const [session, setSession]   = useState(null);
+  const [tab, setTab]           = useState("entry");
+  const [store, setStore]       = useState(STORES[0]);
+  const [loginData, setLogin]   = useState({ email:"", password:"" });
+  const [loginErr, setLoginErr] = useState("");
+  const [loginLoad, setLoginLoad] = useState(false);
 
-<label>Beginning Count</label>
-<input type="number" id="begin">
+  const handleLogin = async () => {
+    setLoginLoad(true); setLoginErr("");
+    const res = await sbSignIn(loginData.email, loginData.password);
+    if (res?.access_token) setSession({ token: res.access_token, email: loginData.email });
+    else setLoginErr(res?.error_description || "Invalid credentials");
+    setLoginLoad(false);
+  };
 
-<label>Ending Count</label>
-<input type="number" id="end">
+  const handleLogout = () => { sbSignOut(session.token); setSession(null); };
 
-<label>Variance</label>
-<input id="variance" readonly>
+  if (!session) return (
+    <div className="auth-screen">
+      <div className="auth-card">
+        <div className="auth-logo">
+          <div className="auth-shield"><span>SS</span></div>
+          <div className="auth-logo-text">
+            <h1>Shrink Shield</h1>
+            <p>Keith's Superstores</p>
+          </div>
+        </div>
+        <p className="auth-title">Sign In</p>
+        {loginErr && <div className="error-msg">{loginErr}</div>}
+        <div className="form-group">
+          <label className="form-label">Email</label>
+          <input className="form-input" type="email" value={loginData.email} placeholder="you@keiths.com"
+            onChange={e => setLogin(p=>({...p,email:e.target.value}))}
+            onKeyDown={e => e.key==="Enter" && handleLogin()} />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Password</label>
+          <input className="form-input" type="password" value={loginData.password} placeholder="••••••••"
+            onChange={e => setLogin(p=>({...p,password:e.target.value}))}
+            onKeyDown={e => e.key==="Enter" && handleLogin()} />
+        </div>
+        <button className="btn btn-primary btn-full" onClick={handleLogin} disabled={loginLoad}>
+          {loginLoad ? "Signing in…" : "Sign In"}
+        </button>
+      </div>
+    </div>
+  );
 
-<div id="alert" class="alert"></div>
+  const TABS = [
+    {id:"entry",      label:"New Count Entry"},
+    {id:"log",        label:"Count Log"},
+    {id:"analytics",  label:"Analytics"},
+    {id:"multistore", label:"Multi-Store"},
+  ];
 
-<button onclick="saveCount()">Submit Count</button>
-
-</div>
-
-
-<h2>Manager Access</h2>
-
-<input id="managerPass" placeholder="Manager Password">
-<button onclick="managerLogin()">Open Dashboard</button>
-
-
-<div id="managerSection" class="hidden">
-
-<h2>Manager Dashboard</h2>
-
-<button onclick="loadCounts()">Refresh Data</button>
-
-<h3>Store Leaderboard</h3>
-<table id="leaderboard">
-<thead>
-<tr>
-<th>Store</th>
-<th>Total Variance</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-
-
-<h3>All Counts</h3>
-<table id="table">
-
-<thead>
-<tr>
-<th>Store</th>
-<th>Location</th>
-<th>Product</th>
-<th>Shift</th>
-<th>Begin</th>
-<th>End</th>
-<th>Variance</th>
-<th>User</th>
-<th>Time</th>
-</tr>
-</thead>
-
-<tbody></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-
-<script>
-
-const SUPABASE_URL="https://ylfsqjbqhewpfiooytlg.supabase.co"
-
-const SUPABASE_KEY="YOUR_ANON_KEY_HERE"
-
-const supabase=window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-)
-
-const beginInput=document.getElementById("begin")
-const endInput=document.getElementById("end")
-const varianceInput=document.getElementById("variance")
-const alertBox=document.getElementById("alert")
-
-beginInput.addEventListener("input",calcVariance)
-endInput.addEventListener("input",calcVariance)
-
-function calcVariance(){
-
-let begin=parseInt(beginInput.value)||0
-let end=parseInt(endInput.value)||0
-
-let variance=end-begin
-
-varianceInput.value=variance
-
-if(Math.abs(variance)>=10){
-
-alertBox.innerText="⚠ Variance exceeds allowed limit"
-
-}else{
-
-alertBox.innerText=""
-
+  return (
+    <div className="app">
+      <header className="topbar">
+        <div className="topbar-logo">
+          <div className="topbar-shield"><span>SS</span></div>
+          <span className="topbar-name">Shrink<span> Shield</span></span>
+        </div>
+        <div className="topbar-right">
+          <span className="topbar-user">{session.email}</span>
+          <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Sign Out</button>
+        </div>
+      </header>
+      <nav className="nav-tabs">
+        {TABS.map(t => (
+          <button key={t.id} className={`nav-tab ${tab===t.id?"active":""}`} onClick={()=>setTab(t.id)}>
+            {t.label}
+          </button>
+        ))}
+      </nav>
+      <main className="main">
+        {tab==="entry"      && <EntryTab      session={session} store={store} setStore={setStore} />}
+        {tab==="log"        && <LogTab        session={session} store={store} setStore={setStore} />}
+        {tab==="analytics"  && <AnalyticsTab  session={session} store={store} setStore={setStore} />}
+        {tab==="multistore" && <MultiStoreTab session={session} />}
+      </main>
+    </div>
+  );
 }
 
+// ── Entry Tab ────────────────────────────────────────────────────
+function EntryTab({ session, store, setStore }) {
+  const [shift,    setShift]    = useState("Morning");
+  const [date,     setDate]     = useState(today());
+  const [employee, setEmployee] = useState("");
+  const [counts,   setCounts]   = useState(blankCounts());
+  const [prev,     setPrev]     = useState({});
+  const [saving,   setSaving]   = useState(false);
+  const [saved,    setSaved]    = useState(false);
+  const [error,    setError]    = useState("");
+  const [showPin,  setShowPin]  = useState(false);
+  const [pin,      setPin]      = useState("");
+  const [pinErr,   setPinErr]   = useState("");
+
+  // Load previous shift's closing counts
+  useEffect(() => {
+    (async () => {
+      const data = await sbQuery(session.token, "shrink_counts",
+        `?store=eq.${encodeURIComponent(store)}&order=created_at.desc&limit=100`);
+      if (!Array.isArray(data)) return;
+      const p = {};
+      for (const prod of PRODUCTS) {
+        const last = data.find(r => r.product_id === prod.id);
+        if (last) p[prod.id] = {
+          office_btl: last.close_office_btl,
+          office_cs:  last.close_office_cs,
+          floor_btl:  last.close_floor_btl,
+          floor_cs:   last.close_floor_cs,
+        };
+      }
+      setPrev(p);
+    })();
+  }, [store]);
+
+  const upd = (pid, field, val) => setCounts(c => ({...c, [pid]:{...c[pid],[field]:val}}));
+
+  const calcVar = (pid) => {
+    const prod  = PRODUCTS.find(x => x.id === pid);
+    const p     = prev[pid] || {};
+    const openTotal  = toNum(p.office_btl) + toNum(p.office_cs)*prod.case_qty
+                     + toNum(p.floor_btl)  + toNum(p.floor_cs)*prod.case_qty;
+    const closeTotal = toNum(counts[pid].office_btl) + toNum(counts[pid].office_cs)*prod.case_qty
+                     + toNum(counts[pid].floor_btl)  + toNum(counts[pid].floor_cs)*prod.case_qty;
+    const sales    = toNum(counts[pid].sales);
+    const expected = openTotal - sales;
+    const variance = expected - closeTotal;
+    return { openTotal, closeTotal, sales, expected, variance };
+  };
+
+  const totalLoss = PRODUCTS.reduce((s,p) => { const v=calcVar(p.id); return v.variance>0?s+v.variance:s; }, 0);
+
+  const handleSubmit = () => {
+    if (!employee.trim()) { setError("Enter employee name."); return; }
+    setError(""); setShowPin(true); setPin(""); setPinErr("");
+  };
+
+  const handlePinDigit = async (d) => {
+    const np = pin + d;
+    setPin(np);
+    if (np.length === 4) {
+      if (np !== CORRECT_PIN) { setPinErr("Incorrect PIN. Try again."); setPin(""); return; }
+      setShowPin(false);
+      await doSave();
+    }
+  };
+
+  const doSave = async () => {
+    setSaving(true);
+    const rows = PRODUCTS.map(prod => {
+      const v = calcVar(prod.id);
+      return {
+        store, shift, date, employee,
+        product_id:      prod.id,
+        open_total:      v.openTotal,
+        sales:           v.sales,
+        expected:        v.expected,
+        close_office_btl: toNum(counts[prod.id].office_btl),
+        close_office_cs:  toNum(counts[prod.id].office_cs),
+        close_floor_btl:  toNum(counts[prod.id].floor_btl),
+        close_floor_cs:   toNum(counts[prod.id].floor_cs),
+        close_total:     v.closeTotal,
+        variance:        v.variance,
+        created_at:      new Date().toISOString(),
+      };
+    });
+    const res = await sbInsert(session.token, "shrink_counts", rows);
+    setSaving(false);
+    if (Array.isArray(res) || !res?.message) {
+      setSaved(true); setTimeout(()=>setSaved(false), 3000);
+      setCounts(blankCounts()); setEmployee("");
+      // Reload prev
+      const data = await sbQuery(session.token, "shrink_counts",
+        `?store=eq.${encodeURIComponent(store)}&order=created_at.desc&limit=100`);
+      if (Array.isArray(data)) {
+        const p = {};
+        for (const prod of PRODUCTS) {
+          const last = data.find(r => r.product_id === prod.id);
+          if (last) p[prod.id] = { office_btl:last.close_office_btl, office_cs:last.close_office_cs, floor_btl:last.close_floor_btl, floor_cs:last.close_floor_cs };
+        }
+        setPrev(p);
+      }
+    } else {
+      setError("Save failed: " + (res.message || "Unknown error"));
+    }
+  };
+
+  return (
+    <div>
+      {/* PIN Modal */}
+      {showPin && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-title">Manager Approval</div>
+            <div className="modal-sub">Enter 4-digit PIN to submit count</div>
+            {pinErr && <div className="error-msg">{pinErr}</div>}
+            <div className="pin-dots">
+              {[0,1,2,3].map(i => <div key={i} className={`pin-dot ${i<pin.length?"filled":""}`} />)}
+            </div>
+            <div className="pin-pad">
+              {[1,2,3,4,5,6,7,8,9,"",0,"⌫"].map((d,i) => (
+                <button key={i} className="pin-btn"
+                  style={d===""?{visibility:"hidden"}:{}}
+                  onClick={() => {
+                    if (d==="⌫") setPin(p=>p.slice(0,-1));
+                    else if (d!=="") handlePinDigit(String(d));
+                  }}>
+                  {d}
+                </button>
+              ))}
+            </div>
+            <div style={{marginTop:16}}>
+              <button className="btn btn-ghost btn-full" onClick={()=>setShowPin(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="page-header">
+        <div>
+          <div className="page-title">New Count Entry</div>
+          <div className="page-sub">Previous closing count auto-loads as opening</div>
+        </div>
+      </div>
+
+      {error && <div className="error-msg">{error}</div>}
+      {saved && <div className="success-msg">✓ Count saved successfully!</div>}
+
+      {/* Shift meta */}
+      <div className="card">
+        <div className="card-body">
+          <div className="shift-meta">
+            <div className="form-group" style={{margin:0}}>
+              <label className="form-label">Store</label>
+              <select className="form-input form-select" value={store} onChange={e=>setStore(e.target.value)}>
+                {STORES.map(s=><option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div className="form-group" style={{margin:0}}>
+              <label className="form-label">Date</label>
+              <input className="form-input" type="date" value={date} onChange={e=>setDate(e.target.value)} />
+            </div>
+            <div className="form-group" style={{margin:0}}>
+              <label className="form-label">Shift</label>
+              <select className="form-input form-select" value={shift} onChange={e=>setShift(e.target.value)}>
+                {SHIFTS.map(s=><option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div className="form-group" style={{margin:0}}>
+              <label className="form-label">Employee</label>
+              <input className="form-input" type="text" value={employee} placeholder="Full name"
+                onChange={e=>setEmployee(e.target.value)} />
+            </div>
+          </div>
+          {totalLoss > 0 && (
+            <div className="alert-banner">
+              <span style={{fontSize:20}}>⚠️</span>
+              <span>Total shrink this entry: <strong>{totalLoss} bottles</strong> across all products</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Product cards */}
+      {PRODUCTS.map(prod => {
+        const p = prev[prod.id] || {};
+        const v = calcVar(prod.id);
+        const hasCounts = counts[prod.id].office_btl !== "" || counts[prod.id].floor_btl !== "";
+        return (
+          <div key={prod.id} className="product-card">
+            <div className="product-card-header">
+              <span className="product-card-name">{prod.name}</span>
+              {hasCounts && (
+                <span className={`product-card-variance ${v.variance>0?"neg":v.variance<0?"pos":""}`}>
+                  {v.variance===0 ? "✓ No Variance" : v.variance>0 ? `−${v.variance} btl` : `+${Math.abs(v.variance)} btl`}
+                </span>
+              )}
+            </div>
+            <div className="product-card-body">
+              <div className="count-sections">
+                {/* Office */}
+                <div>
+                  <div className="count-section-title">📦 Office / Backroom</div>
+                  <div className="count-row">
+                    <div className="count-input-wrap"><label>Opening Btl</label><div className="opening-display">{p.office_btl ?? "—"}</div></div>
+                    <div className="count-input-wrap"><label>Closing Btl</label>
+                      <input className="count-input" type="number" min="0" value={counts[prod.id].office_btl} placeholder="0"
+                        onChange={e=>upd(prod.id,"office_btl",e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="count-row">
+                    <div className="count-input-wrap"><label>Opening Cs</label><div className="opening-display">{p.office_cs ?? "—"}</div></div>
+                    <div className="count-input-wrap"><label>Closing Cs</label>
+                      <input className="count-input" type="number" min="0" value={counts[prod.id].office_cs} placeholder="0"
+                        onChange={e=>upd(prod.id,"office_cs",e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+                {/* Floor */}
+                <div>
+                  <div className="count-section-title">🏪 Sales Floor</div>
+                  <div className="count-row">
+                    <div className="count-input-wrap"><label>Opening Btl</label><div className="opening-display">{p.floor_btl ?? "—"}</div></div>
+                    <div className="count-input-wrap"><label>Closing Btl</label>
+                      <input className="count-input" type="number" min="0" value={counts[prod.id].floor_btl} placeholder="0"
+                        onChange={e=>upd(prod.id,"floor_btl",e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="count-row">
+                    <div className="count-input-wrap"><label>Opening Cs</label><div className="opening-display">{p.floor_cs ?? "—"}</div></div>
+                    <div className="count-input-wrap"><label>Closing Cs</label>
+                      <input className="count-input" type="number" min="0" value={counts[prod.id].floor_cs} placeholder="0"
+                        onChange={e=>upd(prod.id,"floor_cs",e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Sales + Variance */}
+              <div style={{marginTop:14,display:"flex",alignItems:"flex-start",gap:14,flexWrap:"wrap"}}>
+                <div style={{minWidth:160}}>
+                  <div className="count-section-title">Register Sales</div>
+                  <input className="count-input" type="number" min="0" value={counts[prod.id].sales} placeholder="Units sold"
+                    onChange={e=>upd(prod.id,"sales",e.target.value)} />
+                </div>
+                {hasCounts && (
+                  <div className="variance-summary" style={{flex:1,minWidth:200}}>
+                    <div className="variance-item">Open: <b>{v.openTotal}</b></div>
+                    <div className="variance-item">Sales: <b>{v.sales}</b></div>
+                    <div className="variance-item">Expected: <b>{v.expected}</b></div>
+                    <div className={`variance-item ${v.variance>0?"loss":v.variance<0?"gain":""}`}>
+                      Variance: <b>{v.variance>0?`−${v.variance}`:v.variance<0?`+${Math.abs(v.variance)}`:"0"}</b>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      <div className="submit-row">
+        <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}
+          style={{padding:"14px 32px",fontSize:17}}>
+          {saving ? "Saving…" : "Submit Count — Requires PIN"}
+        </button>
+      </div>
+    </div>
+  );
 }
 
-async function saveCount(){
+// ── Log Tab ──────────────────────────────────────────────────────
+function LogTab({ session, store, setStore }) {
+  const [logs,    setLogs]    = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [shiftF,  setShiftF]  = useState("All");
+  const [prodF,   setProdF]   = useState("All");
+  const [dateF,   setDateF]   = useState("");
 
-let record={
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const data = await sbQuery(session.token, "shrink_counts",
+        `?store=eq.${encodeURIComponent(store)}&order=created_at.desc&limit=300`);
+      setLogs(Array.isArray(data) ? data : []);
+      setLoading(false);
+    })();
+  }, [store]);
 
-store:document.getElementById("store").value,
-location:document.getElementById("location").value,
-product:document.getElementById("product").value,
-shift:document.getElementById("shift").value,
-user_name:document.getElementById("user").value,
-begin_count:parseInt(beginInput.value),
-end_count:parseInt(endInput.value),
-variance:parseInt(varianceInput.value)
+  const filtered = logs.filter(r =>
+    (shiftF==="All" || r.shift===shiftF) &&
+    (prodF==="All"  || r.product_id===prodF) &&
+    (!dateF || r.date===dateF)
+  );
 
+  return (
+    <div>
+      <div className="page-header">
+        <div>
+          <div className="page-title">Count Log</div>
+          <div className="page-sub">{filtered.length} entries · {store}</div>
+        </div>
+        <select className="form-input form-select" style={{width:160}} value={store} onChange={e=>setStore(e.target.value)}>
+          {STORES.map(s=><option key={s}>{s}</option>)}
+        </select>
+      </div>
+      <div className="card">
+        <div className="card-body">
+          <div className="log-filters">
+            <select className="form-input form-select" style={{width:140}} value={shiftF} onChange={e=>setShiftF(e.target.value)}>
+              <option value="All">All Shifts</option>
+              {SHIFTS.map(s=><option key={s}>{s}</option>)}
+            </select>
+            <select className="form-input form-select" style={{width:220}} value={prodF} onChange={e=>setProdF(e.target.value)}>
+              <option value="All">All Products</option>
+              {PRODUCTS.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+            <input className="form-input" type="date" value={dateF} onChange={e=>setDateF(e.target.value)} style={{width:160}} />
+            {(shiftF!=="All"||prodF!=="All"||dateF) && (
+              <button className="btn btn-ghost btn-sm" onClick={()=>{setShiftF("All");setProdF("All");setDateF("");}}>Clear</button>
+            )}
+          </div>
+          {loading ? <div className="loading">Loading…</div> : filtered.length===0 ? (
+            <div className="empty-state"><div className="empty-icon">📋</div><p>No records found</p></div>
+          ) : (
+            <div className="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>Date</th><th>Shift</th><th>Product</th><th>Employee</th>
+                  <th>Open</th><th>Sales</th><th>Expected</th><th>Actual</th><th>Variance</th>
+                </tr></thead>
+                <tbody>
+                  {filtered.map((r,i) => (
+                    <tr key={i}>
+                      <td>{fmtDate(r.date)}</td>
+                      <td><span className="badge badge-shift">{r.shift}</span></td>
+                      <td style={{fontWeight:500}}>{PRODUCTS.find(p=>p.id===r.product_id)?.name || r.product_id}</td>
+                      <td>{r.employee}</td>
+                      <td>{r.open_total}</td>
+                      <td>{r.sales}</td>
+                      <td>{r.expected}</td>
+                      <td>{r.close_total}</td>
+                      <td>
+                        {r.variance===0
+                          ? <span className="badge badge-ok">✓ 0</span>
+                          : r.variance>0
+                            ? <span className="badge badge-loss">−{r.variance}</span>
+                            : <span className="badge badge-ok">+{Math.abs(r.variance)}</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
-const {error}=await supabase
-.from("counts")
-.insert([record])
+// ── Analytics Tab ────────────────────────────────────────────────
+function AnalyticsTab({ session, store, setStore }) {
+  const [logs,    setLogs]    = useState([]);
+  const [loading, setLoading] = useState(true);
 
-if(error){
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const data = await sbQuery(session.token, "shrink_counts",
+        `?store=eq.${encodeURIComponent(store)}&order=created_at.desc&limit=1000`);
+      setLogs(Array.isArray(data) ? data : []);
+      setLoading(false);
+    })();
+  }, [store]);
 
-alert("Save failed")
+  const totalLoss   = logs.reduce((s,r) => r.variance>0 ? s+r.variance : s, 0);
+  const days        = new Set(logs.map(r=>r.date)).size;
+  const avgDaily    = days > 0 ? (totalLoss/days).toFixed(1) : 0;
+  const estDollar   = (totalLoss * 12).toFixed(2);
 
-}else{
+  const byProduct = PRODUCTS.map(p => ({
+    ...p,
+    loss: logs.filter(r=>r.product_id===p.id&&r.variance>0).reduce((s,r)=>s+r.variance,0)
+  })).sort((a,b)=>b.loss-a.loss);
+  const maxProd = Math.max(...byProduct.map(p=>p.loss), 1);
 
-alert("Count saved")
+  const byShift = SHIFTS.map(s => ({
+    shift:s,
+    loss: logs.filter(r=>r.shift===s&&r.variance>0).reduce((s2,r)=>s2+r.variance,0)
+  }));
+  const maxShift = Math.max(...byShift.map(s=>s.loss), 1);
 
-beginInput.value=""
-endInput.value=""
-varianceInput.value=""
+  return (
+    <div>
+      <div className="page-header">
+        <div>
+          <div className="page-title">Analytics</div>
+          <div className="page-sub">Shrink trends · {store}</div>
+        </div>
+        <select className="form-input form-select" style={{width:160}} value={store} onChange={e=>setStore(e.target.value)}>
+          {STORES.map(s=><option key={s}>{s}</option>)}
+        </select>
+      </div>
 
+      {loading ? <div className="loading">Loading analytics…</div> : (<>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-label">Total Bottles Lost</div>
+            <div className={`stat-value ${totalLoss>0?"red":""}`}>{totalLoss}</div>
+            <div className="stat-sub">All time</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">Est. Dollar Loss</div>
+            <div className="stat-value red">${estDollar}</div>
+            <div className="stat-sub">@ $12/bottle avg</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">Avg Daily Loss</div>
+            <div className="stat-value gold">{avgDaily}</div>
+            <div className="stat-sub">Bottles/day</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">Days Tracked</div>
+            <div className="stat-value">{days}</div>
+            <div className="stat-sub">With count records</div>
+          </div>
+        </div>
+
+        <div className="charts-grid">
+          <div className="card">
+            <div className="card-header"><div className="card-title">Loss by Product</div></div>
+            <div className="card-body">
+              <div className="bar-chart">
+                {byProduct.map(p=>(
+                  <div key={p.id} className="bar-row">
+                    <div style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",color:"var(--gray-600)"}}>{p.name}</div>
+                    <div className="bar-track"><div className="bar-fill red" style={{width:`${(p.loss/maxProd)*100}%`}} /></div>
+                    <div className="bar-val">{p.loss}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-header"><div className="card-title">Loss by Shift</div></div>
+            <div className="card-body">
+              <div className="bar-chart">
+                {byShift.map(s=>(
+                  <div key={s.shift} className="bar-row">
+                    <div style={{color:"var(--gray-600)"}}>{s.shift}</div>
+                    <div className="bar-track"><div className="bar-fill" style={{width:`${(s.loss/maxShift)*100}%`}} /></div>
+                    <div className="bar-val">{s.loss}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </>)}
+    </div>
+  );
 }
 
+// ── Multi-Store Tab ──────────────────────────────────────────────
+function MultiStoreTab({ session }) {
+  const [data,    setData]    = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const all = await sbQuery(session.token, "shrink_counts", `?order=created_at.desc&limit=2000`);
+      if (!Array.isArray(all)) { setLoading(false); return; }
+      const grouped = {};
+      for (const s of STORES) {
+        const rows = all.filter(r=>r.store===s);
+        const loss = rows.reduce((t,r)=>r.variance>0?t+r.variance:t, 0);
+        const days = new Set(rows.map(r=>r.date)).size;
+        grouped[s] = { loss, entries:rows.length, days, avg: days>0?(loss/days).toFixed(1):0 };
+      }
+      setData(grouped);
+      setLoading(false);
+    })();
+  }, []);
+
+  const sorted = STORES.map(s=>({store:s,...(data[s]||{})})).sort((a,b)=>(b.loss||0)-(a.loss||0));
+
+  return (
+    <div>
+      <div className="page-header">
+        <div>
+          <div className="page-title">Multi-Store Overview</div>
+          <div className="page-sub">Compare shrink across all locations</div>
+        </div>
+      </div>
+      {loading ? <div className="loading">Loading store data…</div> : (
+        <div className="store-grid">
+          {sorted.map(s=>(
+            <div key={s.store} className="store-card">
+              <div className="store-card-name">{s.store}</div>
+              <div className="store-stat"><span>Total Bottles Lost</span><span className={`store-stat-val ${s.loss>0?"red":""}`}>{s.loss||0}</span></div>
+              <div className="store-stat"><span>Avg Daily Loss</span><span className="store-stat-val">{s.avg||"0"}</span></div>
+              <div className="store-stat"><span>Est. $ Loss</span><span className="store-stat-val red">${((s.loss||0)*12).toFixed(0)}</span></div>
+              <div className="store-stat"><span>Count Entries</span><span className="store-stat-val">{s.entries||0}</span></div>
+              <div className="store-stat"><span>Days Tracked</span><span className="store-stat-val">{s.days||0}</span></div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
-function managerLogin(){
-
-let pass=document.getElementById("managerPass").value
-
-if(pass==="manager123"){
-
-document.getElementById("managerSection").classList.remove("hidden")
-
-loadCounts()
-
-}else{
-
-alert("Invalid password")
-
-}
-
-}
-
-async function loadCounts(){
-
-const {data,error}=await supabase
-.from("counts")
-.select("*")
-.order("created_at",{ascending:false})
-
-if(error){
-
-console.log(error)
-return
-
-}
-
-const tbody=document.querySelector("#table tbody")
-
-tbody.innerHTML=""
-
-let storeTotals={}
-
-data.forEach(row=>{
-
-let tr=document.createElement("tr")
-
-tr.innerHTML=`
-
-<td>${row.store}</td>
-<td>${row.location}</td>
-<td>${row.product}</td>
-<td>${row.shift}</td>
-<td>${row.begin_count}</td>
-<td>${row.end_count}</td>
-<td>${row.variance}</td>
-<td>${row.user_name}</td>
-<td>${new Date(row.created_at).toLocaleString()}</td>
-
-`
-
-tbody.appendChild(tr)
-
-if(!storeTotals[row.store]){
-
-storeTotals[row.store]=0
-
-}
-
-storeTotals[row.store]+=Math.abs(row.variance)
-
-})
-
-updateLeaderboard(storeTotals)
-
-}
-
-function updateLeaderboard(totals){
-
-const board=document.querySelector("#leaderboard tbody")
-
-board.innerHTML=""
-
-let entries=Object.entries(totals)
-
-entries.sort((a,b)=>a[1]-b[1])
-
-entries.forEach(e=>{
-
-let tr=document.createElement("tr")
-
-tr.innerHTML=`
-
-<td>${e[0]}</td>
-<td>${e[1]}</td>
-
-`
-
-board.appendChild(tr)
-
-})
-
-}
-
-setInterval(loadCounts,10000)
-
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-<script>
-
-/* ---------------------------
-SUPABASE CONNECTION
---------------------------- */
-
-const SUPABASE_URL =
-"https://ylfsqjbqhewpfiooytlg.supabase.co"
-
-const SUPABASE_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZnNxamJxaGV3cGZpb295dGxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NzQwODQsImV4cCI6MjA4ODM1MDA4NH0.Ssl5J6ktZIVtLd2cq8vH7PWdR4-yZwI5tt4PtXkVqWk"
-
-const supabase =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-)
-
-/* ---------------------------
-EDITABLE PRICES
---------------------------- */
-
-function makePricesEditable(){
-
-document.querySelectorAll(".price")
-.forEach(p=>{
-
-let val = p.innerText.replace("$","")
-
-p.innerHTML =
-`<input class="priceEdit"
-type="number"
-step="0.01"
-value="${val}"
-style="width:70px">`
-
-})
-
-}
-
-/* ---------------------------
-GET PRICE VALUE
---------------------------- */
-
-function getRowPrice(row){
-
-let input =
-row.querySelector(".priceEdit")
-
-if(!input) return 0
-
-return parseFloat(input.value) || 0
-
-}
-
-/* ---------------------------
-VARIANCE ALERT
---------------------------- */
-
-function checkVariance(v){
-
-if(Math.abs(v) >= 10){
-
-return "ALERT"
-
-}else{
-
-return "OK"
-
-}
-
-}
-
-/* ---------------------------
-SAVE COUNT TO SUPABASE
---------------------------- */
-
-async function saveCount(record){
-
-const { error } =
-await supabase
-.from("counts")
-.insert([record])
-
-if(error){
-
-console.log("DB ERROR",error)
-
-}
-
-}
-
-/* ---------------------------
-SUBMIT COUNT WRAPPER
---------------------------- */
-
-async function submitCount(data){
-
-let variance =
-data.end - data.begin
-
-let status =
-checkVariance(variance)
-
-await saveCount({
-
-store:data.store,
-location:data.location,
-product:data.product,
-shift:data.shift,
-begin_count:data.begin,
-end_count:data.end,
-variance:variance,
-price:data.price,
-status:status,
-user_name:data.user
-
-})
-
-}
-
-/* ---------------------------
-LOAD MANAGER DATA
---------------------------- */
-
-async function loadManagerCounts(){
-
-let {data,error} =
-await supabase
-.from("counts")
-.select("*")
-.order("created_at",{ascending:false})
-
-if(error){
-
-console.log(error)
-return
-
-}
-
-buildLeaderboard(data)
-
-}
-
-/* ---------------------------
-STORE LEADERBOARD
---------------------------- */
-
-function buildLeaderboard(rows){
-
-let totals={}
-
-rows.forEach(r=>{
-
-if(!totals[r.store]){
-
-totals[r.store]=0
-
-}
-
-totals[r.store]+=Math.abs(r.variance)
-
-})
-
-let list =
-Object.entries(totals)
-.sort((a,b)=>a[1]-b[1])
-
-renderLeaderboard(list)
-
-}
-
-/* ---------------------------
-RENDER LEADERBOARD
---------------------------- */
-
-function renderLeaderboard(list){
-
-let board =
-document.getElementById("leaderboard")
-
-if(!board) return
-
-board.innerHTML=""
-
-list.forEach(r=>{
-
-let row =
-document.createElement("div")
-
-row.innerHTML =
-r[0] + " : " + r[1]
-
-board.appendChild(row)
-
-})
-
-}
-
-/* ---------------------------
-BLIND SHIFT FILTER
---------------------------- */
-
-function filterByShift(rows,user){
-
-if(user.role === "employee"){
-
-return rows.filter(
-r => r.shift === user.shift
-)
-
-}
-
-return rows
-
-}
-
-/* ---------------------------
-AUTO REFRESH
---------------------------- */
-
-setInterval(()=>{
-
-loadManagerCounts()
-
-},10000)
-
-/* ---------------------------
-INIT
---------------------------- */
-
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-makePricesEditable()
-
-}
-)
-
-</script>
 </body>
 </html>
