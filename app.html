@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shrink Shield Scanner</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-900 text-white">
+
+<header class="bg-slate-800 p-4 flex justify-between">
+<h1 class="font-bold">Shrink Shield</h1>
+
+<div>
+<button onclick="openAdmin()" class="bg-yellow-600 px-4 py-2 rounded mr-2">Admin</button>
+<button onclick="logout()" class="bg-red-600 px-4 py-2 rounded">Logout</button>
+</div>
+</header>
+
+<main class="p-6 max-w-xl mx-auto">
+
+<h2 class="text-xl mb-4">Scan Barcode</h2>
+
+<input id="barcodeInput" placeholder="Scan barcode" class="p-3 text-black w-full rounded">
+<button onclick="lookupItem()" class="bg-blue-600 p-3 rounded mt-3 w-full">Lookup Item</button>
+
+<h2 class="text-xl mt-8 mb-4">Manual Entry</h2>
+
+<input id="manualBarcode" placeholder="Barcode" class="p-3 text-black w-full rounded mb-3">
+<input id="manualName" placeholder="Item Name" class="p-3 text-black w-full rounded mb-3">
+<input id="manualPrice" placeholder="Price" class="p-3 text-black w-full rounded mb-3">
+
+<button onclick="addItem()" class="bg-green-600 p-3 rounded w-full">Add Item</button>
+
+<div id="itemResult" class="mt-6"></div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="auth.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
