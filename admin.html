@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shrink Shield Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-900 text-white">
+
+<header class="bg-slate-800 p-4 flex justify-between">
+<h1 class="font-bold">Admin Dashboard</h1>
+<button onclick="logout()" class="bg-red-600 px-4 py-2 rounded">Logout</button>
+</header>
+
+<main class="p-6">
+<h2 class="text-xl mb-4">Scan History</h2>
+<button onclick="loadHistory()" class="bg-blue-600 p-3 rounded">Load History</button>
+<div id="history" class="mt-6"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="auth.js"></script>
+<script src="admin.js"></script>
+
+</body>
+</html>
